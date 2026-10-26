@@ -1,0 +1,60 @@
+{
+  "_nota": "Decisions de Marc Vilahur sobre els avisos de qualitat (26/10/2026). convert.py les aplica després de la conversió, de manera que sobreviuen a una nova execució.",
+  "correccions": [
+    {
+      "element": "PNAE/aparcament_cortalet",
+      "camp": "localitzacio.utm",
+      "camp_avis": "coordenades_utm",
+      "valor": {"x": 507493, "y": 4673470, "text_original": null},
+      "motiu": "Y original 'Y46734707' amb 8 dígits; Marc confirma Y = 4673470"
+    }
+  ],
+  "pendents": [
+    {
+      "element": "PNDE/magatzem_deltebre",
+      "camp": "localitzacio.utm",
+      "camp_avis": "coordenades_utm",
+      "motiu": "UTM original 'X0307, Y4510558' truncada; pendent d'obtenir la coordenada correcta"
+    }
+  ],
+  "confirmacions": [
+    {"element": "PNDE/magatzem_deltebre", "camp_avis": "obert_public", "decisio": "No"},
+    {"element": "PNMMBT/magatzem_nautica", "camp_avis": "zona2.inclos_pla_autoproteccio", "decisio": "Correcte; es manté sense valor"},
+    {"element": "PNMMBT/observatori_platera", "camp_avis": "zona2.inclos_pla_autoproteccio", "decisio": "Correcte; es manté sense valor"},
+    {"element": "PNMMBT/aparcament_port", "camp_avis": "referencia_cadastral", "decisio": "Correcte: domini públic sense referència cadastral"},
+    {"element": "RMM/aguait_mobil", "camp_avis": "referencia_cadastral", "decisio": "Correcte: aguait mòbil, valor 'Variable'"},
+    {"element": "RMM/aguait_mobil", "camp_avis": "coordenades_utm", "decisio": "Correcte: aguait mòbil, valor 'Variable'"},
+    {"element": "RMM/aguait_mobil", "camp_avis": "altitud", "decisio": "Correcte: aguait mòbil, valor 'Variable'"},
+    {"element": "PNAE/recuperacio_fauna", "camp_avis": "coordenades_utm", "decisio": "Correcte: X = 507689, Y = 4674792"},
+    {"element": "PNDE/casa_fusta_informacio", "camp_avis": "coordenades_utm", "decisio": "Correcte: X = 303481, Y = 4503348"},
+    {"element": "PNAE/observatori_rogera", "camp_avis": "superficie_m2", "decisio": "Correcte: m2"}
+  ],
+  "compartits": [
+    {"codi": "casa_parcs_pirineus", "decisio": "Es conserva la versió d'Alt Pirineu (confirmat per Marc, 26/10/2026)"}
+  ],
+  "decisions": [
+    "Fitxer d'unitats vàlid: unitats_promotores.json (v1.1, 28/09/2026). UNITATS-PROMOTORES-DGPA.json és una versió anterior.",
+    "El nom dels espais és el de unitats_promotores.json; el nom de l'Excel només es conserva a espais.json (nom_excel).",
+    "Els 15 elements de Secans pertanyen a la RMM (Reserva Natural Parcial de Mas de Melons).",
+    "Les còpies dels elements dels Ports que figuren a llistes_secans.xlsx es descarten; són vàlides les dels Ports.",
+    "Identificadors d'element: codi d'unitat del Motor de Contractació + codi d'element (p. ex. PNAE/acampada_cortalet).",
+    "Casa dels Parcs dels Pirineus: es conserva la versió d'Alt Pirineu per al camp ús principal.",
+    "Coordenada UTM de PNDE/magatzem_deltebre: pendent de dada.",
+    "S'ha corregit el codiPla del CEIV al repositori del Motor (CGA-PA2026 -> CEIV-PA2026, commit 57f1974)."
+  ],
+  "metadades": {
+    "sistema_coordenades": {
+      "utm": "ETRS89 / UTM fus 31N",
+      "epsg": 25831,
+      "unitat": "metres",
+      "camps": "localitzacio.utm.x i localitzacio.utm.y",
+      "confirmat_per": "Marc Vilahur Chiaraviglio",
+      "data_confirmacio": "2026-10-26"
+    },
+    "pendents_globals": [
+      "Coordenada UTM de PNDE/magatzem_deltebre.",
+      "Enllaços (url) dels documents PDF referenciats (documents.json).",
+      "Revisar si l'Access conté camps o taules addicionals respecte dels Excel."
+    ]
+  }
+}

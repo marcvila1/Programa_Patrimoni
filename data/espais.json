@@ -1,0 +1,86 @@
+{
+  "PNAE": {
+    "tipus_espai": "parc_natural",
+    "fitxer_origen": "llistes_aiguamolls.xlsx",
+    "nom_excel": "Parc Natural dels Aiguamolls de l'Empordà",
+    "nombre_elements": 48
+  },
+  "PNAESM": {
+    "tipus_espai": "parc_nacional",
+    "fitxer_origen": "llistes_aiguestortes.xlsx",
+    "nom_excel": "Parc Nacional d'Aigüestortes i Estany de Sant Maurici",
+    "nombre_elements": 56
+  },
+  "PNINA": {
+    "tipus_espai": "paratge_natural",
+    "fitxer_origen": "llistes_albera.xlsx",
+    "nom_excel": "Paratge Natural d'Interès Nacional de l'Albera",
+    "nombre_elements": 14
+  },
+  "PNAP": {
+    "tipus_espai": "parc_natural",
+    "fitxer_origen": "llistes_altpirineu.xlsx",
+    "nom_excel": "Parc Natural de l'Alt Pirineu",
+    "nombre_elements": 45
+  },
+  "PNMMBT": {
+    "tipus_espai": "parc_natural",
+    "fitxer_origen": "llistes_baixter.xlsx",
+    "nom_excel": "Parc Natural del Montgrí, les Illes Medes i el Baix Ter",
+    "nombre_elements": 10
+  },
+  "PNCM": {
+    "tipus_espai": "parc_natural",
+    "fitxer_origen": "llistes_cadi.xlsx",
+    "nom_excel": "Parc Natural de Cadí-Moixeró",
+    "nombre_elements": 10
+  },
+  "PCTF": {
+    "tipus_espai": "parc_natural",
+    "fitxer_origen": "llistes_capcaleres.xlsx",
+    "nom_excel": "Parc Natural de les Capçaleres del Ter i del Freser",
+    "nombre_elements": 11
+  },
+  "PNCC": {
+    "tipus_espai": "parc_natural",
+    "fitxer_origen": "llistes_capcreus.xlsx",
+    "nom_excel": "Parc Natural del Cap de Creus",
+    "nombre_elements": 24
+  },
+  "PNDE": {
+    "tipus_espai": "parc_natural",
+    "fitxer_origen": "llistes_delta.xlsx",
+    "nom_excel": "Parc Natural del Delta de l'Ebre",
+    "nombre_elements": 39
+  },
+  "PNZVG": {
+    "tipus_espai": "parc_natural",
+    "fitxer_origen": "llistes_garrotxa.xlsx",
+    "nom_excel": "Parc Natural de la Zona Volcànica de la Garrotxa",
+    "nombre_elements": 15
+  },
+  "PNMS": {
+    "tipus_espai": "parc_natural",
+    "fitxer_origen": "llistes_montsant.xlsx",
+    "nom_excel": "Parc Natural de la Serra de Montsant",
+    "nombre_elements": 19
+  },
+  "PNINP": {
+    "tipus_espai": "paratge_natural",
+    "fitxer_origen": "llistes_poblet.xlsx",
+    "nom_excel": "Paratge Natural d'Interès Nacional de Poblet",
+    "nombre_elements": 31
+  },
+  "PNP": {
+    "tipus_espai": "parc_natural",
+    "fitxer_origen": "llistes_ports.xlsx",
+    "nom_excel": "Parc Natural dels Ports",
+    "nombre_elements": 54
+  },
+  "RMM": {
+    "tipus_espai": "reserva_natural",
+    "fitxer_origen": "llistes_secans.xlsx",
+    "nom_excel": "Reserva Natural de Mas de Melons i Secans de Lleida",
+    "nombre_elements": 15
+  }
+}

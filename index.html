@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motor de Patrimoni DGPAMN</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  /* ============================================================
+     VARIABLES (les mateixes que el Motor de Contractació)
+     ============================================================ */
+  :root {
+    --color-primary-teal: #088074;
+    --color-primary-teal-light: #40988d;
+    --color-primary-teal-dark: #00756a;
+    --color-accent-mint: #9fd5cc;
+    --color-success-green: #317439;
+    --color-link-blue: #0078d6;
+    --color-bg-white: #ffffff;
+    --color-bg-page: #f8f7f6;
+    --color-bg-hover: #f0f0f0;
+    --color-text-primary: #242424;
+    --color-text-secondary: #605e5c;
+    --color-text-strong: #000000;
+    --color-text-on-dark: #ffffff;
+    --color-warning: #e3b341;
+    --color-danger: #d32f2f;
+    --color-border: #e0e0e0;
+    --font-primary: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --font-size-base: 14px;
+    --font-size-small: 13px;
+    --header-height: 48px;
+    --border-radius-base: 0px;
+    /* Estat de conservació (paleta d'estat: sempre amb icona + etiqueta) */
+    --estat-bo: #0ca30c;
+    --estat-regular: #fab219;
+    --estat-dolent: #ec835a;
+    --estat-ruinos: #d03b3b;
+    --estat-buit: #8a8a85;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font-primary); font-size: var(--font-size-base); color: var(--color-text-primary);
+    background-color: var(--color-bg-page); line-height: 1.5; min-height: 100vh; display: flex; flex-direction: column; }
+  button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+  a { color: var(--color-link-blue); }
+  [hidden] { display: none !important; }
+
+  /* ===== CAPÇALERA ===== */
+  .app-header { height: var(--header-height); background-color: var(--color-primary-teal); color: var(--color-text-on-dark);
+    display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 2px 4px rgba(0,0,0,.1); gap: 12px; }
+  .app-header .brand { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 16px; cursor: pointer;
+    padding: 8px 12px; transition: background-color .2s ease; min-width: 0; }
+  .app-header .brand span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .app-header .brand:hover { background-color: var(--color-primary-teal-light); }
+  .app-header .brand-logo { width: 32px; height: 32px; flex: none; background-color: var(--color-accent-mint); border-radius: 4px;
+    display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; color: var(--color-primary-teal); }
+  .usuari-cap { background: transparent; border: 1px solid rgba(255,255,255,.5); color: #fff; border-radius: 4px; padding: 4px 12px;
+    cursor: pointer; font-size: 13px; white-space: nowrap; max-width: 45vw; overflow: hidden; text-overflow: ellipsis; }
+  .usuari-cap:hover { background: var(--color-primary-teal-light); }
+
+  /* ===== NAVEGACIÓ ===== */
+  .module-nav { background-color: var(--color-bg-white); border-bottom: 2px solid var(--color-border); display: flex;
+    overflow-x: auto; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+  .module-nav button { background: transparent; border: none; color: var(--color-text-secondary); padding: 16px 20px; cursor: pointer;
+    border-bottom: 3px solid transparent; transition: all .2s ease; white-space: nowrap; font-weight: 500; }
+  .module-nav button:hover { background-color: var(--color-bg-hover); color: var(--color-text-primary); }
+  .module-nav button.active { color: var(--color-primary-teal); border-bottom-color: var(--color-primary-teal); }
+
+  /* ===== BARRA DE CARPETA (com al Motor) ===== */
+  .barra-carpeta { max-width: 1400px; width: calc(100% - 40px); margin: 8px auto 0; padding: 8px 14px; border-radius: 6px; font-size: 14px;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .barra-carpeta:empty { display: none; }
+  .barra-carpeta.connectada { background: #e8f5e9; color: #1b5e20; }
+  .barra-carpeta.permis { background: #fff8e1; color: #6d4c00; }
+  .barra-carpeta.cap, .barra-carpeta.noDisponible { background: #f3f3f3; color: #555; }
+  .barra-carpeta .botons { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-carpeta { border: 1px solid var(--color-primary-teal); background: #fff; color: var(--color-primary-teal); border-radius: 4px;
+    padding: 4px 12px; cursor: pointer; font-size: 13px; }
+  .btn-carpeta:hover { background: #f0f8f6; }
+  .pendents-desar { background: #fff3e0; color: #8a3b00; border-radius: 4px; padding: 2px 8px; font-weight: 600; }
+
+  /* ===== CONTENIDOR I MÒDULS ===== */
+  .container { max-width: 1400px; width: 100%; margin: 0 auto; padding: 20px; flex: 1; }
+  .module { display: none; background-color: var(--color-bg-white); padding: 24px; animation: fadeIn .3s ease; }
+  .module.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .cap-modul { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+  .cap-modul h1 { font-size: 26px; color: var(--color-text-strong); margin-bottom: 4px; }
+  .cap-modul p { color: var(--color-text-secondary); max-width: 680px; }
+  .accions-modul { display: flex; gap: 10px; flex-wrap: wrap; }
+  .text-muted { color: var(--color-text-secondary); }
+  .text-small { font-size: var(--font-size-small); }
+
+  /* ===== BOTONS I FORMULARIS (com al Motor) ===== */
+  .btn { border: none; border-radius: 4px; padding: 9px 18px; cursor: pointer; font-weight: 500; transition: background-color .2s ease; }
+  .btn-primary { background-color: var(--color-primary-teal); color: #fff; }
+  .btn-primary:hover { background-color: var(--color-primary-teal-dark); }
+  .btn-secondary { background-color: #e0e0e0; color: var(--color-text-primary); }
+  .btn-secondary:hover { background-color: #d0d0d0; }
+  .btn-perill { background: #fff; color: var(--color-danger); border: 1px solid var(--color-danger); }
+  .btn-perill:hover { background: #fdecea; }
+  .btn-petit { padding: 5px 12px; font-size: 13px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-link { background: none; border: none; color: var(--color-link-blue); cursor: pointer; padding: 0; text-decoration: underline; }
+  input[type=text], input[type=search], select, textarea { width: 100%; border: 1px solid #c8c6c4; border-radius: 2px; padding: 7px 10px;
+    background: #fff; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--color-primary-teal); outline-offset: -1px; border-color: var(--color-primary-teal); }
+  textarea { resize: vertical; min-height: 64px; }
+  label.required::after { content: " *"; color: var(--color-danger); }
+  .info-box { background-color: #f0f8f6; border-left: 4px solid var(--color-primary-teal); padding: 12px 15px; margin-bottom: 16px; }
+  .avis-box { background: #fff8e1; border-left: 4px solid #f0b400; padding: 10px 14px; margin-bottom: 14px; }
+  .error-box { background: #fdecea; border-left: 4px solid var(--color-danger); padding: 10px 14px; margin-bottom: 14px; }
+
+  /* ===== ESTAT DE CONSERVACIÓ ===== */
+  .estat { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--color-text-primary); white-space: nowrap; }
+  .estat-ico { width: 16px; height: 16px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: #fff; flex: none; }
+  .estat-ico.fosc { color: #0b0b0b; }
+
+  /* ===== MÒDUL 1: GESTIÓ DEL PATRIMONI ===== */
+  .barra-parc { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+  .barra-parc label { font-weight: 600; }
+  .barra-parc select { max-width: 520px; font-size: 15px; padding: 8px 10px; }
+  .parcs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .parc-card { border: 1px solid var(--color-border); padding: 16px; cursor: pointer; background: #fff; text-align: left;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08); transition: all .2s ease; }
+  .parc-card:hover { border-color: var(--color-primary-teal); box-shadow: 0 4px 8px rgba(0,0,0,.12); transform: translateY(-2px); }
+  .parc-card .codi { font-size: 12px; font-weight: 700; color: var(--color-primary-teal); letter-spacing: .03em; }
+  .parc-card h3 { font-size: 15px; color: var(--color-text-strong); margin: 2px 0 6px; line-height: 1.3; }
+  .parc-card .n { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .layout-patrimoni { display: grid; grid-template-columns: minmax(280px, 380px) 1fr; gap: 20px; align-items: start; }
+  .panell-llista { border: 1px solid var(--color-border); background: #fff; position: sticky; top: 8px; }
+  .llista-eines { padding: 10px; display: grid; gap: 8px; border-bottom: 1px solid var(--color-border); background: #fafafa; }
+  .llista-recompte { padding: 6px 12px; font-size: 12px; color: var(--color-text-secondary); border-bottom: 1px solid var(--color-border); }
+  .llista-immobles { list-style: none; max-height: calc(100vh - 260px); min-height: 200px; overflow-y: auto; }
+  .llista-immobles li button { width: 100%; text-align: left; background: #fff; border: none; border-bottom: 1px solid #f0f0f0;
+    padding: 10px 12px; cursor: pointer; display: grid; gap: 2px; border-left: 3px solid transparent; }
+  .llista-immobles li button:hover { background: var(--color-bg-hover); }
+  .llista-immobles li button.sel { background: #f0f8f6; border-left-color: var(--color-primary-teal); }
+  .llista-immobles .nom { font-weight: 600; color: var(--color-text-strong); }
+  .llista-immobles .sub { font-size: 12px; color: var(--color-text-secondary); }
+  .llista-immobles .linia { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .marca { font-size: 11px; padding: 0 6px; border-radius: 8px; background: #fff3e0; color: #8a3b00; font-weight: 600; }
+  .marca.comp { background: #e3f2fd; color: #0b4f8a; }
+  .panell-fitxa { border: 1px solid var(--color-border); background: #fff; min-height: 300px; }
+  .fitxa-buida { padding: 60px 20px; text-align: center; color: var(--color-text-secondary); }
+  .fitxa-cap { padding: 16px 20px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    background: #fafafa; position: sticky; top: 0; z-index: 500; }
+  .fitxa-cap h2 { font-size: 20px; color: var(--color-text-strong); line-height: 1.3; }
+  .fitxa-cap .id { font-family: Consolas, monospace; font-size: 12px; color: var(--color-text-secondary); }
+  .fitxa-cap .botons { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+  .fitxa-cos { padding: 8px 20px 20px; }
+  .grup { border-bottom: 1px solid #eee; }
+  .grup > summary { list-style: none; cursor: pointer; padding: 12px 0; font-weight: 600; font-size: 15px; color: var(--color-primary-teal-dark);
+    display: flex; align-items: center; gap: 8px; }
+  .grup > summary::-webkit-details-marker { display: none; }
+  .grup > summary::before { content: "▸"; transition: transform .15s; display: inline-block; }
+  .grup[open] > summary::before { transform: rotate(90deg); }
+  .grup > summary .compte { font-weight: 400; font-size: 12px; color: var(--color-text-secondary); }
+  .grup-cos { padding: 0 0 14px 18px; }
+  .camps { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px 20px; }
+  .camp { min-width: 0; }
+  .camp.ample { grid-column: 1 / -1; }
+  .camp .et { font-size: 12px; color: var(--color-text-secondary); }
+  .camp .vl { color: var(--color-text-strong); overflow-wrap: anywhere; white-space: pre-wrap; }
+  .buit { color: #a19f9d; }
+  .camp label { display: block; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 3px; }
+  .camp .unitat { font-weight: 400; }
+  .camp .ajuda { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+  .camp .camp-error { font-size: 12px; color: var(--color-danger); margin-top: 2px; }
+  .camp.te-error input, .camp.te-error select, .camp.te-error textarea { border-color: var(--color-danger); background: #fffafa; }
+  .camp .nou-valor { font-size: 11px; color: #8a3b00; margin-top: 2px; }
+  .zona { border: 1px solid var(--color-border); padding: 12px 14px; margin: 10px 0; background: #fcfcfb; }
+  .zona-cap { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
+  .zona-cap h4 { font-size: 14px; }
+  .mini-mapa { height: 260px; border: 1px solid var(--color-border); margin-top: 12px; }
+  .nota-mapa { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+  .fitxa-edicio .fitxa-cap { background: #fff8e1; }
+  .peu-edicio { position: sticky; bottom: 0; background: #fff; border-top: 1px solid var(--color-border); padding: 12px 20px;
+    display: flex; justify-content: flex-end; gap: 10px; z-index: 500; flex-wrap: wrap; }
+  .xips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .xip { display: inline-flex; align-items: center; gap: 4px; background: #f0f8f6; border: 1px solid var(--color-accent-mint);
+    color: var(--color-primary-teal-dark); border-radius: 12px; padding: 1px 10px; font-size: 12px; }
+  button.xip { cursor: pointer; }
+  button.xip:hover { background: #e0f0ec; }
+
+  /* ===== TAULES ===== */
+  .taula-wrap { overflow-x: auto; }
+  table.taula { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .taula th { text-align: left; font-weight: 600; color: var(--color-text-secondary); border-bottom: 2px solid var(--color-border);
+    padding: 8px 10px; white-space: nowrap; background: #fafafa; }
+  .taula th.ord { cursor: pointer; user-select: none; }
+  .taula th.ord:hover { color: var(--color-text-primary); }
+  .taula td { padding: 7px 10px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+  .taula tbody tr.clic { cursor: pointer; }
+  .taula tbody tr.clic:hover { background: var(--color-bg-hover); }
+  .taula td.num, .taula th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .taula .detall td { background: #fafafa; }
+  .canvis-llista { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .canvis-llista td, .canvis-llista th { padding: 4px 8px; border-bottom: 1px solid #eee; text-align: left; vertical-align: top; }
+  .abans { color: #8a3b00; text-decoration: line-through; text-decoration-color: rgba(138,59,0,.4); }
+  .despres { color: #1b5e20; font-weight: 600; }
+  .paginacio { display: flex; gap: 6px; align-items: center; justify-content: flex-end; padding-top: 10px; flex-wrap: wrap; }
+
+  /* ===== MÒDUL 2: GESTIÓ DE DADES ===== */
+  .layout-dades { display: grid; grid-template-columns: 290px 1fr; gap: 20px; align-items: start; }
+  .panell-filtres { border: 1px solid var(--color-border); background: #fafafa; position: sticky; top: 8px; max-height: calc(100vh - 16px); overflow-y: auto; }
+  .filtres-cap { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--color-border);
+    position: sticky; top: 0; background: #fafafa; z-index: 2; }
+  .filtres-cerca { padding: 10px 12px; border-bottom: 1px solid var(--color-border); }
+  .filtre { border-bottom: 1px solid var(--color-border); }
+  .filtre > summary { list-style: none; cursor: pointer; padding: 9px 12px; font-weight: 600; font-size: 13px; display: flex; justify-content: space-between; gap: 8px; }
+  .filtre > summary::-webkit-details-marker { display: none; }
+  .filtre > summary .n-sel { background: var(--color-primary-teal); color: #fff; border-radius: 9px; padding: 0 7px; font-size: 11px; }
+  .filtre-cos { padding: 0 12px 10px; }
+  .filtre-cos .cerca-opcio { margin-bottom: 6px; padding: 4px 8px; font-size: 12px; }
+  .opcions { max-height: 210px; overflow-y: auto; display: grid; gap: 1px; }
+  .opcio { display: flex; align-items: center; gap: 6px; font-size: 13px; padding: 2px 2px; cursor: pointer; }
+  .opcio:hover { background: #fff; }
+  .opcio .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .opcio .c { color: var(--color-text-secondary); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .opcio.zero { opacity: .45; }
+  .tri { display: grid; grid-template-columns: 1fr 120px; gap: 6px; align-items: center; font-size: 13px; padding: 3px 0; }
+  .tri select { padding: 3px 6px; font-size: 12px; }
+  .rang { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .rang input { padding: 4px 8px; font-size: 12px; }
+  .panell-resultats { min-width: 0; display: grid; gap: 16px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; min-height: 0; }
+  .chips:empty { display: none; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .kpi { border: 1px solid var(--color-border); background: #fff; padding: 12px 14px; }
+  .kpi .et { font-size: 12px; color: var(--color-text-secondary); }
+  .kpi .v { font-size: 26px; font-weight: 600; color: var(--color-text-strong); font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .kpi .s { font-size: 12px; color: var(--color-text-secondary); }
+  .targeta { border: 1px solid var(--color-border); background: #fff; padding: 14px 16px; min-width: 0; }
+  .targeta h2 { font-size: 15px; color: var(--color-text-strong); }
+  .targeta-cap { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .targeta-cap label { font-size: 13px; color: var(--color-text-secondary); display: flex; gap: 6px; align-items: center; }
+  .mapa-dades { height: 460px; border: 1px solid var(--color-border); }
+  .dues-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .barres { display: grid; gap: 6px; margin-top: 10px; }
+  .barra { display: grid; grid-template-columns: minmax(110px, 38%) 1fr 64px; gap: 8px; align-items: center; font-size: 13px; }
+  .barra .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .barra .pista { height: 14px; background: #f3f2f1; position: relative; }
+  .barra .ple { position: absolute; inset: 0 auto 0 0; border-radius: 0 4px 4px 0; min-width: 2px; }
+  .barra .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--color-text-secondary); }
+  .llegenda-mapa { background: rgba(255,255,255,.95); padding: 8px 10px; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,.25);
+    font-size: 12px; line-height: 1.7; }
+  .llegenda-mapa .estat { font-size: 12px; }
+  .popup-el h4 { font-size: 14px; margin-bottom: 2px; }
+  .popup-el p { margin: 2px 0; font-size: 12px; }
+
+  /* ===== FINESTRES (estil de la finestra de carpeta del Motor) ===== */
+  .finestra-fons { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 10000; display: flex; align-items: center;
+    justify-content: center; padding: 16px; }
+  .finestra { background: #fff; color: #222; max-width: 620px; width: 100%; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.3);
+    overflow: hidden; font-size: 15px; line-height: 1.5; max-height: calc(100vh - 32px); display: flex; flex-direction: column; }
+  .finestra.ampla { max-width: 860px; }
+  .finestra .fc-cap { background: var(--color-primary-teal); color: #fff; padding: 14px 20px; font-size: 18px; font-weight: 600; }
+  .finestra .fc-cap small { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 10px; background: #fff;
+    color: var(--color-primary-teal); font-size: 12px; font-weight: 700; vertical-align: middle; }
+  .finestra .fc-cos { padding: 16px 20px 4px; overflow-y: auto; }
+  .finestra .fc-cos p { margin: 0 0 10px; }
+  .finestra .fc-cos ol, .finestra .fc-cos ul { margin: 0 0 12px; padding-left: 22px; }
+  .finestra .fc-nota { background: #fff8e1; border-left: 4px solid #f0b400; padding: 8px 12px; font-size: 14px; margin-bottom: 12px; }
+  .finestra .fc-peu { display: flex; justify-content: flex-end; gap: 10px; padding: 12px 20px 16px; flex-wrap: wrap; border-top: 1px solid #eee; }
+  .finestra .fc-peu button { border-radius: 4px; padding: 8px 16px; font-size: 14px; cursor: pointer; border: 1px solid var(--color-primary-teal); }
+  .finestra .fc-principal { background: var(--color-primary-teal); color: #fff; }
+  .finestra .fc-secundari { background: #fff; color: var(--color-primary-teal); }
+  .finestra .camp { margin-bottom: 12px; }
+  .finestra .camp label { font-size: 13px; }
+
+  /* ===== AVISOS ===== */
+  #toasts { position: fixed; bottom: 20px; right: 20px; z-index: 11000; display: grid; gap: 8px; max-width: min(420px, calc(100vw - 40px)); }
+  .toast { background: #1b5e20; color: #fff; padding: 12px 16px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.25); font-size: 14px; }
+  .toast.error { background: #b71c1c; }
+  .toast.avis { background: #8a5a00; }
+
+  /* ===== PEU ===== */
+  .app-footer { background-color: var(--color-text-strong); color: var(--color-text-on-dark); padding: 16px 20px; text-align: center; font-size: 12px; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 980px) {
+    .layout-patrimoni, .layout-dades { grid-template-columns: 1fr; }
+    .panell-llista, .panell-filtres { position: static; max-height: none; }
+    .llista-immobles { max-height: 360px; }
+    .dues-col { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .module-nav button { padding: 12px 16px; font-size: 13px; }
+    .container { padding: 12px; }
+    .module { padding: 16px; }
+    .cap-modul h1 { font-size: 22px; }
+    .app-header .brand span { font-size: 14px; }
+    .mapa-dades { height: 340px; }
+    .fitxa-cap { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     CAPÇALERA I NAVEGACIÓ
+     ============================================================ -->
+<header class="app-header">
+  <div class="brand" data-modul="patrimoni" title="Gestió del Patrimoni">
+    <div class="brand-logo">MP</div>
+    <span>Motor de Patrimoni de la DGPAMN</span>
+  </div>
+  <button type="button" id="btn-usuari" class="usuari-cap" title="Persona responsable dels canvis">👤 Identifica't</button>
+</header>
+<nav class="module-nav">
+  <button type="button" class="nav-button active" data-modul="patrimoni">GESTIÓ DEL PATRIMONI</button>
+  <button type="button" class="nav-button" data-modul="dades">GESTIÓ DE DADES</button>
+</nav>
+<div id="barra-carpeta" class="barra-carpeta"></div>
+
+<main class="container">
+  <div id="estat-carrega" class="info-box">Carregant les dades del patrimoni…</div>
+
+  <!-- ============================================================
+       MÒDUL 1: GESTIÓ DEL PATRIMONI
+       ============================================================ -->
+  <section id="module-patrimoni" class="module active" aria-labelledby="t-patrimoni">
+    <div class="cap-modul">
+      <div>
+        <h1 id="t-patrimoni">Gestió del Patrimoni</h1>
+        <p>Tria un espai natural per veure'n els immobles. Clica un immoble per consultar-ne la fitxa i edita-la si cal: cada canvi queda registrat amb la persona responsable.</p>
+      </div>
+      <div class="accions-modul">
+        <button type="button" class="btn btn-secondary" id="btn-registre">Registre de canvis</button>
+        <button type="button" class="btn btn-primary" id="btn-nou" disabled title="Tria primer un espai natural">＋ Nou immoble</button>
+      </div>
+    </div>
+    <div class="barra-parc">
+      <label for="sel-parc">Espai natural</label>
+      <select id="sel-parc"></select>
+    </div>
+
+    <div id="vista-inici"><div id="parcs-resum" class="parcs-grid"></div></div>
+
+    <div id="vista-parc" hidden>
+      <div class="layout-patrimoni">
+        <aside class="panell-llista" aria-label="Immobles de l'espai">
+          <div class="llista-eines">
+            <input type="search" id="cerca-immoble" placeholder="Cerca per nom, codi o municipi" aria-label="Cerca immobles">
+            <select id="filtre-tipus-llista" aria-label="Filtra per tipus d'element"></select>
+          </div>
+          <div id="llista-recompte" class="llista-recompte"></div>
+          <ul id="llista-immobles" class="llista-immobles"></ul>
+        </aside>
+        <section id="panell-fitxa" class="panell-fitxa" aria-live="polite">
+          <div class="fitxa-buida">Selecciona un immoble de la llista per veure'n la fitxa.</div>
+        </section>
+      </div>
+    </div>
+
+    <div id="vista-registre" hidden></div>
+  </section>
+
+  <!-- ============================================================
+       MÒDUL 2: GESTIÓ DE DADES
+       ============================================================ -->
+  <section id="module-dades" class="module" aria-labelledby="t-dades">
+    <div class="cap-modul">
+      <div>
+        <h1 id="t-dades">Gestió de Dades</h1>
+        <p>Consulta el conjunt del patrimoni filtrant per qualsevol camp. El mapa, els indicadors i la taula es mostren amb els immobles que compleixen els filtres.</p>
+      </div>
+      <div class="accions-modul">
+        <button type="button" class="btn btn-secondary" id="btn-csv">Exporta a CSV</button>
+      </div>
+    </div>
+    <div class="layout-dades">
+      <aside class="panell-filtres" aria-label="Filtres">
+        <div class="filtres-cap"><strong>Filtres</strong><button type="button" class="btn-link" id="btn-neteja">Neteja-ho tot</button></div>
+        <div class="filtres-cerca"><input type="search" id="dades-cerca" placeholder="Cerca lliure (nom, codi, municipi…)" aria-label="Cerca lliure"></div>
+        <div id="filtres"></div>
+      </aside>
+      <section class="panell-resultats">
+        <div id="chips-filtres" class="chips" aria-label="Filtres actius"></div>
+        <div id="kpis" class="kpis"></div>
+        <div class="targeta">
+          <div class="targeta-cap">
+            <h2>Mapa dels immobles</h2>
+            <label><input type="checkbox" id="ajusta-mapa" checked> Ajusta el mapa als resultats</label>
+          </div>
+          <div id="mapa-dades" class="mapa-dades" role="region" aria-label="Mapa dels immobles filtrats"></div>
+          <div id="mapa-nota" class="nota-mapa"></div>
+        </div>
+        <div class="dues-col">
+          <div class="targeta"><h2>Per estat de conservació</h2><div id="dist-estat" class="barres"></div></div>
+          <div class="targeta"><h2>Per tipus d'element <span class="text-small text-muted">(els 10 més freqüents)</span></h2><div id="dist-tipus" class="barres"></div></div>
+        </div>
+        <div class="targeta">
+          <div class="targeta-cap"><h2>Immobles</h2><span id="taula-info" class="text-small text-muted"></span></div>
+          <div class="taula-wrap"><table id="taula-dades" class="taula"></table></div>
+          <div id="paginacio" class="paginacio"></div>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<footer class="app-footer">
+  Direcció General de Polítiques Ambientals i Medi Natural · Motor de Patrimoni · <span id="peu-info"></span>
+</footer>
+<div id="datalists" hidden></div>
+<div id="toasts" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+'use strict';
+// ════════════════════════════════════════════════════════════════════
+// CONFIGURACIÓ
+//   · Dades de referència i inicials: GitHub (Programa_Patrimoni/data)
+//   · Unitats promotores: les mateixes del Motor de Contractació
+//   · Carpeta de treball: subcarpeta «patrimoni» d'una carpeta local o
+//     sincronitzada (SharePoint/OneDrive), triada per cada usuari
+//   · Paràmetres opcionals a l'URL: ?dades=<url carpeta data/>&unitats=<url json>
+// ════════════════════════════════════════════════════════════════════
+const QS = new URLSearchParams(location.search);
+const CONFIG = {
+  DADES_URL: QS.get('dades') || 'https://raw.githubusercontent.com/marcvila1/Programa_Patrimoni/main/data/',
+  UNITATS_URL: QS.get('unitats') || 'https://raw.githubusercontent.com/marcvila1/Motor-Contractacio-DGPA/main/unitats_promotores.json',
+  SUBCARPETA: 'patrimoni',
+  FITXERS: ['elements.json', 'historial_canvis.json', 'espais.json', 'catalegs.json', 'documents.json', 'metadata.json', 'unitats_promotores.json'],
+  VERSIO: '1.0',
+};
+
+// ════════════════════════════════════════════════════════════════════
+// UTILITATS
+// ════════════════════════════════════════════════════════════════════
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const NF = new Intl.NumberFormat('ca-ES');
+const fmtNum = n => (n == null || n === '' ? '' : NF.format(n));
+const ara = () => new Date().toISOString();
+const buit = v => v == null || v === '' || (Array.isArray(v) && v.length === 0);
+const ordCa = (a, b) => String(a).localeCompare(String(b), 'ca', { sensitivity: 'base' });
+
+function get(o, p) { return p.split('.').reduce((a, k) => (a == null ? undefined : a[k]), o); }
+function set(o, p, v) {
+  const ks = p.split('.');
+  let a = o;
+  for (let i = 0; i < ks.length - 1; i++) {
+    if (a[ks[i]] == null || typeof a[ks[i]] !== 'object') a[ks[i]] = /^\d+$/.test(ks[i + 1]) ? [] : {};
+    a = a[ks[i]];
+  }
+  a[ks[ks.length - 1]] = v;
+}
+function fmtData(iso) {
+  if (!iso) return '—';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) return new Date(iso + 'T00:00:00').toLocaleDateString('ca-ES');
+  const d = new Date(iso);
+  return isNaN(d) ? String(iso) : d.toLocaleString('ca-ES', { dateStyle: 'short', timeStyle: 'short' });
+}
+function toast(msg, tipus = 'ok', ms = 4500) {
+  const t = document.createElement('div');
+  t.className = 'toast ' + (tipus === 'ok' ? '' : tipus);
+  t.textContent = msg;
+  $('#toasts').appendChild(t);
+  setTimeout(() => t.remove(), ms);
+}
+function descarrega(nom, contingut, tipus = 'application/json') {
+  const blob = new Blob([contingut], { type: tipus });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nom;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+/** Finestra modal amb l'estil del Motor. Retorna una promesa amb l'acció triada (o null). */
+function finestra({ titol, etiqueta, cos, botons, ampla = false, enObrir }) {
+  return new Promise(resol => {
+    const fons = document.createElement('div');
+    fons.className = 'finestra-fons';
+    fons.innerHTML = `<div class="finestra ${ampla ? 'ampla' : ''}" role="dialog" aria-modal="true" aria-labelledby="fin-titol">
+        <div class="fc-cap" id="fin-titol">${titol}${etiqueta ? ` <small>${esc(etiqueta)}</small>` : ''}</div>
+        <div class="fc-cos">${cos}</div>
+        <div class="fc-peu">${botons.map(b => `<button type="button" class="${b.principal ? 'fc-principal' : 'fc-secundari'}" data-accio="${b.accio}">${esc(b.text)}</button>`).join('')}</div>
+      </div>`;
+    const tanca = accio => { fons.remove(); document.removeEventListener('keydown', tecla); resol(accio); };
+    const tecla = e => { if (e.key === 'Escape') tanca(null); };
+    fons.addEventListener('click', e => {
+      const b = e.target.closest('[data-accio]');
+      if (!b) return;
+      const accio = b.dataset.accio;
+      const def = botons.find(x => x.accio === accio);
+      if (def?.validar && !def.validar(fons)) return;
+      tanca(def?.recull ? { accio, dades: def.recull(fons) } : accio);
+    });
+    document.addEventListener('keydown', tecla);
+    document.body.appendChild(fons);
+    (fons.querySelector('input,select,textarea') || fons.querySelector('.fc-principal'))?.focus();
+    enObrir?.(fons);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════
+// COORDENADES: ETRS89 / UTM fus 31N (EPSG:25831) ⇄ lat/lon
+//   Fórmules de Snyder; verificades amb pyproj (error < 1 mm a Catalunya)
+// ════════════════════════════════════════════════════════════════════
+const UTM = (() => {
+  const a = 6378137, f = 1 / 298.257222101, k0 = 0.9996, E0 = 500000;
+  const e2 = f * (2 - f), e4 = e2 * e2, e6 = e4 * e2, ep2 = e2 / (1 - e2);
+  const lon0 = 3 * Math.PI / 180, D2R = Math.PI / 180;
+  const m = phi => a * ((1 - e2 / 4 - 3 * e4 / 64 - 5 * e6 / 256) * phi
+    - (3 * e2 / 8 + 3 * e4 / 32 + 45 * e6 / 1024) * Math.sin(2 * phi)
+    + (15 * e4 / 256 + 45 * e6 / 1024) * Math.sin(4 * phi) - (35 * e6 / 3072) * Math.sin(6 * phi));
+  function aLatLon(x, y) {
+    const mu = (y / k0) / (a * (1 - e2 / 4 - 3 * e4 / 64 - 5 * e6 / 256));
+    const e1 = (1 - Math.sqrt(1 - e2)) / (1 + Math.sqrt(1 - e2));
+    const p1 = mu + (3 * e1 / 2 - 27 * e1 ** 3 / 32) * Math.sin(2 * mu) + (21 * e1 ** 2 / 16 - 55 * e1 ** 4 / 32) * Math.sin(4 * mu)
+      + (151 * e1 ** 3 / 96) * Math.sin(6 * mu) + (1097 * e1 ** 4 / 512) * Math.sin(8 * mu);
+    const s = Math.sin(p1), c = Math.cos(p1), t = Math.tan(p1);
+    const C1 = ep2 * c * c, T1 = t * t, N1 = a / Math.sqrt(1 - e2 * s * s);
+    const R1 = a * (1 - e2) / Math.pow(1 - e2 * s * s, 1.5), D = (x - E0) / (N1 * k0);
+    const lat = p1 - (N1 * t / R1) * (D * D / 2 - (5 + 3 * T1 + 10 * C1 - 4 * C1 * C1 - 9 * ep2) * D ** 4 / 24
+      + (61 + 90 * T1 + 298 * C1 + 45 * T1 * T1 - 252 * ep2 - 3 * C1 * C1) * D ** 6 / 720);
+    const lon = lon0 + (D - (1 + 2 * T1 + C1) * D ** 3 / 6 + (5 - 2 * C1 + 28 * T1 - 3 * C1 * C1 + 8 * ep2 + 24 * T1 * T1) * D ** 5 / 120) / c;
+    return [lat / D2R, lon / D2R];
+  }
+  function aUTM(latDeg, lonDeg) {
+    const phi = latDeg * D2R, lam = lonDeg * D2R;
+    const s = Math.sin(phi), c = Math.cos(phi), t = Math.tan(phi);
+    const N = a / Math.sqrt(1 - e2 * s * s), T = t * t, C = ep2 * c * c, A = (lam - lon0) * c;
+    const x = k0 * N * (A + (1 - T + C) * A ** 3 / 6 + (5 - 18 * T + T * T + 72 * C - 58 * ep2) * A ** 5 / 120) + E0;
+    const y = k0 * (m(phi) + N * t * (A * A / 2 + (5 - T + 9 * C + 4 * C * C) * A ** 4 / 24 + (61 - 58 * T + T * T + 600 * C - 330 * ep2) * A ** 6 / 720));
+    return [Math.round(x), Math.round(y)];
+  }
+  return { aLatLon, aUTM };
+})();
+const latLonDe = el => {
+  const u = el?.localitzacio?.utm;
+  return u && u.x != null && u.y != null ? UTM.aLatLon(u.x, u.y) : null;
+};
+
+// ════════════════════════════════════════════════════════════════════
+// ESTAT DE L'APLICACIÓ
+// ════════════════════════════════════════════════════════════════════
+const S = {
+  elements: [], perId: new Map(), espais: {}, cat: { tancats: {}, oberts: {} }, docs: [], meta: {},
+  unitats: {}, unitatsRaw: null, historial: [],
+  font: 'github', pendents: 0,      // pendents = canvis desats només en memòria (sense carpeta)
+  parc: null, sel: null, edicio: null,
+  usuari: null,
+};
+function indexa() {
+  S.perId = new Map(S.elements.map(e => [e.id, e]));
+  construeixDatalists();
+}
+const etiq = (cat, codi) => (codi == null ? null : (S.cat.tancats[cat]?.[codi] ?? codi));
+const nomUnitat = c => S.unitats[c]?.nom || S.espais[c]?.nom_excel || c;
+const unitatsDe = el => el.unitats?.length ? el.unitats : [el.unitat];
+const elementsDe = u => S.elements.filter(e => unitatsDe(e).includes(u));
+const espaisOrdenats = () => Object.keys(S.espais).sort((a, b) => ordCa(nomUnitat(a), nomUnitat(b)));
+
+const ESTATS = {
+  bo: { c: 'var(--estat-bo)', hex: '#0ca30c', i: '✓' },
+  regular: { c: 'var(--estat-regular)', hex: '#fab219', i: '!', fosc: true },
+  dolent: { c: 'var(--estat-dolent)', hex: '#ec835a', i: '▲' },
+  parcialment_ruinos: { c: 'var(--estat-ruinos)', hex: '#d03b3b', i: '✕' },
+  ruinos: { c: 'var(--estat-ruinos)', hex: '#d03b3b', i: '✕' },
+  _: { c: 'var(--estat-buit)', hex: '#8a8a85', i: '?' },
+};
+function htmlEstat(codi) {
+  const e = ESTATS[codi] || ESTATS._;
+  return `<span class="estat"><span class="estat-ico ${e.fosc ? 'fosc' : ''}" style="background:${e.c}" aria-hidden="true">${e.i}</span>${esc(etiq('estat_conservacio', codi) || 'Sense dada')}</span>`;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ESQUEMA DE CAMPS (lectura, edició, validació, diferències i CSV)
+//   t: text | textarea | int | num | bool | enum | open | csvtext | csvint | url | ro
+//   c: catàleg tancat (catalegs.json → tancats)   o: llista oberta amb suggeriments
+// ════════════════════════════════════════════════════════════════════
+const ANY_ACTUAL = new Date().getFullYear();
+const F = (p, l, t = 'text', x = {}) => ({ p, l, t, ...x });
+const GRUPS = [
+  { id: 'ident', t: 'Identificació', obert: true, camps: [
+    F('identificacio.nom', 'Nom', 'text', { req: true }),
+    F('identificacio.titol', 'Títol'),
+    F('identificacio.altres_noms', 'Altres noms', 'csvtext', { ajuda: 'Separats per comes', ample: true }),
+    F('identificacio.tipus_element', "Tipus d'element", 'open', { req: true }),
+    F('identificacio.destinacio_principal', 'Destinació principal', 'open'),
+    F('identificacio.tipus_propietat', 'Tipus de propietat', 'enum', { c: 'tipus_propietat' }),
+    F('identificacio.titular', 'Titular', 'open'),
+    F('identificacio.referencia_cadastral', 'Referència cadastral', 'text', { pat: '^[0-9A-Z]{14}([0-9A-Z]{6})?$', patMsg: '14 o 20 caràcters (xifres i majúscules)', maj: true }),
+    F('identificacio.referencia_cadastral_nota', 'Nota sobre la referència cadastral'),
+    F('identificacio.finca_registral', 'Finca registral'),
+    F('identificacio.tipus_finca', 'Tipus de finca', 'enum', { c: 'tipus_finca' }),
+    F('identificacio.proteccio_patrimoni', 'Protecció patrimonial', 'bool'),
+    F('notes.identificacio', 'Aclariments', 'textarea', { ample: true }),
+  ] },
+  { id: 'loc', t: 'Localització', obert: true, mapa: true, camps: [
+    F('localitzacio.adreca', 'Adreça'),
+    F('localitzacio.municipi', 'Municipi', 'open'),
+    F('localitzacio.cp', 'Codi postal', 'text', { pat: '^(08|17|25|43)\\d{3}$', patMsg: '5 xifres d\'un CP de Catalunya (08, 17, 25 o 43)' }),
+    F('localitzacio.localitzacio_cadastre.text', 'Localització cadastral'),
+    F('localitzacio.localitzacio_cadastre.poligon', 'Polígon', 'int', { min: 0, max: 999, cru: true }),
+    F('localitzacio.localitzacio_cadastre.parcela', 'Parcel·la', 'int', { min: 0, max: 99999, cru: true }),
+    F('localitzacio.tipus_acces', "Tipus d'accés", 'enum', { c: 'tipus_acces' }),
+    F('localitzacio.acces_adaptat', 'Accés adaptat', 'bool'),
+    F('localitzacio.utm.x', 'Coordenada UTM X', 'int', { u: 'm', min: 250000, max: 540000, cru: true, ajuda: 'ETRS89 · UTM 31N' }),
+    F('localitzacio.utm.y', 'Coordenada UTM Y', 'int', { u: 'm', min: 4480000, max: 4760000, cru: true, ajuda: 'ETRS89 · UTM 31N' }),
+    F('localitzacio.utm.text_original', 'UTM original (Excel)', 'ro'),
+    F('localitzacio.altitud_m', 'Altitud', 'int', { u: 'm', min: 0, max: 3200 }),
+    F('notes.localitzacio', 'Aclariments', 'textarea', { ample: true }),
+  ] },
+  { id: 'constr', t: 'Construcció i estat', obert: true, camps: [
+    F('construccio.estat_conservacio', 'Estat de conservació', 'enum', { c: 'estat_conservacio' }),
+    F('construccio.any_construccio.precisio', 'Any de construcció: precisió', 'enum', { c: 'precisio_any' }),
+    F('construccio.any_construccio.valor', 'Any de construcció', 'int', { min: 1000, max: ANY_ACTUAL + 5, cru: true }),
+    F('construccio.any_construccio.text', 'Any de construcció (text)', 'text', { ajuda: 'Ex.: «Anys 90», «s. XVII»' }),
+    F('construccio.reformes.estat', 'Reformes', 'enum', { c: 'estat_reformes' }),
+    F('construccio.reformes.anys', 'Anys de les reformes', 'csvint', { ajuda: 'Separats per comes', min: 1000, max: ANY_ACTUAL }),
+    F('construccio.reformes.descripcio', 'Descripció de les reformes', 'textarea', { ample: true }),
+    F('construccio.reformes_programades.programades', 'Reformes programades', 'bool'),
+    F('construccio.reformes_programades.any', 'Any de la reforma programada', 'int', { min: 2000, max: ANY_ACTUAL + 20, cru: true }),
+    F('construccio.reformes_programades.descripcio', 'Reforma programada'),
+    F('construccio.plantes', 'Nombre de plantes', 'int', { min: 0, max: 20 }),
+    F('construccio.altell', 'Altell', 'bool'),
+    F('construccio.superficie_m2', 'Superfície', 'num', { u: 'm²', min: 0, max: 10000000 }),
+    F('construccio.materials.envolvent', 'Material de l\'envolvent', 'open'),
+    F('construccio.materials.coberta', 'Material de la coberta', 'open'),
+    F('construccio.materials.estructura', 'Material de l\'estructura', 'open'),
+    F('construccio.materials.paviments_interiors', 'Paviments interiors', 'open'),
+    F('construccio.planols.fitxer', 'Plànols (fitxer)', 'text'),
+    F('construccio.planols.url', 'Plànols (enllaç)', 'url'),
+    F('notes.construccio', 'Aclariments', 'textarea', { ample: true }),
+  ] },
+  { id: 'serveis', t: 'Serveis i accessibilitat', camps: [
+    F('construccio.serveis.electricitat', 'Electricitat', 'bool'),
+    F('construccio.serveis.aigua', 'Aigua', 'bool'),
+    F('construccio.serveis.sanejament', 'Sanejament', 'enum', { c: 'sanejament' }),
+    F('construccio.serveis.internet', 'Internet', 'bool'),
+    F('construccio.serveis.alarma', 'Alarma', 'bool'),
+    F('construccio.serveis.vigilancia', 'Vigilància', 'enum', { c: 'vigilancia' }),
+    F('construccio.obert_public', 'Obert al públic', 'bool'),
+    F('construccio.interior_adaptat_discapacitats', 'Interior adaptat a persones amb discapacitat', 'enum', { c: 'interior_adaptat' }),
+  ] },
+  { id: 'defic', t: 'Deficiències i riscos', camps: [
+    F('construccio.deficiencies.detectades', 'Deficiències detectades', 'bool'),
+    F('construccio.deficiencies.nombre_fotografies', 'Fotografies de les deficiències', 'int', { min: 0, max: 500 }),
+    F('construccio.deficiencies.descripcio', 'Descripció de les deficiències', 'textarea', { ample: true }),
+    F('construccio.deficiencies.reparacions_i_cost', 'Reparacions i cost', 'textarea', { ample: true }),
+    F('construccio.riscos.detectats', 'Riscos per a les persones', 'bool'),
+    F('construccio.riscos.descripcio', 'Descripció dels riscos', 'textarea', { ample: true }),
+  ] },
+  { id: 'us', t: 'Ús i règim jurídic', camps: [
+    F('us_i_regim.us_principal', 'Ús principal', 'open'),
+    F('us_i_regim.propietari', 'Propietari', 'open'),
+    F('us_i_regim.usuari_explotador', 'Usuari / explotador', 'open'),
+    F('us_i_regim.regim_juridic', "Règim jurídic d'ús o explotació", 'open'),
+    F('us_i_regim.document_juridic.tipus', 'Document jurídic', 'open'),
+    F('us_i_regim.document_juridic.estat', 'Estat del document', 'enum', { c: 'estat_document' }),
+    F('us_i_regim.document_juridic.fitxer', 'Document jurídic (fitxer)', 'text'),
+    F('us_i_regim.document_juridic.url', 'Document jurídic (enllaç)', 'url'),
+    F('us_i_regim.pla_autoproteccio.estat', "Pla d'autoprotecció", 'enum', { c: 'estat_pla' }),
+    F('us_i_regim.pla_autoproteccio.fitxer', "Pla d'autoprotecció (fitxer)", 'text'),
+    F('notes.us', 'Aclariments', 'textarea', { ample: true }),
+  ] },
+  { id: 'public', t: 'Públic i personal', camps: [
+    F('us_i_regim.zones_accessibles_public', 'Zones accessibles al públic', 'bool'),
+    F('us_i_regim.volum_anual_public.estat', 'Volum anual de públic', 'enum', { c: 'estat_dada_public' }),
+    F('us_i_regim.volum_anual_public.valor', 'Persones per any', 'int', { min: 0, max: 10000000 }),
+    F('us_i_regim.perfil_public.estat', 'Perfil del públic', 'enum', { c: 'estat_dada_public' }),
+    F('us_i_regim.perfil_public.text', 'Descripció del perfil', 'text'),
+    F('us_i_regim.presencia_personal_parc', 'Presència de personal del parc', 'bool'),
+    F('us_i_regim.presencia_personal_alie', 'Presència de personal aliè', 'bool'),
+    F('us_i_regim.tipus_presencia_personal', 'Tipus de presència de personal', 'enum', { c: 'tipus_presencia_personal' }),
+    F('us_i_regim.detall_presencia_personal', 'Detall de la presència', 'text'),
+  ] },
+  { id: 'fotos', t: 'Fotografies', camps: [
+    F('fotografies.nombre', 'Nombre de fotografies', 'int', { min: 0, max: 5000 }),
+    F('notes.fotografies', 'Aclariments', 'textarea', { ample: true }),
+  ] },
+];
+const ZONA_CAMPS = [
+  F('nom', 'Nom de la zona', 'text', { req: true }),
+  F('usos', 'Usos', 'open'),
+  F('usuaris', 'Usuaris', 'open'),
+  F('accessible_public', 'Accessible al públic', 'bool'),
+  F('accessible_menors', 'Accessible a menors', 'bool'),
+  F('adaptat_discapacitats', 'Adaptada a persones amb discapacitat', 'bool'),
+  F('presencia_personal_parc', 'Presència de personal del parc', 'bool'),
+  F('presencia_personal_alie', 'Presència de personal aliè', 'bool'),
+  F('regim_personal_alie', 'Règim del personal aliè', 'open'),
+  F('tipus_presencia_personal', 'Tipus de presència de personal', 'enum', { c: 'tipus_presencia_personal' }),
+  F('detall_presencia_personal', 'Detall de la presència', 'text'),
+  F('necessitat_permis_previ', 'Necessitat de permís previ', 'enum', { c: 'necessitat_permis_previ' }),
+  F('inclos_pla_autoproteccio', "Inclosa al pla d'autoprotecció", 'bool'),
+];
+const CAMPS_PLANS = GRUPS.flatMap(g => g.camps);
+const DEFS = new Map([...CAMPS_PLANS.map(f => [f.p, f]), ...ZONA_CAMPS.map(f => ['zones.*.' + f.p, { ...f, p: 'zones.*.' + f.p }])]);
+const defDe = cami => DEFS.get(cami.replace(/^zones\.\d+\./, 'zones.*.'));
+
+/** Valor llegible (text pla) d'un camp. */
+function textValor(f, v) {
+  if (buit(v)) return '';
+  switch (f?.t) {
+    case 'bool': return v === true ? 'Sí' : v === false ? 'No' : String(v);
+    case 'enum': return etiq(f.c, v);
+    case 'csvtext': case 'csvint': return Array.isArray(v) ? v.join(', ') : String(v);
+    case 'int': case 'num': return (f.cru ? String(v) : fmtNum(v)) + (f.u ? ' ' + f.u : '');
+    default: return typeof v === 'object' ? JSON.stringify(v) : String(v);
+  }
+}
+function htmlValor(f, v) {
+  if (f.c === 'estat_conservacio') return htmlEstat(v);
+  if (buit(v)) return '<span class="buit">—</span>';
+  if (f.t === 'url') return `<a href="${esc(v)}" target="_blank" rel="noopener">${esc(v)}</a>`;
+  return esc(textValor(f, v));
+}
+
+// Suggeriments per als camps oberts: valors existents a tot el patrimoni + catàlegs oberts
+const OBERTS_CATALEG = {
+  'identificacio.tipus_element': 'tipus_element', 'localitzacio.municipi': 'municipis', 'identificacio.titular': 'titulars',
+  'us_i_regim.propietari': 'propietaris', 'us_i_regim.usuari_explotador': 'usuaris_explotadors',
+  'us_i_regim.regim_juridic': 'regims_juridics', 'us_i_regim.document_juridic.tipus': 'tipus_document_juridic',
+  'zones.*.regim_personal_alie': 'regims_personal_alie',
+};
+const dlId = cami => 'dl-' + cami.replace(/[^a-z0-9]/gi, '-');
+function valorsExistents(cami) {
+  const s = new Set();
+  const afegeix = v => { if (typeof v === 'string' && v.trim()) s.add(v.trim()); };
+  if (cami.startsWith('zones.*.')) { const k = cami.slice(8); S.elements.forEach(e => (e.zones || []).forEach(z => afegeix(z[k]))); }
+  else S.elements.forEach(e => afegeix(get(e, cami)));
+  (S.cat.oberts?.[OBERTS_CATALEG[cami]] || []).forEach(afegeix);
+  return [...s].sort(ordCa);
+}
+function construeixDatalists() {
+  const html = [];
+  for (const [cami, f] of DEFS) {
+    if (f.t !== 'open') continue;
+    html.push(`<datalist id="${dlId(cami)}">${valorsExistents(cami).map(v => `<option value="${esc(v)}"></option>`).join('')}</datalist>`);
+  }
+  $('#datalists').innerHTML = html.join('');
+}
+/** Parelles municipi → CP més habituals, per omplir el CP automàticament. */
+function cpHabitual(municipi) {
+  const n = {};
+  S.elements.forEach(e => { if (e.localitzacio?.municipi === municipi && e.localitzacio.cp) n[e.localitzacio.cp] = (n[e.localitzacio.cp] || 0) + 1; });
+  return Object.entries(n).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// PERSONA RESPONSABLE (mentre no hi hagi autenticació de SINATCAT)
+// ════════════════════════════════════════════════════════════════════
+const CLAU_USUARI = 'motor-patrimoni.usuari';
+function carregaUsuari() {
+  try { S.usuari = JSON.parse(localStorage.getItem(CLAU_USUARI) || 'null'); } catch (e) { S.usuari = null; }
+  pintaUsuari();
+}
+function pintaUsuari() {
+  const b = $('#btn-usuari');
+  b.textContent = S.usuari ? `👤 ${S.usuari.nom}${S.usuari.unitat ? ' · ' + S.usuari.unitat : ''}` : "👤 Identifica't";
+}
+async function demanaUsuari(motiu) {
+  const opcions = Object.values(S.unitats).sort((a, b) => ordCa(a.nom, b.nom))
+    .map(u => `<option value="${esc(u.codi)}" ${S.usuari?.unitat === u.codi ? 'selected' : ''}>${esc(u.codi)} – ${esc(u.nom)}</option>`).join('');
+  const r = await finestra({
+    titol: '👤 Persona responsable dels canvis',
+    cos: `${motiu ? `<p>${esc(motiu)}</p>` : ''}
+      <p>Cada modificació queda registrada amb el nom de la persona que la fa. Quan el programa s'integri a SINATCAT, aquesta dada s'agafarà automàticament de l'usuari autenticat.</p>
+      <div class="camp"><label for="u-nom" class="required">Nom i cognoms</label><input type="text" id="u-nom" autocomplete="name" value="${esc(S.usuari?.nom || '')}"><div class="camp-error" hidden></div></div>
+      <div class="camp"><label for="u-unitat">Unitat</label><select id="u-unitat"><option value="">—</option>${opcions}</select></div>`,
+    botons: [
+      { text: 'Cancel·la', accio: 'no' },
+      { text: 'Desa', accio: 'si', principal: true,
+        validar: fons => { const ok = $('#u-nom', fons).value.trim().length >= 3; const e = $('#u-nom', fons).nextElementSibling; e.hidden = ok; e.textContent = 'Escriu el nom i cognoms.'; return ok; },
+        recull: fons => ({ nom: $('#u-nom', fons).value.trim(), unitat: $('#u-unitat', fons).value || null }) },
+    ],
+  });
+  if (r?.accio === 'si') {
+    S.usuari = r.dades;
+    try { localStorage.setItem(CLAU_USUARI, JSON.stringify(S.usuari)); } catch (e) { /* sense emmagatzematge: només per a la sessió */ }
+    pintaUsuari();
+  }
+  return S.usuari;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CARPETA DE TREBALL (com al Motor de Contractació)
+//   · La carpeta triada conté la subcarpeta «patrimoni» amb elements.json,
+//     historial_canvis.json i la resta de fitxers de dades
+//   · Si és una carpeta sincronitzada (SharePoint/OneDrive) i compartida,
+//     tothom treballa sobre les mateixes dades
+//   · Sense carpeta: les dades es llegeixen del GitHub i els canvis es
+//     poden descarregar
+// ════════════════════════════════════════════════════════════════════
+const Carpeta = (() => {
+  const DB = 'motor-patrimoni', STORE = 'carpeta', CLAU = 'arrel';
+  let arrel = null, copiaFeta = false;
+  const disponible = () => typeof window.showDirectoryPicker === 'function';
+
+  function idb(mode, fn) {
+    return new Promise((ok, ko) => {
+      const r = indexedDB.open(DB, 1);
+      r.onupgradeneeded = () => r.result.createObjectStore(STORE);
+      r.onerror = () => ko(r.error);
+      r.onsuccess = () => {
+        const tx = r.result.transaction(STORE, mode);
+        const req = fn(tx.objectStore(STORE));
+        tx.oncomplete = () => ok(req && req.result);
+        tx.onerror = () => ko(tx.error);
+      };
+    });
+  }
+  const subcarpeta = () => arrel.getDirectoryHandle(CONFIG.SUBCARPETA, { create: true });
+  async function llegeix(nom, dir) {
+    dir = dir || await subcarpeta();
+    try { return JSON.parse(await (await (await dir.getFileHandle(nom)).getFile()).text()); }
+    catch (e) { if (e.name === 'NotFoundError') return undefined; throw new Error(`No s'ha pogut llegir ${nom}: ${e.message}`); }
+  }
+  async function escriu(nom, obj, dir) {
+    dir = dir || await subcarpeta();
+    const w = await (await dir.getFileHandle(nom, { create: true })).createWritable();
+    await w.write(JSON.stringify(obj, null, 2) + '\n');
+    await w.close();
+  }
+  async function llegeixTot() {
+    const dir = await subcarpeta(), d = {};
+    for (const nom of CONFIG.FITXERS) { const v = await llegeix(nom, dir); if (v !== undefined) d[nom] = v; }
+    return d;
+  }
+  async function importa() {
+    const dir = await subcarpeta();
+    const d = dadesActuals();
+    for (const nom of CONFIG.FITXERS) if (d[nom] !== undefined) await escriu(nom, d[nom], dir);
+  }
+  async function copiaSeguretat(dir, elements) {
+    if (copiaFeta) return;
+    const copies = await dir.getDirectoryHandle('copies', { create: true });
+    const marca = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    await escriu(`elements_${marca}.json`, elements, copies);
+    copiaFeta = true;
+  }
+  /**
+   * Desa un element i l'entrada d'historial. Rellegeix els fitxers just abans
+   * d'escriure per no trepitjar canvis d'altres persones (carpeta compartida).
+   */
+  async function desa(nouEl, entrada, versioEsperada, esAlta) {
+    const dir = await subcarpeta();
+    const elements = (await llegeix('elements.json', dir)) || [];
+    const i = elements.findIndex(e => e.id === nouEl.id);
+    if (esAlta && i >= 0) throw Object.assign(new Error(`Ja existeix un immoble amb l'identificador ${nouEl.id}.`), { conflicte: true });
+    if (!esAlta) {
+      if (i < 0) throw Object.assign(new Error(`L'immoble ${nouEl.id} ja no existeix a la carpeta.`), { conflicte: true });
+      const actual = elements[i];
+      if ((actual.meta?.versio || 0) !== versioEsperada) {
+        throw Object.assign(new Error(`${actual.meta?.modificat_per || 'Una altra persona'} ha modificat aquest immoble (${fmtData(actual.meta?.modificat)}) després que l'obrissis.`), { conflicte: true });
+      }
+    }
+    await copiaSeguretat(dir, elements);
+    if (esAlta) elements.push(nouEl); else elements[i] = nouEl;
+    await escriu('elements.json', elements, dir);
+    const historial = (await llegeix('historial_canvis.json', dir)) || [];
+    historial.push(entrada);
+    await escriu('historial_canvis.json', historial, dir);
+    return { elements, historial };
+  }
+
+  function pinta(estat, nom) {
+    const b = $('#barra-carpeta');
+    const boto = (accio, text) => `<button type="button" class="btn-carpeta" data-carpeta="${accio}">${text}</button>`;
+    const pend = S.pendents ? ` <span class="pendents-desar">⚠ ${S.pendents} ${S.pendents === 1 ? 'canvi' : 'canvis'} sense desar en cap carpeta</span>` : '';
+    const descarregar = S.pendents ? boto('descarrega', 'Descarrega els fitxers') : '';
+    b.className = 'barra-carpeta ' + estat;
+    b.innerHTML = {
+      connectada: `📁 Dades a la carpeta <strong>${esc(nom)}\\${CONFIG.SUBCARPETA}</strong> · ${S.elements.length} immobles · els canvis es desen directament a la carpeta
+        <span class="botons">${boto('recarrega', 'Recarrega')}${boto('connectar', 'Canvia la carpeta')}</span>`,
+      permis: `📁 Cal tornar a donar permís a la carpeta <strong>${esc(nom)}</strong>.${pend} <span class="botons">${descarregar}${boto('reconnectar', 'Permet l’accés')}</span>`,
+      cap: `📁 Les dades es llegeixen del GitHub. Per desar canvis, connecta una carpeta de treball.${pend} <span class="botons">${descarregar}${boto('connectar', 'Connecta la carpeta')}</span>`,
+      noDisponible: `📁 Per desar els canvis en una carpeta cal obrir el programa amb Chrome o Edge. Els canvis es poden descarregar.${pend} <span class="botons">${descarregar}</span>`,
+    }[estat];
+    Carpeta.estat = estat;
+  }
+  const repinta = () => pinta(Carpeta.estat || 'cap', arrel?.name);
+
+  async function activa(h) {
+    arrel = h;
+    S.font = 'carpeta';
+    await recarregaDades();
+    pinta('connectada', h.name);
+  }
+  async function connectar() {
+    try {
+      const h = await window.showDirectoryPicker({ id: 'motor-patrimoni', mode: 'readwrite' });
+      await idb('readwrite', s => s.put(h, CLAU));
+      arrel = h;
+      const existent = await llegeix('elements.json');
+      if (existent === undefined) {
+        if (S.pendents) await importa();
+        else if (S.elements.length && confirm(`La carpeta «${h.name}\\${CONFIG.SUBCARPETA}» no té dades del patrimoni.\n\nVols copiar-hi les dades que hi ha ara al GitHub (${S.elements.length} immobles)?`)) await importa();
+        else if (!S.elements.length) throw new Error('No hi ha dades per copiar a la carpeta.');
+        else { arrel = null; return; }
+      } else if (S.pendents && !confirm(`Tens ${S.pendents} canvis fets sense carpeta. La carpeta ja té dades i aquests canvis no s'hi copiaran.\n\nDescarrega'ls primer si els vols conservar. Vols continuar igualment?`)) { arrel = null; return; }
+      S.pendents = 0;
+      await activa(h);
+      toast(`Carpeta connectada: ${h.name}\\${CONFIG.SUBCARPETA}`);
+    } catch (e) {
+      if (e.name !== 'AbortError') toast('No s’ha pogut connectar la carpeta: ' + e.message, 'error', 8000);
+    }
+  }
+  async function reconnectar() {
+    const h = await idb('readonly', s => s.get(CLAU));
+    if (!h) return connectar();
+    if (await h.requestPermission({ mode: 'readwrite' }) === 'granted') await activa(h);
+  }
+  function finestraInici(estat, nom) {
+    let cos, botons;
+    if (estat === 'permis') {
+      cos = `<p>La darrera vegada vau treballar amb la carpeta <strong>${esc(nom)}</strong>.</p>
+        <p>Per seguretat, el navegador demana tornar a donar permís cada vegada que s'obre el programa. Cliqueu <strong>«Permet l'accés»</strong> i, a la finestra del navegador, <strong>«Permet»</strong>.</p>
+        <div class="fc-nota">Si no doneu permís, podreu consultar les dades del GitHub però no desar canvis a la carpeta.</div>`;
+      botons = [{ text: 'Ara no', accio: 'no' }, { text: 'Tria una altra carpeta', accio: 'connectar' }, { text: "Permet l'accés", accio: 'reconnectar', principal: true }];
+    } else {
+      cos = `<p>Per <strong>editar</strong> el patrimoni cal triar una <strong>carpeta de treball</strong>, on el programa desarà les dades i el registre de canvis.</p>
+        <ol><li>Cliqueu <strong>«Tria la carpeta»</strong>.</li>
+          <li>Seleccioneu o creeu una carpeta (per exemple, la carpeta compartida del SharePoint o <em>Documents\\Motor patrimoni</em>).</li>
+          <li>Quan el navegador ho demani, cliqueu <strong>«Permet»</strong>.</li></ol>
+        <p>El programa hi crearà la subcarpeta <strong>${CONFIG.SUBCARPETA}</strong> amb les dades i la recordarà per a la propera vegada.</p>
+        <div class="fc-nota"><strong>Versió de proves (beta):</strong> per consultar les dades no cal cap carpeta. Si diverses persones han d'editar, convé que tothom faci servir la mateixa carpeta compartida.</div>`;
+      botons = [{ text: 'Ara no (només consulta)', accio: 'no' }, { text: 'Tria la carpeta', accio: 'connectar', principal: true }];
+    }
+    finestra({ titol: '📁 Carpeta de treball', etiqueta: 'BETA', cos, botons }).then(a => {
+      if (a === 'connectar') connectar(); else if (a === 'reconnectar') reconnectar();
+    });
+  }
+  /** Determina l'estat inicial. No carrega dades (ho fa carregaDades) ni obre la finestra (finestraInicial). */
+  let finestraPendent = null;
+  async function inicia() {
+    if (!disponible()) { pinta('noDisponible'); return; }
+    try {
+      const h = await idb('readonly', s => s.get(CLAU));
+      if (!h) { pinta('cap'); finestraPendent = ['cap']; return; }
+      if (await h.queryPermission({ mode: 'readwrite' }) === 'granted') { arrel = h; S.font = 'carpeta'; Carpeta.estat = 'connectada'; }
+      else { pinta('permis', h.name); finestraPendent = ['permis', h.name]; }
+    } catch (e) { console.warn('Carpeta:', e); pinta('cap'); }
+  }
+  function finestraInicial() { if (finestraPendent) finestraInici(...finestraPendent); finestraPendent = null; }
+  $('#barra-carpeta').addEventListener('click', e => {
+    const a = e.target.closest('[data-carpeta]')?.dataset.carpeta;
+    if (a === 'connectar') connectar();
+    else if (a === 'reconnectar') reconnectar();
+    else if (a === 'recarrega') recarregaDades().then(() => { repinta(); toast('Dades recarregades de la carpeta.'); });
+    else if (a === 'descarrega') descarregaPendents();
+  });
+  return { disponible, inicia, finestraInicial, connectar, llegeixTot, desa, pinta, repinta, activa: () => !!arrel, nom: () => arrel?.name, estat: null };
+})();
+
+function dadesActuals() {
+  return {
+    'elements.json': S.elements, 'historial_canvis.json': S.historial, 'espais.json': S.espais,
+    'catalegs.json': S.cat, 'documents.json': S.docs, 'metadata.json': S.meta,
+    'unitats_promotores.json': S.unitatsRaw ?? undefined,
+  };
+}
+function descarregaPendents() {
+  descarrega('elements.json', JSON.stringify(S.elements, null, 2) + '\n');
+  setTimeout(() => descarrega('historial_canvis.json', JSON.stringify(S.historial, null, 2) + '\n'), 400);
+  toast('S’han descarregat elements.json i historial_canvis.json. Substitueix-los a la carpeta de dades.', 'ok', 8000);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CÀRREGA DE DADES
+// ════════════════════════════════════════════════════════════════════
+async function fetchJSON(url, perDefecte) {
+  try {
+    const r = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } catch (e) {
+    if (perDefecte !== undefined) return perDefecte;
+    throw new Error(`${url.split('/').pop()}: ${e.message}`);
+  }
+}
+async function carregaDades() {
+  let d = {};
+  if (Carpeta.activa()) {
+    try { d = await Carpeta.llegeixTot(); }
+    catch (e) { toast('No s’ha pogut llegir la carpeta; es fan servir les dades del GitHub. ' + e.message, 'error', 8000); d = {}; }
+  }
+  const falten = CONFIG.FITXERS.filter(n => d[n] === undefined && n !== 'unitats_promotores.json');
+  const llegits = await Promise.all(falten.map(n => fetchJSON(CONFIG.DADES_URL + n, n === 'historial_canvis.json' ? [] : (n === 'documents.json' || n === 'metadata.json' ? (n === 'documents.json' ? [] : {}) : undefined))));
+  falten.forEach((n, i) => { d[n] = llegits[i]; });
+  // Unitats: primer les del Motor de Contractació (sempre actualitzades); si no, la còpia local
+  let unitats = await fetchJSON(CONFIG.UNITATS_URL, null);
+  if (!unitats) unitats = d['unitats_promotores.json'] ?? await fetchJSON(CONFIG.DADES_URL + 'unitats_promotores.json', null);
+  S.elements = d['elements.json'];
+  S.historial = d['historial_canvis.json'] || [];
+  S.espais = d['espais.json'];
+  S.cat = d['catalegs.json'];
+  S.docs = d['documents.json'] || [];
+  S.meta = d['metadata.json'] || {};
+  S.unitatsRaw = unitats;
+  S.unitats = Object.fromEntries((unitats?.unitats || []).map(u => [u.codi, u]));
+  if (!Array.isArray(S.elements)) throw new Error('elements.json no té el format esperat.');
+  indexa();
+}
+async function recarregaDades() {
+  await carregaDades();
+  refrescaTot();
+}
+
+// ════════════════════════════════════════════════════════════════════
+// NAVEGACIÓ ENTRE MÒDULS
+// ════════════════════════════════════════════════════════════════════
+let modulActual = 'patrimoni';
+async function mostraModul(id) {
+  if (id === modulActual) return;
+  if (!(await potSortirEdicio())) return;
+  modulActual = id;
+  $$('.module').forEach(m => m.classList.toggle('active', m.id === 'module-' + id));
+  $$('.module-nav button').forEach(b => b.classList.toggle('active', b.dataset.modul === id));
+  if (id === 'dades') Dades.mostra();
+  window.scrollTo({ top: 0 });
+}
+$$('[data-modul]').forEach(b => b.addEventListener('click', () => mostraModul(b.dataset.modul)));
+$('#btn-usuari').addEventListener('click', () => demanaUsuari());
+
+async function potSortirEdicio() {
+  if (!S.edicio) return true;
+  const a = await finestra({
+    titol: 'Canvis sense desar',
+    cos: `<p>Estàs editant <strong>${esc(S.edicio.original.identificacio?.nom || S.edicio.original.id)}</strong> i hi ha canvis que encara no s'han desat.</p><p>Vols descartar-los?</p>`,
+    botons: [{ text: 'Continua editant', accio: 'no', principal: true }, { text: 'Descarta els canvis', accio: 'si' }],
+  });
+  if (a !== 'si') return false;
+  tancaEdicio();
+  return true;
+}
+window.addEventListener('beforeunload', e => { if (S.edicio || S.pendents) { e.preventDefault(); e.returnValue = ''; } });
+
+// ════════════════════════════════════════════════════════════════════
+// MÒDUL 1 · GESTIÓ DEL PATRIMONI
+// ════════════════════════════════════════════════════════════════════
+const CLAU_PARC = 'motor-patrimoni.parc';
+let miniMapa = null;
+
+function pintaSelectorParc() {
+  const sel = $('#sel-parc');
+  sel.innerHTML = `<option value="">— Tria un espai natural —</option>` + espaisOrdenats()
+    .map(c => `<option value="${esc(c)}" ${c === S.parc ? 'selected' : ''}>${esc(nomUnitat(c))} (${elementsDe(c).length})</option>`).join('');
+  $('#parcs-resum').innerHTML = espaisOrdenats().map(c => {
+    const els = elementsDe(c), def = els.filter(e => e.construccio?.deficiencies?.detectades || e.construccio?.riscos?.detectats).length;
+    return `<button type="button" class="parc-card" data-parc="${esc(c)}">
+        <div class="codi">${esc(c)}</div><h3>${esc(nomUnitat(c))}</h3>
+        <div><span class="n">${els.length}</span> <span class="text-muted">immobles</span></div>
+        <div class="text-small text-muted">${def ? `${def} amb deficiències o riscos` : 'Sense deficiències ni riscos detectats'}</div>
+      </button>`;
+  }).join('');
+}
+async function triaParc(c, { mantenirSeleccio = false } = {}) {
+  if (c !== S.parc && !(await potSortirEdicio())) { $('#sel-parc').value = S.parc || ''; return; }
+  S.parc = c || null;
+  try { c ? localStorage.setItem(CLAU_PARC, c) : localStorage.removeItem(CLAU_PARC); } catch (e) { /* opcional */ }
+  $('#sel-parc').value = S.parc || '';
+  $('#vista-registre').hidden = true;
+  $('#vista-inici').hidden = !!S.parc;
+  $('#vista-parc').hidden = !S.parc;
+  $('#btn-nou').disabled = !S.parc;
+  $('#btn-nou').title = S.parc ? `Afegeix un immoble a ${nomUnitat(S.parc)}` : 'Tria primer un espai natural';
+  if (!S.parc) return;
+  if (!mantenirSeleccio) { S.sel = null; $('#cerca-immoble').value = ''; }
+  const tipus = [...new Set(elementsDe(S.parc).map(e => e.identificacio?.tipus_element).filter(Boolean))].sort(ordCa);
+  $('#filtre-tipus-llista').innerHTML = `<option value="">Tots els tipus d'element</option>` + tipus.map(t => `<option>${esc(t)}</option>`).join('');
+  pintaLlista();
+  if (S.sel && S.perId.has(S.sel)) pintaFitxa(S.perId.get(S.sel));
+  else $('#panell-fitxa').innerHTML = `<div class="fitxa-buida">Selecciona un immoble de la llista per veure'n la fitxa.</div>`;
+}
+$('#sel-parc').addEventListener('change', e => triaParc(e.target.value));
+$('#parcs-resum').addEventListener('click', e => { const b = e.target.closest('[data-parc]'); if (b) triaParc(b.dataset.parc); });
+
+function pintaLlista() {
+  const q = $('#cerca-immoble').value.trim().toLowerCase();
+  const tipus = $('#filtre-tipus-llista').value;
+  const tots = elementsDe(S.parc).sort((a, b) => ordCa(a.identificacio?.nom, b.identificacio?.nom));
+  const els = tots.filter(e => (!tipus || e.identificacio?.tipus_element === tipus) &&
+    (!q || [e.identificacio?.nom, e.codi, e.localitzacio?.municipi, e.identificacio?.titol, ...(e.identificacio?.altres_noms || [])]
+      .some(t => String(t || '').toLowerCase().includes(q))));
+  $('#llista-recompte').textContent = els.length === tots.length ? `${tots.length} immobles` : `${els.length} de ${tots.length} immobles`;
+  $('#llista-immobles').innerHTML = els.map(e => `<li><button type="button" data-id="${esc(e.id)}" class="${e.id === S.sel ? 'sel' : ''}">
+      <span class="nom">${esc(e.identificacio?.nom || e.codi)}</span>
+      <span class="sub">${esc([e.identificacio?.tipus_element, e.localitzacio?.municipi].filter(Boolean).join(' · '))}</span>
+      <span class="linia">${htmlEstat(e.construccio?.estat_conservacio)}
+        ${e.meta?.pendents?.length ? '<span class="marca" title="Té dades pendents">pendent</span>' : ''}
+        ${unitatsDe(e).length > 1 ? `<span class="marca comp" title="Compartit amb ${esc(unitatsDe(e).filter(u => u !== S.parc).join(', '))}">compartit</span>` : ''}</span>
+    </button></li>`).join('') || `<li class="fitxa-buida">Cap immoble coincideix amb la cerca.</li>`;
+}
+$('#cerca-immoble').addEventListener('input', pintaLlista);
+$('#filtre-tipus-llista').addEventListener('change', pintaLlista);
+$('#llista-immobles').addEventListener('click', async e => {
+  const b = e.target.closest('[data-id]');
+  if (!b || b.dataset.id === S.sel && !S.edicio) return;
+  if (!(await potSortirEdicio())) return;
+  obreFitxa(b.dataset.id);
+});
+
+function obreFitxa(id) {
+  S.sel = id;
+  $$('#llista-immobles button').forEach(b => b.classList.toggle('sel', b.dataset.id === id));
+  pintaFitxa(S.perId.get(id));
+}
+/** Obre un immoble des de qualsevol lloc (mapa, taula, registre). */
+async function vesAElement(id) {
+  const el = S.perId.get(id);
+  if (!el) { toast('Aquest immoble ja no existeix.', 'error'); return; }
+  if (modulActual !== 'patrimoni') await mostraModul('patrimoni');
+  if (modulActual !== 'patrimoni') return;
+  const parc = unitatsDe(el).includes(S.parc) ? S.parc : el.unitat;
+  S.sel = id;
+  await triaParc(parc, { mantenirSeleccio: true });
+  $('#llista-immobles .sel')?.scrollIntoView({ block: 'nearest' });
+  $('#panell-fitxa').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ---------- Fitxa (lectura) ----------
+function htmlCapFitxa(el, editant) {
+  const unitats = unitatsDe(el).map(u => `<span class="xip" title="${esc(nomUnitat(u))}">${esc(u)}</span>`).join('');
+  const botons = editant ? '' : `<button type="button" class="btn btn-primary" data-accio="editar">✎ Editar</button>`;
+  return `<div class="fitxa-cap">
+      <div><h2>${editant ? 'Edició: ' : ''}${esc(el.identificacio?.nom || el.codi)}</h2>
+        <div class="id">${esc(el.id)}</div><div class="xips" style="margin-top:6px">${unitats}</div></div>
+      <div class="botons">${botons}</div>
+    </div>`;
+}
+function htmlPendents(el) {
+  const p = el.meta?.pendents || [];
+  if (!p.length) return '';
+  return `<div class="avis-box"><strong>Dades pendents:</strong><ul style="margin:4px 0 0 18px">${p.map(x => `<li>${esc(defDe(x.camp)?.l || x.camp)}: ${esc(x.motiu)}</li>`).join('')}</ul></div>`;
+}
+function pintaFitxa(el) {
+  if (!el) return;
+  const grups = GRUPS.map(g => {
+    const plens = g.camps.filter(f => !buit(get(el, f.p))).length;
+    const camps = g.camps.filter(f => !(f.t === 'ro' && buit(get(el, f.p))))
+      .map(f => `<div class="camp ${f.ample ? 'ample' : ''}"><div class="et">${esc(f.l)}</div><div class="vl">${htmlValor(f, get(el, f.p))}</div></div>`).join('');
+    const mapa = g.mapa ? `<div id="mini-mapa" class="mini-mapa"></div><div class="nota-mapa" id="nota-mini-mapa"></div>` : '';
+    return `<details class="grup" ${g.obert ? 'open' : ''}><summary>${esc(g.t)} <span class="compte">${plens}/${g.camps.length} camps amb dades</span></summary>
+      <div class="grup-cos"><div class="camps">${camps}</div>${mapa}</div></details>`;
+  }).join('');
+  const zones = (el.zones || []).map(z => `<div class="zona"><div class="zona-cap"><h4>Zona ${z.numero}: ${esc(z.nom || '')}</h4></div>
+      <div class="camps">${ZONA_CAMPS.slice(1).map(f => `<div class="camp"><div class="et">${esc(f.l)}</div><div class="vl">${htmlValor(f, z[f.p])}</div></div>`).join('')}</div></div>`).join('');
+  const docs = documentsDe(el);
+  const hist = S.historial.filter(h => h.element === el.id).sort((a, b) => ordCa(b.data, a.data));
+  $('#panell-fitxa').innerHTML = `${htmlCapFitxa(el, false)}
+    <div class="fitxa-cos">${htmlPendents(el)}${grups}
+      <details class="grup"><summary>Zones <span class="compte">${(el.zones || []).length}</span></summary><div class="grup-cos">${zones || '<p class="buit">Sense zones.</p>'}</div></details>
+      <details class="grup"><summary>Documents <span class="compte">${docs.length}</span></summary><div class="grup-cos">${docs.length ? `<table class="canvis-llista"><thead><tr><th>Tipus</th><th>Fitxer</th><th>Enllaç</th></tr></thead><tbody>${docs.map(d => `<tr><td>${esc(d.tipus)}</td><td>${esc(d.fitxer)}</td><td>${d.url ? `<a href="${esc(d.url)}" target="_blank" rel="noopener">Obre</a>` : '<span class="buit">Enllaç pendent</span>'}</td></tr>`).join('')}</tbody></table>` : '<p class="buit">Sense documents referenciats.</p>'}</div></details>
+      <details class="grup"><summary>Historial de canvis <span class="compte">${hist.length}</span></summary><div class="grup-cos">${hist.length ? hist.map(htmlEntradaHistorial).join('') : '<p class="buit">Aquest immoble no s\'ha modificat des de la càrrega inicial.</p>'}</div></details>
+      <details class="grup"><summary>Metadades</summary><div class="grup-cos"><div class="camps">
+        ${[['Identificador', el.id], ['Codi', el.codi], ['Unitat principal', `${el.unitat} – ${nomUnitat(el.unitat)}`],
+           ['Origen', el.meta?.origen?.fitxer ? `${el.meta.origen.fitxer}, columna ${el.meta.origen.columna}` : 'Alta des del programa'],
+           ['Creat', `${fmtData(el.meta?.creat)}${el.meta?.creat_per ? ' · ' + el.meta.creat_per : ''}`],
+           ['Darrera modificació', el.meta?.modificat ? `${fmtData(el.meta.modificat)} · ${el.meta.modificat_per || ''}` : '—'],
+           ['Versió', el.meta?.versio ?? 0]].map(([k, v]) => `<div class="camp"><div class="et">${esc(k)}</div><div class="vl">${esc(v)}</div></div>`).join('')}
+      </div></div></details>
+    </div>`;
+  $('#panell-fitxa [data-accio="editar"]').addEventListener('click', () => iniciaEdicio(el));
+  pintaMiniMapa(el, false);
+}
+function documentsDe(el) {
+  const out = [];
+  const afegeix = (tipus, fitxer, url) => { if (fitxer || url) out.push({ tipus, fitxer: fitxer || '', url: url || S.docs.find(d => d.fitxer === fitxer)?.url || null }); };
+  afegeix('Plànols', el.construccio?.planols?.fitxer, el.construccio?.planols?.url);
+  afegeix('Document jurídic', el.us_i_regim?.document_juridic?.fitxer, el.us_i_regim?.document_juridic?.url);
+  afegeix("Pla d'autoprotecció", el.us_i_regim?.pla_autoproteccio?.fitxer, null);
+  return out;
+}
+
+// ---------- Mapes base ----------
+function capesBase() {
+  return {
+    'Topogràfic (ICGC)': L.tileLayer('https://geoserveis.icgc.cat/servei/catalunya/mapa-base/wmts/topografic/MON3857NW/{z}/{x}/{y}.png',
+      { maxZoom: 19, attribution: '© <a href="https://www.icgc.cat" target="_blank" rel="noopener">ICGC</a>' }),
+    'Ortofoto (ICGC)': L.tileLayer('https://geoserveis.icgc.cat/servei/catalunya/mapa-base/wmts/orto/MON3857NW/{z}/{x}/{y}.png',
+      { maxZoom: 19, attribution: '© <a href="https://www.icgc.cat" target="_blank" rel="noopener">ICGC</a>' }),
+    'OpenStreetMap': L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      { maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }),
+  };
+}
+const CENTRE_CAT = [41.75, 1.6];
+function marcador(ll, codiEstat, opts = {}) {
+  const e = ESTATS[codiEstat] || ESTATS._;
+  return L.circleMarker(ll, { radius: opts.radius || 7, color: '#ffffff', weight: 2, fillColor: e.hex, fillOpacity: 1, ...opts });
+}
+function pintaMiniMapa(el, editable) {
+  if (miniMapa) { miniMapa.remove(); miniMapa = null; }
+  const cont = $('#mini-mapa'), nota = $('#nota-mini-mapa');
+  if (!cont) return;
+  if (!window.L) { cont.innerHTML = '<div class="fitxa-buida">El mapa no està disponible (no s\'ha pogut carregar Leaflet).</div>'; return; }
+  const ll = latLonDe(el);
+  const capes = capesBase();
+  miniMapa = L.map(cont, { scrollWheelZoom: false, layers: [capes['Topogràfic (ICGC)']] }).setView(ll || CENTRE_CAT, ll ? 15 : 8);
+  L.control.layers(capes, null, { collapsed: true }).addTo(miniMapa);
+  let m = ll ? marcador(ll, el.construccio?.estat_conservacio, { radius: 9 }).addTo(miniMapa) : null;
+  nota.textContent = ll ? `Lat. ${ll[0].toFixed(5)}, long. ${ll[1].toFixed(5)}` : 'Aquest immoble no té coordenades.';
+  if (!editable) return;
+  nota.textContent = (ll ? nota.textContent + ' · ' : '') + 'Clica el mapa per situar l\'immoble i omplir les coordenades UTM.';
+  const posa = (x, y) => {
+    const p = UTM.aLatLon(x, y);
+    if (m) m.setLatLng(p); else m = marcador(p, el.construccio?.estat_conservacio, { radius: 9 }).addTo(miniMapa);
+  };
+  miniMapa.on('click', ev => {
+    const [x, y] = UTM.aUTM(ev.latlng.lat, ev.latlng.lng);
+    const ix = $('[data-cami="localitzacio.utm.x"]'), iy = $('[data-cami="localitzacio.utm.y"]');
+    ix.value = x; iy.value = y;
+    ix.dispatchEvent(new Event('input', { bubbles: true }));
+    posa(x, y);
+  });
+  const sincronitza = () => {
+    const x = parseInt($('[data-cami="localitzacio.utm.x"]').value, 10), y = parseInt($('[data-cami="localitzacio.utm.y"]').value, 10);
+    if (x >= 250000 && x <= 540000 && y >= 4480000 && y <= 4760000) { posa(x, y); miniMapa.panTo(UTM.aLatLon(x, y)); }
+  };
+  $('[data-cami="localitzacio.utm.x"]').addEventListener('change', sincronitza);
+  $('[data-cami="localitzacio.utm.y"]').addEventListener('change', sincronitza);
+}
+
+// ---------- Edició ----------
+function htmlInput(f, v, cami) {
+  const id = 'f-' + cami.replace(/[^a-z0-9]/gi, '-');
+  const attrs = `id="${id}" data-cami="${esc(cami)}" data-def="${esc(f.p)}"`;
+  const val = v == null ? '' : (Array.isArray(v) ? v.join(', ') : String(v));
+  let inp;
+  switch (f.t) {
+    case 'textarea': inp = `<textarea ${attrs} rows="3">${esc(val)}</textarea>`; break;
+    case 'bool': inp = `<select ${attrs}><option value="">— Sense dada —</option><option value="true" ${v === true ? 'selected' : ''}>Sí</option><option value="false" ${v === false ? 'selected' : ''}>No</option></select>`; break;
+    case 'enum': {
+      const ops = Object.entries(S.cat.tancats[f.c] || {});
+      const fora = v != null && !ops.some(([k]) => k === v) ? `<option value="${esc(v)}" selected>${esc(v)} (fora de catàleg)</option>` : '';
+      inp = `<select ${attrs}><option value="">— Sense dada —</option>${fora}${ops.map(([k, l]) => `<option value="${esc(k)}" ${k === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
+      break;
+    }
+    case 'open': inp = `<input type="text" ${attrs} list="${dlId(f.p)}" value="${esc(val)}" autocomplete="off">`; break;
+    case 'int': case 'num': inp = `<input type="text" inputmode="${f.t === 'int' ? 'numeric' : 'decimal'}" ${attrs} value="${esc(val)}">`; break;
+    case 'ro': return buit(v) ? '' : `<div class="camp"><label>${esc(f.l)}</label><div class="vl">${esc(val)}</div></div>`;
+    default: inp = `<input type="text" ${attrs} value="${esc(val)}" ${f.t === 'url' ? 'placeholder="https://…"' : ''}>`;
+  }
+  return `<div class="camp ${f.ample ? 'ample' : ''}"><label for="${id}" class="${f.req ? 'required' : ''}">${esc(f.l)}${f.u ? ` <span class="unitat">(${esc(f.u)})</span>` : ''}</label>${inp}
+    ${f.ajuda ? `<div class="ajuda">${esc(f.ajuda)}</div>` : ''}<div class="nou-valor" hidden></div><div class="camp-error" hidden></div></div>`;
+}
+function htmlZonesEdicio() {
+  const zs = S.edicio.zones;
+  return zs.map((z, i) => `<div class="zona" data-zona="${i}"><div class="zona-cap"><h4>Zona ${i + 1}</h4>
+      <button type="button" class="btn btn-perill btn-petit" data-treu-zona="${i}" ${zs.length === 1 ? 'disabled title="Cal almenys una zona"' : ''}>Elimina la zona</button></div>
+      <div class="camps">${ZONA_CAMPS.map(f => htmlInput({ ...f, p: 'zones.*.' + f.p }, z[f.p], `zones.${i}.${f.p}`)).join('')}</div></div>`).join('')
+    + `<button type="button" class="btn btn-secondary btn-petit" id="afegeix-zona">＋ Afegeix una zona</button>`;
+}
+function plantillaZona(n) {
+  return { numero: n, nom: n === 1 ? 'Zona única' : `Zona ${n}`, usos: null, usuaris: null, accessible_public: null, accessible_menors: null,
+    adaptat_discapacitats: null, presencia_personal_parc: null, presencia_personal_alie: null, regim_personal_alie: null,
+    tipus_presencia_personal: null, detall_presencia_personal: null, necessitat_permis_previ: null, inclos_pla_autoproteccio: null };
+}
+function plantillaElement(u, codi, nom, tipus) {
+  return {
+    id: `${u}/${codi}`, codi, unitat: u, unitats: [u],
+    identificacio: { nom, titol: nom, altres_noms: [], tipus_element: tipus, destinacio_principal: null, tipus_propietat: null, titular: null,
+      referencia_cadastral: null, referencia_cadastral_nota: null, finca_registral: null, tipus_finca: null, proteccio_patrimoni: null },
+    localitzacio: { adreca: null, cp: null, municipi: null, localitzacio_cadastre: { text: null, poligon: null, parcela: null },
+      tipus_acces: null, acces_adaptat: null, utm: { x: null, y: null, text_original: null }, altitud_m: null },
+    construccio: { any_construccio: { valor: null, text: null, precisio: 'desconegut' }, reformes: { estat: 'desconegut', anys: [], descripcio: null },
+      reformes_programades: { programades: false, any: null, descripcio: null }, plantes: null, altell: false, superficie_m2: null,
+      planols: { fitxer: null, url: null }, materials: { envolvent: null, coberta: null, estructura: null, paviments_interiors: null },
+      serveis: { electricitat: null, aigua: null, sanejament: null, internet: null, alarma: null, vigilancia: null },
+      obert_public: null, interior_adaptat_discapacitats: null, estat_conservacio: null,
+      deficiencies: { detectades: null, descripcio: null, reparacions_i_cost: null, nombre_fotografies: 0 }, riscos: { detectats: null, descripcio: null } },
+    us_i_regim: { us_principal: null, propietari: null, usuari_explotador: null, regim_juridic: null,
+      document_juridic: { tipus: null, estat: null, fitxer: null, url: null }, zones_accessibles_public: null, presencia_personal_parc: null,
+      presencia_personal_alie: null, tipus_presencia_personal: null, detall_presencia_personal: null,
+      volum_anual_public: { estat: 'sense_dades', valor: null }, perfil_public: { estat: 'sense_dades', text: null }, pla_autoproteccio: { estat: 'no', fitxer: null } },
+    zones: [plantillaZona(1)], fotografies: { nombre: 0, fitxers: [] },
+    notes: { identificacio: null, localitzacio: null, construccio: null, fotografies: null, us: null },
+    meta: { origen: { fitxer: null, columna: null }, creat: null, creat_per: null, modificat: null, modificat_per: null, versio: 0, pendents: [] },
+  };
+}
+
+async function comprovaOnDesar() {
+  if (Carpeta.activa()) return true;
+  if (Carpeta.estat === 'noDisponible') return true;
+  const a = await finestra({
+    titol: '📁 No hi ha cap carpeta connectada',
+    cos: `<p>Els canvis es desen a la <strong>carpeta de treball</strong>. Ara mateix les dades es llegeixen del GitHub i no hi ha cap carpeta connectada.</p>
+      <p>Pots connectar-ne una ara o editar igualment: en aquest cas, els canvis es quedaran en aquesta finestra i els hauràs de <strong>descarregar</strong> abans de tancar-la.</p>`,
+    botons: [{ text: 'Cancel·la', accio: 'no' }, { text: 'Edita sense carpeta', accio: 'memoria' }, { text: 'Connecta la carpeta', accio: 'carpeta', principal: true }],
+  });
+  if (a === 'carpeta') { await Carpeta.connectar(); return Carpeta.activa(); }
+  return a === 'memoria';
+}
+async function iniciaEdicio(el, esAlta = false) {
+  if (!esAlta && !(await comprovaOnDesar())) return;
+  if (!S.usuari && !(await demanaUsuari('Abans d\'editar, indica qui fa els canvis.'))) return;
+  S.edicio = { original: el, esAlta, zones: clone(el.zones?.length ? el.zones : [plantillaZona(1)]) };
+  pintaEdicio();
+}
+function pintaEdicio() {
+  const el = S.edicio.original;
+  const grups = GRUPS.map(g => `<details class="grup" open><summary>${esc(g.t)}</summary><div class="grup-cos">
+      <div class="camps">${g.camps.map(f => htmlInput(f, get(el, f.p), f.p)).join('')}</div>
+      ${g.mapa ? '<div id="mini-mapa" class="mini-mapa"></div><div class="nota-mapa" id="nota-mini-mapa"></div>' : ''}</div></details>`).join('');
+  $('#panell-fitxa').innerHTML = `<div class="fitxa-edicio">${htmlCapFitxa(el, true)}
+    <div class="fitxa-cos">
+      <div class="info-box text-small">Els camps amb <span style="color:var(--color-danger)">*</span> són obligatoris. Els desplegables recullen els valors del catàleg i els camps de text suggereixen els valors que ja existeixen al patrimoni. Responsable: <strong>${esc(S.usuari?.nom || '')}</strong> · <button type="button" class="btn-link" data-accio="usuari">canvia</button></div>
+      ${htmlPendents(el)}<div id="errors-edicio"></div>${grups}
+      <details class="grup" open><summary>Zones</summary><div class="grup-cos" id="zones-edicio">${htmlZonesEdicio()}</div></details>
+    </div>
+    <div class="peu-edicio"><button type="button" class="btn btn-secondary" data-accio="cancela">Cancel·la</button>
+      <button type="button" class="btn btn-primary" data-accio="desa">Revisa i desa</button></div></div>`;
+  const p = $('#panell-fitxa');
+  p.querySelector('[data-accio="cancela"]').addEventListener('click', async () => { if (await potSortirEdicio()) { if (S.sel && S.perId.has(S.sel)) pintaFitxa(S.perId.get(S.sel)); else p.innerHTML = '<div class="fitxa-buida">Selecciona un immoble de la llista per veure\'n la fitxa.</div>'; } });
+  p.querySelector('[data-accio="desa"]').addEventListener('click', revisaIDesa);
+  p.querySelector('[data-accio="usuari"]').addEventListener('click', async () => { await demanaUsuari(); pintaUsuari(); $('#panell-fitxa .info-box strong').textContent = S.usuari?.nom || ''; });
+  $('#zones-edicio').addEventListener('click', e => {
+    const treu = e.target.closest('[data-treu-zona]');
+    if (treu) { sincronitzaZones(); S.edicio.zones.splice(+treu.dataset.treuZona, 1); $('#zones-edicio').innerHTML = htmlZonesEdicio(); return; }
+    if (e.target.id === 'afegeix-zona') { sincronitzaZones(); S.edicio.zones.push(plantillaZona(S.edicio.zones.length + 1)); $('#zones-edicio').innerHTML = htmlZonesEdicio(); $('#zones-edicio .zona:last-of-type input')?.focus(); }
+  });
+  pintaMiniMapa(el, true);
+  p.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function tancaEdicio() { S.edicio = null; }
+$('#panell-fitxa').addEventListener('input', e => { if (S.edicio) ajudaEmplenament(e); });
+$('#panell-fitxa').addEventListener('change', e => { if (S.edicio) ajudaEmplenament(e); });
+
+/** Ajudes en temps real: CP a partir del municipi, avís de valor nou, validació del camp. */
+function ajudaEmplenament(e) {
+  const inp = e.target;
+  if (!inp.dataset?.cami) return;
+  const cami = inp.dataset.cami, f = defDe(cami);
+  if (cami === 'localitzacio.municipi' && e.type === 'change') {
+    const cp = $('[data-cami="localitzacio.cp"]');
+    const hab = cpHabitual(inp.value.trim());
+    if (cp && !cp.value.trim() && hab) { cp.value = hab; validaInput(cp); toast(`CP omplert automàticament (${hab}).`, 'ok', 2500); }
+  }
+  if (f?.t === 'open') {
+    const nota = inp.parentElement.querySelector('.nou-valor');
+    const v = inp.value.trim();
+    const nou = v && !valorsExistents(f.p).includes(v);
+    nota.hidden = !nou;
+    nota.textContent = nou ? 'Valor nou: no apareix enlloc més del patrimoni. Comprova que no sigui una variant d\'un valor existent.' : '';
+  }
+  if (e.type === 'change' || inp.closest('.te-error')) validaInput(inp);
+}
+/** Llegeix i valida un camp. Retorna { v, err }. */
+function llegeixInput(inp) {
+  const f = defDe(inp.dataset.cami);
+  let raw = inp.value.trim();
+  if (f.maj) raw = raw.toUpperCase();
+  let v = raw === '' ? null : raw, err = null;
+  switch (f.t) {
+    case 'bool': v = raw === '' ? null : raw === 'true'; break;
+    case 'int':
+      if (raw !== '') { const n = Number(raw.replace(/\./g, '').replace(',', '.')); if (!Number.isInteger(n)) err = 'Ha de ser un nombre enter.'; else v = n; }
+      break;
+    case 'num':
+      if (raw !== '') { const n = Number(raw.replace(/\s/g, '').replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.')); if (!Number.isFinite(n)) err = 'Ha de ser un nombre.'; else v = n; }
+      break;
+    case 'csvtext': v = raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : []; break;
+    case 'csvint': {
+      const parts = raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : [];
+      const ns = parts.map(Number);
+      if (ns.some(n => !Number.isInteger(n))) err = 'Escriu anys separats per comes (ex.: 2002, 2009).';
+      else if (f.min != null && ns.some(n => n < f.min || n > f.max)) err = `Cada any ha d'estar entre ${f.min} i ${f.max}.`;
+      v = err ? raw : ns;
+      break;
+    }
+    case 'url': if (v && !/^https?:\/\/\S+$/i.test(v)) err = 'Ha de començar per http:// o https://'; break;
+  }
+  if (!err && f.req && buit(v)) err = 'Camp obligatori.';
+  if (!err && typeof v === 'number' && f.min != null && (v < f.min || v > f.max)) err = `Ha d'estar entre ${fmtNum(f.min)} i ${fmtNum(f.max)}${f.u ? ' ' + f.u : ''}.`;
+  if (!err && f.pat && v && !new RegExp(f.pat).test(v)) err = f.patMsg || 'Format incorrecte.';
+  return { v, err };
+}
+function validaInput(inp) {
+  const { err } = llegeixInput(inp);
+  const camp = inp.closest('.camp');
+  camp.classList.toggle('te-error', !!err);
+  const box = camp.querySelector('.camp-error');
+  box.hidden = !err;
+  box.textContent = err || '';
+  return !err;
+}
+function sincronitzaZones() {
+  $$('#zones-edicio [data-cami]').forEach(inp => {
+    const [, i, k] = inp.dataset.cami.split('.');
+    const { v } = llegeixInput(inp);
+    S.edicio.zones[+i][k] = v;
+  });
+}
+/** Recull el formulari. Retorna { nou, errors }. */
+function recullFormulari() {
+  const ed = S.edicio, nou = clone(ed.original), errors = [];
+  $$('#panell-fitxa [data-cami]').forEach(inp => {
+    if (!validaInput(inp)) errors.push({ inp, f: defDe(inp.dataset.cami) });
+    if (inp.dataset.cami.startsWith('zones.')) return;
+    set(nou, inp.dataset.cami, llegeixInput(inp).v);
+  });
+  sincronitzaZones();
+  nou.zones = ed.zones.map((z, i) => ({ ...plantillaZona(i + 1), ...z, numero: i + 1 }));
+  // Si es canvien les coordenades, el text original de l'Excel deixa de ser vàlid
+  const u0 = ed.original.localitzacio?.utm || {}, u1 = nou.localitzacio.utm;
+  if ((u0.x !== u1.x || u0.y !== u1.y) && u1.text_original) u1.text_original = null;
+  if ((u1.x == null) !== (u1.y == null)) errors.push({ inp: $('[data-cami="localitzacio.utm.x"]'), f: { l: 'Coordenades UTM' }, msg: 'Cal omplir la X i la Y.' });
+  // Pendents resolts: es treuen quan el camp ja té valor
+  nou.meta.pendents = (nou.meta.pendents || []).filter(pd => {
+    const v = get(nou, pd.camp);
+    const ple = v && typeof v === 'object' ? ('x' in v ? v.x != null && v.y != null : Object.values(v).every(x => x != null)) : !buit(v);
+    return !ple;
+  });
+  return { nou, errors };
+}
+const normal = v => JSON.stringify(v === undefined ? null : v);
+function diferencies(a, b) {
+  const out = [];
+  for (const f of CAMPS_PLANS) {
+    if (f.t === 'ro' && f.p !== 'localitzacio.utm.text_original') continue;
+    const va = get(a, f.p), vb = get(b, f.p);
+    if (normal(va) !== normal(vb)) out.push({ camp: f.p, etiqueta: f.l, abans: va ?? null, despres: vb ?? null });
+  }
+  const n = Math.max(a.zones?.length || 0, b.zones?.length || 0);
+  for (let i = 0; i < n; i++) {
+    const za = a.zones?.[i], zb = b.zones?.[i];
+    if (!za) { out.push({ camp: `zones.${i}`, etiqueta: `Zona ${i + 1} (nova)`, abans: null, despres: zb.nom }); continue; }
+    if (!zb) { out.push({ camp: `zones.${i}`, etiqueta: `Zona ${i + 1} (eliminada)`, abans: za.nom, despres: null }); continue; }
+    for (const f of ZONA_CAMPS) if (normal(za[f.p]) !== normal(zb[f.p])) out.push({ camp: `zones.${i}.${f.p}`, etiqueta: `Zona ${i + 1} · ${f.l}`, abans: za[f.p] ?? null, despres: zb[f.p] ?? null });
+  }
+  const pa = (a.meta?.pendents || []).map(x => x.camp), pb = (b.meta?.pendents || []).map(x => x.camp);
+  if (normal(pa) !== normal(pb)) out.push({ camp: 'meta.pendents', etiqueta: 'Dades pendents', abans: pa, despres: pb });
+  return out;
+}
+/** Avisos de coherència (no impedeixen desar). */
+function avisosCoherencia(el) {
+  const av = [], c = el.construccio, u = el.us_i_regim;
+  if (c.deficiencies?.detectades === true && !c.deficiencies.descripcio) av.push('Hi ha deficiències detectades però no se\'n descriu cap.');
+  if (c.riscos?.detectats === true && !c.riscos.descripcio) av.push('Hi ha riscos detectats però no se\'n descriu cap.');
+  if (['exacte', 'decada'].includes(c.any_construccio?.precisio) && c.any_construccio.valor == null) av.push('La precisió de l\'any és «exacte» o «dècada», però no hi ha cap any.');
+  if (c.any_construccio?.precisio === 'desconegut' && c.any_construccio.valor != null) av.push('Hi ha un any de construcció però la precisió diu «desconegut».');
+  if (c.reformes?.estat === 'amb_reformes' && !c.reformes.descripcio && !c.reformes.anys?.length) av.push('Diu que té reformes però no n\'hi ha ni anys ni descripció.');
+  if (c.reformes_programades?.programades === true && !c.reformes_programades.descripcio) av.push('Hi ha una reforma programada sense descripció.');
+  if (u.volum_anual_public?.estat === 'dada' && u.volum_anual_public.valor == null) av.push('El volum de públic diu «amb dada» però no hi ha cap xifra.');
+  if (c.obert_public === false && (el.zones || []).some(z => z.accessible_public === true)) av.push('L\'immoble no és obert al públic però alguna zona hi consta com a accessible.');
+  if (el.localitzacio?.utm?.x == null) av.push('L\'immoble no té coordenades UTM: no apareixerà al mapa.');
+  const m = el.localitzacio?.municipi, cp = el.localitzacio?.cp, hab = m && cpHabitual(m);
+  if (hab && cp && hab !== cp) av.push(`El CP ${cp} no és l'habitual de ${m} (${hab}). Comprova'l.`);
+  if (c.estat_conservacio == null) av.push('No s\'ha indicat l\'estat de conservació.');
+  return av;
+}
+function htmlTaulaCanvis(canvis) {
+  return `<table class="canvis-llista"><thead><tr><th>Camp</th><th>Abans</th><th>Després</th></tr></thead><tbody>${canvis.map(c => {
+    const f = defDe(c.camp);
+    const t = v => (buit(v) ? '<span class="buit">—</span>' : esc(f ? textValor(f, v) : (Array.isArray(v) ? v.join(', ') : v)));
+    return `<tr><td>${esc(c.etiqueta)}</td><td class="abans">${t(c.abans)}</td><td class="despres">${t(c.despres)}</td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+async function revisaIDesa() {
+  const ed = S.edicio;
+  const { nou, errors } = recullFormulari();
+  if (errors.length) {
+    $('#errors-edicio').innerHTML = `<div class="error-box"><strong>Hi ha ${errors.length} ${errors.length === 1 ? 'camp' : 'camps'} per corregir:</strong> ${errors.map(e => esc(e.f.l)).join(', ')}.</div>`;
+    (errors[0].inp)?.focus();
+    errors[0].inp?.scrollIntoView({ block: 'center' });
+    return;
+  }
+  $('#errors-edicio').innerHTML = '';
+  const canvis = ed.esAlta ? diferencies(plantillaElement(nou.unitat, nou.codi, null, null), nou) : diferencies(ed.original, nou);
+  if (!canvis.length && !ed.esAlta) { toast('No hi ha cap canvi per desar.', 'avis'); return; }
+  const avisos = avisosCoherencia(nou);
+  const r = await finestra({
+    titol: ed.esAlta ? 'Alta d\'un immoble nou' : 'Revisa els canvis',
+    ampla: true,
+    cos: `<p><strong>${esc(nou.identificacio.nom)}</strong> <span class="text-muted">(${esc(nou.id)})</span></p>
+      <p class="text-small">Responsable: <strong>${esc(S.usuari?.nom)}</strong>${S.usuari?.unitat ? ' · ' + esc(S.usuari.unitat) : ''} · ${Carpeta.activa() ? `es desarà a la carpeta <strong>${esc(Carpeta.nom())}</strong>` : '<strong>sense carpeta</strong>: caldrà descarregar els fitxers'}</p>
+      ${avisos.length ? `<div class="fc-nota"><strong>Comprovacions:</strong><ul style="margin:4px 0 0 18px">${avisos.map(a => `<li>${esc(a)}</li>`).join('')}</ul></div>` : ''}
+      <p><strong>${canvis.length} ${canvis.length === 1 ? 'camp modificat' : 'camps modificats'}</strong></p>
+      <div class="taula-wrap" style="max-height:40vh;overflow:auto;margin-bottom:12px">${htmlTaulaCanvis(canvis)}</div>
+      <div class="camp"><label for="motiu-canvi">Motiu o observacions del canvi (opcional)</label><textarea id="motiu-canvi" rows="2" placeholder="Ex.: revisió de camp del 26/10/2026; informació del tècnic de manteniment…"></textarea></div>`,
+    botons: [{ text: 'Torna a l\'edició', accio: 'no' }, { text: ed.esAlta ? 'Dona d\'alta' : 'Desa els canvis', accio: 'si', principal: true, recull: f => $('#motiu-canvi', f).value.trim() }],
+  });
+  if (r?.accio !== 'si') return;
+  const moment = ara();
+  const versioAnterior = ed.original.meta?.versio || 0;
+  nou.meta.versio = versioAnterior + 1;
+  nou.meta.modificat = moment;
+  nou.meta.modificat_per = S.usuari.nom;
+  if (ed.esAlta) { nou.meta.creat = moment; nou.meta.creat_per = S.usuari.nom; }
+  const entrada = {
+    id: 'c-' + moment.replace(/\D/g, '').slice(0, 14) + '-' + Math.random().toString(36).slice(2, 7),
+    data: moment, usuari: { nom: S.usuari.nom, unitat: S.usuari.unitat || null, font: 'manual' },
+    accio: ed.esAlta ? 'alta' : 'modificacio', element: nou.id, nom_element: nou.identificacio.nom, unitat: nou.unitat,
+    versio: nou.meta.versio, canvis, motiu: r.dades || null,
+  };
+  try {
+    if (Carpeta.activa()) {
+      const res = await Carpeta.desa(nou, entrada, versioAnterior, ed.esAlta);
+      S.elements = res.elements;
+      S.historial = res.historial;
+    } else {
+      if (ed.esAlta) S.elements.push(nou); else S.elements[S.elements.findIndex(e => e.id === nou.id)] = nou;
+      S.historial.push(entrada);
+      S.pendents++;
+    }
+  } catch (e) {
+    if (e.conflicte) {
+      const a = await finestra({ titol: '⚠ No s\'ha pogut desar', cos: `<p>${esc(e.message)}</p><p>Els teus canvis <strong>no s'han desat</strong> per no trepitjar els de l'altra persona. Recarrega l'immoble i torna a aplicar els canvis.</p>`,
+        botons: [{ text: 'Continua editant', accio: 'no' }, { text: 'Recarrega les dades', accio: 'si', principal: true }] });
+      if (a === 'si') { tancaEdicio(); await recarregaDades(); }
+    } else toast('Error en desar: ' + e.message, 'error', 10000);
+    return;
+  }
+  tancaEdicio();
+  indexa();
+  S.sel = nou.id;
+  refrescaTot();
+  Carpeta.repinta();
+  const fet = entrada.accio === 'alta' ? `Immoble donat d'alta: ${nou.identificacio.nom}.` : `Canvis desats (${canvis.length}).`;
+  toast(Carpeta.activa() ? fet : `${fet} Recorda descarregar els fitxers: encara no s'han desat en cap carpeta.`, Carpeta.activa() ? 'ok' : 'avis', Carpeta.activa() ? 4500 : 9000);
+}
+
+// ---------- Alta ----------
+$('#btn-nou').addEventListener('click', async () => {
+  if (!S.parc || !(await potSortirEdicio())) return;
+  if (!(await comprovaOnDesar())) return;
+  const r = await finestra({
+    titol: `＋ Nou immoble a ${esc(S.parc)}`,
+    cos: `<p class="text-small">${esc(nomUnitat(S.parc))}</p>
+      <div class="camp"><label for="n-nom" class="required">Nom</label><input type="text" id="n-nom"><div class="camp-error" hidden></div></div>
+      <div class="camp"><label for="n-tipus" class="required">Tipus d'element</label><input type="text" id="n-tipus" list="${dlId('identificacio.tipus_element')}" autocomplete="off"><div class="camp-error" hidden></div></div>
+      <div class="camp"><label for="n-codi" class="required">Codi</label><input type="text" id="n-codi" placeholder="ex.: mas_el_cortalet">
+        <div class="ajuda">Minúscules, xifres i guions baixos. L'identificador serà <strong>${esc(S.parc)}/<span id="n-prev">…</span></strong></div><div class="camp-error" hidden></div></div>`,
+    botons: [{ text: 'Cancel·la', accio: 'no' }, { text: 'Continua', accio: 'si', principal: true,
+      validar: f => {
+        const err = (id, msg) => { const e = $(id, f).parentElement.querySelector('.camp-error'); e.hidden = !msg; e.textContent = msg || ''; return !msg; };
+        const codi = $('#n-codi', f).value.trim();
+        const a = err('#n-nom', $('#n-nom', f).value.trim() ? null : 'Camp obligatori.');
+        const b = err('#n-tipus', $('#n-tipus', f).value.trim() ? null : 'Camp obligatori.');
+        const c = err('#n-codi', !/^[a-z0-9_]{3,60}$/.test(codi) ? 'Només minúscules, xifres i _ (mínim 3 caràcters).' : S.perId.has(`${S.parc}/${codi}`) ? 'Aquest codi ja existeix en aquest espai.' : null);
+        return a && b && c;
+      },
+      recull: f => ({ nom: $('#n-nom', f).value.trim(), tipus: $('#n-tipus', f).value.trim(), codi: $('#n-codi', f).value.trim() }) }],
+    enObrir: f => {
+      const slug = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 60);
+      let tocat = false;
+      $('#n-codi', f).addEventListener('input', () => { tocat = true; $('#n-prev', f).textContent = $('#n-codi', f).value || '…'; });
+      $('#n-nom', f).addEventListener('input', () => { if (!tocat) { $('#n-codi', f).value = slug($('#n-nom', f).value); $('#n-prev', f).textContent = $('#n-codi', f).value || '…'; } });
+    },
+  });
+  if (r?.accio !== 'si') return;
+  S.sel = null;
+  $$('#llista-immobles button').forEach(b => b.classList.remove('sel'));
+  await iniciaEdicio(plantillaElement(S.parc, r.dades.codi, r.dades.nom, r.dades.tipus), true);
+});
+
+// ---------- Historial / registre de canvis ----------
+function htmlEntradaHistorial(h) {
+  return `<div class="zona"><div class="zona-cap"><h4>${fmtData(h.data)} · ${esc(h.usuari?.nom || '—')}${h.usuari?.unitat ? ` <span class="text-muted">(${esc(h.usuari.unitat)})</span>` : ''}</h4>
+    <span class="xip">${h.accio === 'alta' ? 'Alta' : `${h.canvis.length} ${h.canvis.length === 1 ? 'canvi' : 'canvis'}`}</span></div>
+    ${h.motiu ? `<p class="text-small"><strong>Motiu:</strong> ${esc(h.motiu)}</p>` : ''}${htmlTaulaCanvis(h.canvis)}</div>`;
+}
+let filtreRegistre = { espai: '', text: '' };
+async function mostraRegistre() {
+  if (!(await potSortirEdicio())) return;
+  $('#vista-inici').hidden = true;
+  $('#vista-parc').hidden = true;
+  const v = $('#vista-registre');
+  v.hidden = false;
+  filtreRegistre.espai = filtreRegistre.espai || S.parc || '';
+  v.innerHTML = `<div class="targeta">
+      <div class="targeta-cap"><h2>Registre de canvis</h2><button type="button" class="btn btn-secondary btn-petit" id="tanca-registre">← Torna als immobles</button></div>
+      <div class="barra-parc" style="margin-bottom:10px">
+        <select id="reg-espai" style="max-width:360px"><option value="">Tots els espais</option>${espaisOrdenats().map(c => `<option value="${esc(c)}" ${c === filtreRegistre.espai ? 'selected' : ''}>${esc(nomUnitat(c))}</option>`).join('')}</select>
+        <input type="search" id="reg-text" placeholder="Cerca per persona, immoble o motiu" style="max-width:360px" value="${esc(filtreRegistre.text)}">
+        <button type="button" class="btn btn-secondary btn-petit" id="reg-csv">Exporta a CSV</button>
+      </div>
+      <div class="taula-wrap"><table class="taula" id="taula-registre"></table></div></div>`;
+  const pinta = () => {
+    const q = filtreRegistre.text.toLowerCase();
+    const files = S.historial.filter(h => (!filtreRegistre.espai || h.unitat === filtreRegistre.espai || S.perId.get(h.element) && unitatsDe(S.perId.get(h.element)).includes(filtreRegistre.espai))
+      && (!q || [h.usuari?.nom, h.nom_element, h.element, h.motiu].some(t => String(t || '').toLowerCase().includes(q))))
+      .sort((a, b) => ordCa(b.data, a.data));
+    $('#taula-registre').innerHTML = `<thead><tr><th>Data</th><th>Responsable</th><th>Acció</th><th>Immoble</th><th class="num">Camps</th><th>Motiu</th></tr></thead><tbody>${
+      files.map((h, i) => `<tr class="clic" data-fila="${i}"><td>${fmtData(h.data)}</td><td>${esc(h.usuari?.nom)}${h.usuari?.unitat ? ` <span class="text-muted">(${esc(h.usuari.unitat)})</span>` : ''}</td>
+        <td>${h.accio === 'alta' ? 'Alta' : 'Modificació'}</td><td><button type="button" class="btn-link" data-ves="${esc(h.element)}">${esc(h.nom_element || h.element)}</button></td>
+        <td class="num">${h.canvis.length}</td><td>${esc(h.motiu || '')}</td></tr>
+        <tr class="detall" data-detall="${i}" hidden><td colspan="6">${htmlTaulaCanvis(h.canvis)}</td></tr>`).join('')
+      || '<tr><td colspan="6" class="buit" style="padding:20px">Encara no hi ha cap canvi registrat.</td></tr>'}</tbody>`;
+    pinta.files = files;
+  };
+  pinta();
+  $('#reg-espai').addEventListener('change', e => { filtreRegistre.espai = e.target.value; pinta(); });
+  $('#reg-text').addEventListener('input', e => { filtreRegistre.text = e.target.value; pinta(); });
+  $('#tanca-registre').addEventListener('click', () => { v.hidden = true; triaParc(S.parc, { mantenirSeleccio: true }); if (!S.parc) $('#vista-inici').hidden = false; });
+  $('#reg-csv').addEventListener('click', () => {
+    const files = [['Data', 'Responsable', 'Unitat responsable', 'Acció', 'Identificador', 'Immoble', 'Camp', 'Abans', 'Després', 'Motiu']];
+    pinta.files.forEach(h => h.canvis.forEach(c => { const f = defDe(c.camp); const t = x => (buit(x) ? '' : f ? textValor(f, x) : String(x)); files.push([h.data, h.usuari?.nom, h.usuari?.unitat, h.accio, h.element, h.nom_element, c.etiqueta, t(c.abans), t(c.despres), h.motiu]); }));
+    descarrega(`registre_canvis_${new Date().toISOString().slice(0, 10)}.csv`, aCSV(files), 'text/csv;charset=utf-8');
+  });
+  $('#taula-registre').addEventListener('click', e => {
+    const ves = e.target.closest('[data-ves]');
+    if (ves) { v.hidden = true; vesAElement(ves.dataset.ves); return; }
+    const tr = e.target.closest('[data-fila]');
+    if (tr) { const d = $(`[data-detall="${tr.dataset.fila}"]`); d.hidden = !d.hidden; }
+  });
+}
+$('#btn-registre').addEventListener('click', mostraRegistre);
+
+// ════════════════════════════════════════════════════════════════════
+// MÒDUL 2 · GESTIÓ DE DADES
+// ════════════════════════════════════════════════════════════════════
+function aCSV(files) {
+  const cel = v => { const s = v == null ? '' : String(v); return /[";\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  return '﻿' + files.map(f => f.map(cel).join(';')).join('\r\n');
+}
+const Dades = (() => {
+  const NUL = '__nul';
+  const multi = (id, l, valors, x = {}) => ({ id, l, t: 'multi', valors, ...x });
+  const FILTRES = [
+    multi('unitat', 'Espai natural', unitatsDe, { etiqueta: c => nomUnitat(c), obert: true }),
+    multi('tipus', "Tipus d'element", e => [e.identificacio?.tipus_element], { cerca: true }),
+    multi('estat', 'Estat de conservació', e => [e.construccio?.estat_conservacio], { cat: 'estat_conservacio', obert: true }),
+    multi('municipi', 'Municipi', e => [e.localitzacio?.municipi], { cerca: true }),
+    multi('propietat', 'Tipus de propietat', e => [e.identificacio?.tipus_propietat], { cat: 'tipus_propietat' }),
+    multi('titular', 'Titular', e => [e.identificacio?.titular], { cerca: true }),
+    multi('finca', 'Tipus de finca', e => [e.identificacio?.tipus_finca], { cat: 'tipus_finca' }),
+    multi('us', 'Ús principal', e => [e.us_i_regim?.us_principal], { cerca: true }),
+    multi('regim', "Règim jurídic d'ús", e => [e.us_i_regim?.regim_juridic], { cerca: true }),
+    multi('docestat', 'Estat del document jurídic', e => [e.us_i_regim?.document_juridic?.estat], { cat: 'estat_document' }),
+    multi('acces', "Tipus d'accés", e => [e.localitzacio?.tipus_acces], { cat: 'tipus_acces' }),
+    multi('sanejament', 'Sanejament', e => [e.construccio?.serveis?.sanejament], { cat: 'sanejament' }),
+    multi('presencia', 'Presència de personal', e => [e.us_i_regim?.tipus_presencia_personal], { cat: 'tipus_presencia_personal' }),
+  ];
+  const TRI = [
+    ['proteccio', 'Protecció patrimonial', e => e.identificacio?.proteccio_patrimoni],
+    ['obert', 'Obert al públic', e => e.construccio?.obert_public],
+    ['adaptat', 'Accés adaptat', e => e.localitzacio?.acces_adaptat],
+    ['electricitat', 'Electricitat', e => e.construccio?.serveis?.electricitat],
+    ['aigua', 'Aigua', e => e.construccio?.serveis?.aigua],
+    ['internet', 'Internet', e => e.construccio?.serveis?.internet],
+    ['alarma', 'Alarma', e => e.construccio?.serveis?.alarma],
+    ['deficiencies', 'Deficiències detectades', e => e.construccio?.deficiencies?.detectades],
+    ['riscos', 'Riscos per a les persones', e => e.construccio?.riscos?.detectats],
+    ['reformes', 'Reformes programades', e => e.construccio?.reformes_programades?.programades],
+    ['coords', 'Té coordenades', e => e.localitzacio?.utm?.x != null],
+    ['pendents', 'Té dades pendents', e => (e.meta?.pendents?.length || 0) > 0],
+  ].map(([id, l, get]) => ({ id, l, get }));
+  const RANGS = [
+    ['sup', 'Superfície (m²)', e => e.construccio?.superficie_m2],
+    ['alt', 'Altitud (m)', e => e.localitzacio?.altitud_m],
+    ['any', 'Any de construcció', e => e.construccio?.any_construccio?.valor],
+    ['volum', 'Persones per any', e => e.us_i_regim?.volum_anual_public?.valor],
+  ].map(([id, l, get]) => ({ id, l, get }));
+
+  const st = { text: '', multi: {}, tri: {}, rang: {}, cercaOpcio: {}, obert: new Set(['unitat', 'estat']), ord: { col: 'nom', asc: true }, pagina: 0 };
+  const MIDA_PAGINA = 50;
+  let mapa = null, capaPunts = null, iniciat = false, resultats = [];
+
+  const clauV = v => (v == null || v === '' ? NUL : v);
+  function textCerca(e) {
+    return [e.id, e.identificacio?.nom, e.identificacio?.titol, ...(e.identificacio?.altres_noms || []), e.localitzacio?.municipi,
+      e.localitzacio?.adreca, e.identificacio?.tipus_element, e.us_i_regim?.us_principal].join(' ').toLowerCase();
+  }
+  function passa(e, excepte) {
+    if (st.text && !textCerca(e).includes(st.text.toLowerCase())) return false;
+    for (const f of FILTRES) {
+      if (f.id === excepte) continue;
+      const sel = st.multi[f.id];
+      if (sel?.size && !f.valors(e).some(v => sel.has(clauV(v)))) return false;
+    }
+    for (const f of TRI) {
+      const t = st.tri[f.id];
+      if (!t) continue;
+      const v = f.get(e);
+      if (t === 'si' && v !== true) return false;
+      if (t === 'no' && v !== false) return false;
+      if (t === 'buit' && v != null) return false;
+    }
+    for (const f of RANGS) {
+      const r = st.rang[f.id];
+      if (!r || (r.min == null && r.max == null)) continue;
+      const v = f.get(e);
+      if (v == null || (r.min != null && v < r.min) || (r.max != null && v > r.max)) return false;
+    }
+    return true;
+  }
+  const etiquetaOpcio = (f, v) => (v === NUL ? '(sense dada)' : f.etiqueta ? f.etiqueta(v) : f.cat ? etiq(f.cat, v) : v);
+
+  function pintaFiltres() {
+    const html = [];
+    for (const f of FILTRES) {
+      const base = S.elements.filter(e => passa(e, f.id));
+      const compte = {};
+      base.forEach(e => new Set(f.valors(e).map(clauV)).forEach(v => { compte[v] = (compte[v] || 0) + 1; }));
+      const tots = new Set([...S.elements.flatMap(e => f.valors(e).map(clauV))]);
+      let ops = [...tots];
+      if (f.cat) { const ordre = Object.keys(S.cat.tancats[f.cat] || {}); ops.sort((a, b) => (ordre.indexOf(a) + 1 || 999) - (ordre.indexOf(b) + 1 || 999)); }
+      else ops.sort((a, b) => (a === NUL) - (b === NUL) || ordCa(etiquetaOpcio(f, a), etiquetaOpcio(f, b)));
+      const sel = st.multi[f.id] || new Set();
+      const q = (st.cercaOpcio[f.id] || '').toLowerCase();
+      html.push(`<details class="filtre" data-filtre="${f.id}" ${st.obert.has(f.id) || sel.size ? 'open' : ''}>
+        <summary>${esc(f.l)} ${sel.size ? `<span class="n-sel">${sel.size}</span>` : ''}</summary>
+        <div class="filtre-cos">${f.cerca ? `<input type="search" class="cerca-opcio" data-cerca-opcio="${f.id}" placeholder="Cerca…" value="${esc(st.cercaOpcio[f.id] || '')}">` : ''}
+        <div class="opcions">${ops.map(v => {
+          const t = etiquetaOpcio(f, v), n = compte[v] || 0;
+          const amagat = q && !String(t).toLowerCase().includes(q);
+          return `<label class="opcio ${n ? '' : 'zero'}" ${amagat ? 'hidden' : ''} title="${esc(t)}"><input type="checkbox" data-multi="${f.id}" value="${esc(v)}" ${sel.has(v) ? 'checked' : ''}>
+            <span class="t">${f.id === 'estat' ? htmlEstat(v === NUL ? null : v) : esc(t)}</span><span class="c">${n}</span></label>`;
+        }).join('')}</div></div></details>`);
+    }
+    html.push(`<details class="filtre" data-filtre="_tri" ${st.obert.has('_tri') || Object.values(st.tri).some(Boolean) ? 'open' : ''}>
+      <summary>Característiques ${Object.values(st.tri).filter(Boolean).length ? `<span class="n-sel">${Object.values(st.tri).filter(Boolean).length}</span>` : ''}</summary>
+      <div class="filtre-cos">${TRI.map(f => `<div class="tri"><label for="tri-${f.id}">${esc(f.l)}</label><select id="tri-${f.id}" data-tri="${f.id}">
+        ${[['', 'Qualsevol'], ['si', 'Sí'], ['no', 'No'], ...(['coords', 'pendents'].includes(f.id) ? [] : [['buit', 'Sense dada']])].map(([k, l]) => `<option value="${k}" ${st.tri[f.id] === k ? 'selected' : ''}>${l}</option>`).join('')}
+      </select></div>`).join('')}</div></details>`);
+    html.push(`<details class="filtre" data-filtre="_rang" ${st.obert.has('_rang') || Object.values(st.rang).some(r => r && (r.min != null || r.max != null)) ? 'open' : ''}>
+      <summary>Valors numèrics</summary><div class="filtre-cos">${RANGS.map(f => `<div style="margin-bottom:8px"><div class="text-small">${esc(f.l)}</div>
+        <div class="rang"><input type="text" inputmode="numeric" placeholder="Mínim" data-rang="${f.id}" data-lim="min" value="${st.rang[f.id]?.min ?? ''}" aria-label="${esc(f.l)} mínim">
+        <input type="text" inputmode="numeric" placeholder="Màxim" data-rang="${f.id}" data-lim="max" value="${st.rang[f.id]?.max ?? ''}" aria-label="${esc(f.l)} màxim"></div></div>`).join('')}</div></details>`);
+    $('#filtres').innerHTML = html.join('');
+  }
+  function pintaXips() {
+    const x = [];
+    if (st.text) x.push(['text', '', `Cerca: «${st.text}»`]);
+    for (const f of FILTRES) (st.multi[f.id] || new Set()).forEach(v => x.push(['multi', f.id + '|' + v, `${f.l}: ${etiquetaOpcio(f, v)}`]));
+    for (const f of TRI) if (st.tri[f.id]) x.push(['tri', f.id, `${f.l}: ${{ si: 'Sí', no: 'No', buit: 'Sense dada' }[st.tri[f.id]]}`]);
+    for (const f of RANGS) { const r = st.rang[f.id]; if (r && (r.min != null || r.max != null)) x.push(['rang', f.id, `${f.l}: ${r.min ?? '…'} – ${r.max ?? '…'}`]); }
+    $('#chips-filtres').innerHTML = x.map(([t, k, l]) => `<button type="button" class="xip" data-treu="${t}" data-clau="${esc(k)}" title="Treu el filtre">${esc(l)} ✕</button>`).join('');
+  }
+  function aplica({ refiltres = true } = {}) {
+    resultats = S.elements.filter(e => passa(e));
+    if (refiltres) pintaFiltres();
+    pintaXips();
+    pintaKPIs();
+    pintaMapa();
+    pintaDistribucions();
+    st.pagina = 0;
+    pintaTaula();
+  }
+  function pintaKPIs() {
+    const n = resultats.length, tot = S.elements.length;
+    const sup = resultats.reduce((s, e) => s + (e.construccio?.superficie_m2 || 0), 0);
+    const ambEstat = resultats.filter(e => e.construccio?.estat_conservacio);
+    const bo = ambEstat.filter(e => e.construccio.estat_conservacio === 'bo').length;
+    const def = resultats.filter(e => e.construccio?.deficiencies?.detectades || e.construccio?.riscos?.detectats).length;
+    const sense = resultats.filter(e => e.localitzacio?.utm?.x == null).length;
+    const pct = (a, b) => (b ? Math.round(100 * a / b) : 0);
+    const k = [
+      ['Immobles', fmtNum(n), n === tot ? 'Tot el patrimoni' : `de ${fmtNum(tot)} (${pct(n, tot)} %)`],
+      ['Superfície total', fmtNum(Math.round(sup)) + ' m²', n ? `${fmtNum(Math.round(sup / n))} m² de mitjana` : ''],
+      ['En bon estat', pct(bo, ambEstat.length) + ' %', `${fmtNum(bo)} de ${fmtNum(ambEstat.length)} amb estat informat`],
+      ['Amb deficiències o riscos', fmtNum(def), `${pct(def, n)} % dels filtrats`],
+      ['Sense coordenades', fmtNum(sense), sense ? 'No surten al mapa' : 'Tots surten al mapa'],
+    ];
+    $('#kpis').innerHTML = k.map(([e, v, s]) => `<div class="kpi"><div class="et">${esc(e)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
+  }
+  function iniciaMapa() {
+    if (mapa || !window.L) return;
+    const capes = capesBase();
+    mapa = L.map('mapa-dades', { layers: [capes['Topogràfic (ICGC)']], scrollWheelZoom: true }).setView(CENTRE_CAT, 8);
+    L.control.layers(capes, null, { collapsed: true }).addTo(mapa);
+    L.control.scale({ imperial: false }).addTo(mapa);
+    const lleg = L.control({ position: 'bottomright' });
+    lleg.onAdd = () => {
+      const d = L.DomUtil.create('div', 'llegenda-mapa');
+      d.innerHTML = '<strong>Estat de conservació</strong><br>' + ['bo', 'regular', 'dolent', 'parcialment_ruinos', 'ruinos', null].map(c => htmlEstat(c)).join('<br>');
+      return d;
+    };
+    lleg.addTo(mapa);
+    capaPunts = L.featureGroup().addTo(mapa);
+    $('#mapa-dades').addEventListener('click', e => { const b = e.target.closest('[data-ves]'); if (b) vesAElement(b.dataset.ves); });
+  }
+  function pintaMapa() {
+    if (!window.L) { $('#mapa-dades').innerHTML = '<div class="fitxa-buida">El mapa no està disponible (no s\'ha pogut carregar Leaflet).</div>'; return; }
+    if (!mapa) return;
+    capaPunts.clearLayers();
+    let sense = 0;
+    const ordre = { bo: 0, regular: 1, dolent: 2, parcialment_ruinos: 3, ruinos: 4 };
+    [...resultats].sort((a, b) => (ordre[a.construccio?.estat_conservacio] ?? -1) - (ordre[b.construccio?.estat_conservacio] ?? -1)).forEach(e => {
+      const ll = latLonDe(e);
+      if (!ll) { sense++; return; }
+      marcador(ll, e.construccio?.estat_conservacio)
+        .bindTooltip(esc(e.identificacio?.nom || e.codi), { direction: 'top', offset: [0, -6] })
+        .bindPopup(`<div class="popup-el"><h4>${esc(e.identificacio?.nom)}</h4><p class="text-muted">${esc(e.id)}</p>
+          <p>${esc(nomUnitat(e.unitat))}</p><p>${esc(e.identificacio?.tipus_element || '')}${e.localitzacio?.municipi ? ' · ' + esc(e.localitzacio.municipi) : ''}</p>
+          <p>${htmlEstat(e.construccio?.estat_conservacio)}</p><p style="margin-top:6px"><button type="button" class="btn btn-primary btn-petit" data-ves="${esc(e.id)}">Obre la fitxa</button></p></div>`)
+        .addTo(capaPunts);
+    });
+    $('#mapa-nota').textContent = `${fmtNum(resultats.length - sense)} immobles al mapa` + (sense ? ` · ${fmtNum(sense)} sense coordenades (no es mostren)` : '') + ' · Coordenades ETRS89 / UTM 31N.';
+    if ($('#ajusta-mapa').checked && capaPunts.getLayers().length) mapa.fitBounds(capaPunts.getBounds(), { padding: [30, 30], maxZoom: 15 });
+  }
+  function barres(cont, files, total) {
+    const max = Math.max(1, ...files.map(f => f.n));
+    $(cont).innerHTML = files.map(f => `<div class="barra" title="${esc(f.text)}: ${fmtNum(f.n)} (${total ? Math.round(100 * f.n / total) : 0} %)">
+        <span class="t">${f.html || esc(f.text)}</span><span class="pista"><span class="ple" style="width:${(100 * f.n / max).toFixed(1)}%;background:${f.color}"></span></span>
+        <span class="n">${fmtNum(f.n)}</span></div>`).join('') || '<p class="buit">Cap immoble.</p>';
+  }
+  function pintaDistribucions() {
+    const n = resultats.length;
+    const perEstat = {};
+    resultats.forEach(e => { const k = e.construccio?.estat_conservacio || '_'; perEstat[k] = (perEstat[k] || 0) + 1; });
+    barres('#dist-estat', ['bo', 'regular', 'dolent', 'parcialment_ruinos', 'ruinos', '_'].filter(k => perEstat[k]).map(k => ({
+      n: perEstat[k], text: k === '_' ? 'Sense dada' : etiq('estat_conservacio', k), html: htmlEstat(k === '_' ? null : k), color: (ESTATS[k] || ESTATS._).hex })), n);
+    const perTipus = {};
+    resultats.forEach(e => { const k = e.identificacio?.tipus_element || '(sense dada)'; perTipus[k] = (perTipus[k] || 0) + 1; });
+    barres('#dist-tipus', Object.entries(perTipus).sort((a, b) => b[1] - a[1] || ordCa(a[0], b[0])).slice(0, 10)
+      .map(([t, k]) => ({ n: k, text: t, color: 'var(--color-primary-teal)' })), n);
+  }
+  const COLS = [
+    { id: 'nom', l: 'Nom', v: e => e.identificacio?.nom || '' },
+    { id: 'unitat', l: 'Espai', v: e => e.unitat, html: e => `<span title="${esc(nomUnitat(e.unitat))}">${esc(unitatsDe(e).join(', '))}</span>` },
+    { id: 'tipus', l: 'Tipus', v: e => e.identificacio?.tipus_element || '' },
+    { id: 'municipi', l: 'Municipi', v: e => e.localitzacio?.municipi || '' },
+    { id: 'estat', l: 'Estat', v: e => ({ bo: 0, regular: 1, dolent: 2, parcialment_ruinos: 3, ruinos: 4 }[e.construccio?.estat_conservacio] ?? 9), html: e => htmlEstat(e.construccio?.estat_conservacio) },
+    { id: 'sup', l: 'Superfície (m²)', num: true, v: e => e.construccio?.superficie_m2 ?? -1, html: e => fmtNum(e.construccio?.superficie_m2) },
+    { id: 'any', l: 'Any', num: true, v: e => e.construccio?.any_construccio?.valor ?? -1, html: e => esc(e.construccio?.any_construccio?.valor ?? e.construccio?.any_construccio?.text ?? '') },
+    { id: 'def', l: 'Deficiències / riscos', v: e => (e.construccio?.deficiencies?.detectades ? 2 : 0) + (e.construccio?.riscos?.detectats ? 1 : 0),
+      html: e => [e.construccio?.deficiencies?.detectades ? 'Deficiències' : '', e.construccio?.riscos?.detectats ? 'Riscos' : ''].filter(Boolean).join(' · ') },
+  ];
+  function pintaTaula() {
+    const col = COLS.find(c => c.id === st.ord.col) || COLS[0];
+    const ordenats = [...resultats].sort((a, b) => {
+      const va = col.v(a), vb = col.v(b);
+      const r = typeof va === 'number' && typeof vb === 'number' ? va - vb : ordCa(va, vb);
+      return st.ord.asc ? r : -r;
+    });
+    const pagines = Math.max(1, Math.ceil(ordenats.length / MIDA_PAGINA));
+    st.pagina = Math.min(st.pagina, pagines - 1);
+    const pag = ordenats.slice(st.pagina * MIDA_PAGINA, (st.pagina + 1) * MIDA_PAGINA);
+    $('#taula-dades').innerHTML = `<thead><tr>${COLS.map(c => `<th class="ord ${c.num ? 'num' : ''}" data-ord="${c.id}" aria-sort="${st.ord.col === c.id ? (st.ord.asc ? 'ascending' : 'descending') : 'none'}">${esc(c.l)}${st.ord.col === c.id ? (st.ord.asc ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr></thead>
+      <tbody>${pag.map(e => `<tr class="clic" data-ves="${esc(e.id)}" tabindex="0">${COLS.map(c => `<td class="${c.num ? 'num' : ''}">${c.html ? c.html(e) : esc(c.v(e))}</td>`).join('')}</tr>`).join('')
+      || `<tr><td colspan="${COLS.length}" class="buit" style="padding:20px">Cap immoble compleix els filtres.</td></tr>`}</tbody>`;
+    $('#taula-info').textContent = ordenats.length ? `${fmtNum(st.pagina * MIDA_PAGINA + 1)}–${fmtNum(st.pagina * MIDA_PAGINA + pag.length)} de ${fmtNum(ordenats.length)} · clica una fila per obrir la fitxa` : '';
+    $('#paginacio').innerHTML = pagines > 1 ? `<button type="button" class="btn btn-secondary btn-petit" data-pag="${st.pagina - 1}" ${st.pagina === 0 ? 'disabled' : ''}>← Anterior</button>
+      <span class="text-small">Pàgina ${st.pagina + 1} de ${pagines}</span>
+      <button type="button" class="btn btn-secondary btn-petit" data-pag="${st.pagina + 1}" ${st.pagina >= pagines - 1 ? 'disabled' : ''}>Següent →</button>` : '';
+  }
+  function exportaCSV() {
+    const capcal = ['Identificador', 'Codi', 'Unitat', 'Espai natural', 'Altres unitats', ...CAMPS_PLANS.map(f => f.l + (f.u ? ` (${f.u})` : '')), 'Latitud', 'Longitud', 'Nombre de zones', 'Dades pendents', 'Darrera modificació', 'Modificat per', 'Versió'];
+    const dec = v => (typeof v === 'number' ? String(v).replace('.', ',') : v);
+    const files = resultats.map(e => {
+      const ll = latLonDe(e);
+      return [e.id, e.codi, e.unitat, nomUnitat(e.unitat), unitatsDe(e).filter(u => u !== e.unitat).join(', '),
+        ...CAMPS_PLANS.map(f => { const v = get(e, f.p); return buit(v) ? '' : ['int', 'num'].includes(f.t) ? dec(v) : textValor({ ...f, u: null }, v); }),
+        ll ? dec(+ll[0].toFixed(6)) : '', ll ? dec(+ll[1].toFixed(6)) : '', (e.zones || []).length,
+        (e.meta?.pendents || []).map(p => defDe(p.camp)?.l || p.camp).join(', '), e.meta?.modificat || '', e.meta?.modificat_per || '', e.meta?.versio ?? ''];
+    });
+    descarrega(`patrimoni_dgpamn_${new Date().toISOString().slice(0, 10)}.csv`, aCSV([capcal, ...files]), 'text/csv;charset=utf-8');
+    toast(`S'han exportat ${fmtNum(files.length)} immobles.`);
+  }
+
+  // ---------- Esdeveniments ----------
+  let tempsCerca;
+  $('#dades-cerca').addEventListener('input', e => { clearTimeout(tempsCerca); tempsCerca = setTimeout(() => { st.text = e.target.value.trim(); aplica(); }, 200); });
+  $('#filtres').addEventListener('change', e => {
+    const t = e.target;
+    if (t.dataset.multi) {
+      const s = st.multi[t.dataset.multi] || (st.multi[t.dataset.multi] = new Set());
+      t.checked ? s.add(t.value) : s.delete(t.value);
+      aplica();
+    } else if (t.dataset.tri) { st.tri[t.dataset.tri] = t.value; aplica(); }
+    else if (t.dataset.rang) {
+      const n = t.value.trim() === '' ? null : Number(t.value.replace(/\./g, '').replace(',', '.'));
+      const r = st.rang[t.dataset.rang] || (st.rang[t.dataset.rang] = {});
+      r[t.dataset.lim] = Number.isFinite(n) ? n : null;
+      aplica();
+    }
+  });
+  $('#filtres').addEventListener('input', e => {
+    const id = e.target.dataset.cercaOpcio;
+    if (!id) return;
+    st.cercaOpcio[id] = e.target.value;
+    const q = e.target.value.toLowerCase();
+    $$(`[data-filtre="${id}"] .opcio`).forEach(o => { o.hidden = q && !o.title.toLowerCase().includes(q); });
+  });
+  $('#filtres').addEventListener('toggle', e => { const id = e.target.dataset?.filtre; if (id) e.target.open ? st.obert.add(id) : st.obert.delete(id); }, true);
+  $('#chips-filtres').addEventListener('click', e => {
+    const b = e.target.closest('[data-treu]');
+    if (!b) return;
+    const k = b.dataset.clau;
+    if (b.dataset.treu === 'text') { st.text = ''; $('#dades-cerca').value = ''; }
+    else if (b.dataset.treu === 'multi') { const [id, ...v] = k.split('|'); st.multi[id]?.delete(v.join('|')); }
+    else if (b.dataset.treu === 'tri') st.tri[k] = '';
+    else st.rang[k] = {};
+    aplica();
+  });
+  $('#btn-neteja').addEventListener('click', () => { Object.assign(st, { text: '', multi: {}, tri: {}, rang: {}, cercaOpcio: {} }); $('#dades-cerca').value = ''; aplica(); });
+  $('#taula-dades').addEventListener('click', e => {
+    const th = e.target.closest('[data-ord]');
+    if (th) { st.ord = { col: th.dataset.ord, asc: st.ord.col === th.dataset.ord ? !st.ord.asc : true }; pintaTaula(); return; }
+    const tr = e.target.closest('[data-ves]');
+    if (tr) vesAElement(tr.dataset.ves);
+  });
+  $('#taula-dades').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.dataset?.ves) vesAElement(e.target.dataset.ves); });
+  $('#paginacio').addEventListener('click', e => { const b = e.target.closest('[data-pag]'); if (b && !b.disabled) { st.pagina = +b.dataset.pag; pintaTaula(); $('#taula-dades').scrollIntoView({ block: 'start', behavior: 'smooth' }); } });
+  $('#ajusta-mapa').addEventListener('change', () => pintaMapa());
+  $('#btn-csv').addEventListener('click', exportaCSV);
+
+  return {
+    mostra() {
+      iniciaMapa();
+      if (!iniciat) { iniciat = true; aplica(); }
+      setTimeout(() => { mapa?.invalidateSize(); if ($('#ajusta-mapa').checked && capaPunts?.getLayers().length) mapa.fitBounds(capaPunts.getBounds(), { padding: [30, 30], maxZoom: 15 }); }, 50);
+    },
+    refresca() { if (iniciat) aplica(); },
+    nombreResultats: () => resultats.length,
+  };
+})();
+
+// ════════════════════════════════════════════════════════════════════
+// INICI
+// ════════════════════════════════════════════════════════════════════
+function refrescaTot() {
+  pintaSelectorParc();
+  if (S.parc && !S.espais[S.parc]) S.parc = null;
+  if (!$('#vista-registre').hidden) mostraRegistre();
+  else triaParc(S.parc, { mantenirSeleccio: true });
+  Dades.refresca();
+  $('#peu-info').textContent = `Versió ${CONFIG.VERSIO} · ${fmtNum(S.elements.length)} immobles · dades ${S.font === 'carpeta' ? 'de la carpeta de treball' : 'del GitHub'} · coordenades ${S.meta?.sistema_coordenades?.utm || 'ETRS89 / UTM 31N'}`;
+}
+(async function inicia() {
+  carregaUsuari();
+  try {
+    await Carpeta.inicia();
+    await carregaDades();
+    if (Carpeta.estat === 'connectada') Carpeta.pinta('connectada', Carpeta.nom());
+    let parc = null;
+    try { parc = localStorage.getItem(CLAU_PARC); } catch (e) { /* opcional */ }
+    S.parc = parc && S.espais[parc] ? parc : null;
+    $('#estat-carrega').hidden = true;
+    refrescaTot();
+    Carpeta.finestraInicial();
+  } catch (e) {
+    console.error(e);
+    $('#estat-carrega').className = 'error-box';
+    $('#estat-carrega').innerHTML = `<strong>No s'han pogut carregar les dades.</strong> ${esc(e.message)}<br>Comprova la connexió a Internet o connecta la carpeta de treball.`;
+  }
+})();
+</script>
+</body>
+</html>

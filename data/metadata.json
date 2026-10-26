@@ -1,0 +1,32 @@
+{
+  "projecte": "Motor Patrimoni — DGPA",
+  "generat": "2026-10-26",
+  "fonts": {
+    "fitxes_excel": "marcvila1/Programa_Patrimoni (llistes_*.xlsx)",
+    "unitats_promotores": {
+      "repositori": "marcvila1/Motor-Contractacio-DGPA",
+      "fitxer": "unitats_promotores.json",
+      "versio": "1.1",
+      "data_actualitzacio": "2026-09-28"
+    }
+  },
+  "sistema_coordenades": {
+    "utm": "ETRS89 / UTM fus 31N",
+    "epsg": 25831,
+    "unitat": "metres",
+    "camps": "localitzacio.utm.x i localitzacio.utm.y",
+    "confirmat_per": "Marc Vilahur Chiaraviglio",
+    "data_confirmacio": "2026-10-26"
+  },
+  "pendents_globals": [
+    "Coordenada UTM de PNDE/magatzem_deltebre.",
+    "Enllaços (url) dels documents PDF referenciats (documents.json).",
+    "Revisar si l'Access conté camps o taules addicionals respecte dels Excel."
+  ],
+  "recomptes": {
+    "unitats_amb_patrimoni": 14,
+    "elements": 390,
+    "documents": 66,
+    "elements_amb_pendents": 1
+  }
+}

@@ -1,0 +1,287 @@
+# Motor de Patrimoni de la DGPAMN
+
+Programa per consultar, actualitzar i analitzar el patrimoni immobiliari dels espais naturals protegits que gestiona la Direcció General de Polítiques Ambientals i Medi Natural (DGPAMN): 390 immobles de 14 espais naturals.
+
+Fa servir el mateix disseny i el mateix sistema de carpeta de treball que el Motor de Contractació, i les mateixes unitats promotores (`unitats_promotores.json` del repositori `Motor-Contractacio-DGPA`).
+
+---
+
+## 1. Com s'obre
+
+1. Descarrega `index.html` i obre'l amb **Microsoft Edge** o **Google Chrome**.
+2. Les dades es carreguen automàticament del GitHub (`data/` d'aquest repositori), i les unitats, del repositori del Motor de Contractació.
+3. Per **consultar** no cal res més. Per **editar**, cal connectar una carpeta de treball (vegeu l'apartat 4).
+
+> Amb Firefox o Safari també es pot consultar i editar, però els canvis no es poden desar en una carpeta: s'han de descarregar (apartat 4.3).
+
+---
+
+## 2. Mòdul 1. Gestió del Patrimoni
+
+### 2.1. Consulta
+
+- Es tria l'**espai natural** al desplegable o clicant-ne la targeta. Els noms són els oficials de les unitats promotores.
+- Surt la **llista d'immobles** de l'espai, amb un cercador per nom, codi o municipi i un filtre per tipus d'element.
+  - Cada immoble mostra l'estat de conservació, sempre amb icona i text.
+  - Una marca indica si té **dades pendents** o si és **compartit** amb un altre espai. Per exemple, la Casa dels Parcs dels Pirineus surt a PNAP i a PNCM.
+- En clicar un immoble s'obre la **fitxa completa**, amb tots els camps en blocs plegables:
+  - Identificació; Localització, amb un **mapa**; Construcció i estat; Serveis i accessibilitat.
+  - Deficiències i riscos; Ús i règim jurídic; Públic i personal; Fotografies.
+  - Zones; Documents; Historial de canvis; Metadades.
+
+### 2.2. Edició
+
+Amb el botó **✎ Editar**, tots els camps de la fitxa es poden modificar. L'edició ajuda a omplir els camps i els valida:
+
+| Tipus de camp | Com s'edita | Validació |
+|---|---|---|
+| Llistes tancades (estat de conservació, tipus d'accés, sanejament…) | Desplegable amb els valors de `catalegs.json` | Només valors del catàleg |
+| Llistes obertes (tipus d'element, titular, municipi, materials, règim jurídic…) | Text amb **suggeriments** de tots els valors existents al patrimoni | Avisa si s'escriu un **valor nou**, per evitar variants de la mateixa cosa |
+| Sí / No | Desplegable Sí · No · Sense dada | — |
+| Numèrics (superfície, altitud, plantes, anys, persones per any) | Text numèric | Enter o decimal i dins d'un rang raonable |
+| Coordenades UTM | X i Y, o **clic al mapa** | Dins de Catalunya (ETRS89 / UTM 31N); cal omplir X i Y |
+| Codi postal i referència cadastral | Text | Format (CP de Catalunya; referència cadastral de 14 o 20 caràcters) |
+| Zones | Es poden afegir i eliminar | Cada zona ha de tenir nom |
+
+**Ajudes automàtiques:**
+- Quan s'escriu un municipi, s'omple el CP habitual d'aquell municipi.
+- Si l'immoble tenia dades pendents i s'omplen, la marca de pendent desapareix.
+
+**Abans de desar**, es mostra un resum amb:
+- Tots els camps modificats, amb el valor anterior i el nou.
+- Les **comprovacions de coherència**: deficiències sense descripció, immoble no obert al públic però amb zones accessibles, CP que no correspon al municipi, immoble sense coordenades, etc. Són avisos: no impedeixen desar.
+- Un camp per indicar el **motiu** del canvi.
+
+### 2.3. Alta d'immobles
+
+El botó **＋ Nou immoble** crea un immoble a l'espai seleccionat:
+- Es demanen el nom, el tipus i el codi. El codi es proposa a partir del nom.
+- L'identificador serà `UNITAT/codi`, per exemple `RMM/caseta_nova`.
+- Després s'obre la fitxa en edició.
+
+### 2.4. Registre de canvis
+
+El botó **Registre de canvis** mostra totes les modificacions:
+- Es poden filtrar per espai i cercar per persona, immoble o motiu.
+- Es poden exportar a CSV.
+- Cada fitxa té també el seu propi historial.
+
+---
+
+## 3. Mòdul 2. Gestió de Dades
+
+Permet analitzar tot el conjunt de dades:
+
+- **Filtres** per qualsevol camp rellevant:
+  - Llistes: espai natural, tipus d'element, estat de conservació, municipi, tipus de propietat, titular, tipus de finca, ús principal, règim jurídic, estat del document jurídic, tipus d'accés, sanejament i presència de personal.
+  - Característiques Sí / No / Sense dada: protecció patrimonial, obert al públic, accés adaptat, serveis, deficiències, riscos, reformes programades, coordenades i dades pendents.
+  - Rangs numèrics: superfície, altitud, any de construcció i persones per any.
+  - Una cerca lliure.
+- Cada opció mostra **quants immobles** en resultarien amb la resta de filtres aplicats.
+- Els filtres actius es mostren com a etiquetes, que es poden treure una a una.
+- **Indicadors**: nombre d'immobles, superfície total, percentatge en bon estat, immobles amb deficiències o riscos, i immobles sense coordenades.
+- **Mapa** amb els immobles filtrats, sobre el mapa topogràfic o l'ortofoto de l'ICGC, o sobre OpenStreetMap.
+  - Els punts tenen el color de l'estat de conservació i hi ha una llegenda.
+  - En clicar un punt, s'obre la fitxa.
+- **Distribucions** per estat de conservació i per tipus d'element.
+- **Taula** ordenable. Un clic a una fila obre la fitxa al Mòdul 1.
+- **Exportació a CSV** dels immobles filtrats, amb tots els camps i la latitud i longitud. Es pot obrir directament amb l'Excel.
+
+---
+
+## 4. Carpeta de treball i desament
+
+### 4.1. Funcionament
+
+Igual que al Motor de Contractació:
+- La primera vegada, el programa demana triar una **carpeta de treball** i hi crea la subcarpeta `patrimoni/`.
+- Si la carpeta és buida, s'hi copien les dades del GitHub.
+- A partir d'aquí, **les dades es llegeixen i es desen a la carpeta**:
+
+```
+<carpeta triada>/patrimoni/
+├── elements.json              ← immobles (es modifica en desar)
+├── historial_canvis.json      ← registre de canvis (s'hi afegeix cada desament)
+├── espais.json, catalegs.json, documents.json, metadata.json, unitats_promotores.json
+└── copies/
+    └── elements_AAAA-MM-DDTHH-MM-SS.json   ← còpia de seguretat (una per sessió, abans del primer desament)
+```
+
+El navegador recorda la carpeta. Per seguretat, en tornar a obrir el programa pot demanar que es torni a donar permís.
+
+### 4.2. Treball compartit
+
+**Perquè diverses persones treballin sobre les mateixes dades, cal que tothom connecti la mateixa carpeta compartida** (SharePoint o OneDrive sincronitzat).
+
+Per evitar que un canvi en trepitgi un altre:
+- Cada immoble té un número de **versió** (`meta.versio`).
+- En desar, el programa rellegeix el fitxer de la carpeta.
+- Si una altra persona ha modificat aquell immoble mentre l'editàveu, **no desa** i avisa de qui l'ha modificat i quan.
+- Els canvis en immobles diferents no es bloquegen mai entre ells.
+
+### 4.3. Sense carpeta
+
+Si no es connecta cap carpeta, o el navegador no ho permet:
+- Els canvis es fan igualment, però queden només a la finestra oberta.
+- Una barra avisa dels canvis sense desar i ofereix **descarregar** `elements.json` i `historial_canvis.json`, que s'han de copiar a la carpeta de dades.
+
+### 4.4. Publicació al GitHub
+
+La carpeta de treball és on es treballa cada dia. Per actualitzar la versió pública, cal copiar `patrimoni/elements.json` i `patrimoni/historial_canvis.json` a `data/` d'aquest repositori i pujar-los.
+
+---
+
+## 5. Registre de canvis
+
+Cada desament afegeix una entrada a `historial_canvis.json`:
+
+```json
+{
+  "id": "c-20261026181731-k3x9a",
+  "data": "2026-10-26T18:17:31.412Z",
+  "usuari": { "nom": "Nom Cognom", "unitat": "PNAE", "font": "manual" },
+  "accio": "modificacio",
+  "element": "PNAE/aparcament_cortalet",
+  "nom_element": "Zona d'aparcament del Cortalet",
+  "unitat": "PNAE",
+  "versio": 2,
+  "canvis": [
+    { "camp": "construccio.estat_conservacio", "etiqueta": "Estat de conservació", "abans": "bo", "despres": "regular" }
+  ],
+  "motiu": "Revisió de camp"
+}
+```
+
+- `accio` pot ser `alta` o `modificacio`.
+- A cada immoble, `meta.modificat`, `meta.modificat_per` i `meta.versio` indiquen la darrera modificació.
+- Mentre no hi hagi autenticació, la persona responsable s'identifica en començar a editar (nom i unitat), i el nom es recorda en aquell navegador.
+
+---
+
+## 6. Dades
+
+| Fitxer | Contingut |
+|---|---|
+| `data/elements.json` | 390 immobles. Identificador `UNITAT/codi` (p. ex. `PNAE/mas_el_cortalet`) |
+| `data/espais.json` | Dades pròpies del patrimoni per unitat (tipus d'espai, nom a l'Excel, nombre d'immobles) |
+| `data/catalegs.json` | Catàlegs tancats (codi → etiqueta) i llistes obertes |
+| `data/documents.json` | PDF referenciats, amb el camp `url` pendent d'omplir |
+| `data/metadata.json` | Fonts, **sistema de coordenades (ETRS89 / UTM 31N, EPSG:25831)**, recomptes i pendents |
+| `data/historial_canvis.json` | Registre de canvis |
+| `data/qualitat.json` | Informe de la conversió des dels Excel: decisions, correccions i avisos |
+| `data/unitats_promotores.json` | Còpia de les unitats del Motor de Contractació (es fa servir si no s'hi pot accedir) |
+| `data/ESQUEMA.md` | Estructura detallada de cada immoble |
+
+### 6.1. Conversió inicial des dels Excel
+
+`scripts/convert.py` genera els JSON a partir de les fitxes `llistes_*.xlsx`. Aplica la normalització i les decisions de `scripts/correccions_manuals.json`, i assigna cada fitxer a la seva unitat segons `scripts/mapa_unitats.json`.
+
+```bash
+python3 scripts/convert.py <carpeta amb els xlsx> data
+```
+
+> ⚠ **Important:** la conversió és només per a la **càrrega inicial**. Un cop s'ha començat a editar amb el programa, la font de veritat són els JSON. Tornar a executar `convert.py` **sobreescriuria els canvis fets**.
+
+---
+
+## 7. Integració a SINATCAT
+
+El programa està pensat per incorporar-se a SINATCAT (Sistema Intel·ligent d'Informació de la Natura de Catalunya) com una aplicació més sobre la base de dades comuna. Els punts d'integració són els següents.
+
+### 7.1. Usuari autenticat
+
+SINATCAT ja autentica l'usuari, de manera que **el registre de canvis incorporarà directament l'usuari identificat**:
+
+- La identificació manual (finestra «Persona responsable dels canvis», funció `demanaUsuari`) se substitueix per l'usuari de la sessió de SINATCAT.
+- Cada entrada del registre guardarà l'identificador de l'usuari, a més del nom i la unitat:
+
+```json
+"usuari": { "id": "<identificador SINATCAT>", "nom": "Nom Cognom", "unitat": "PNAE", "font": "sinatcat" }
+```
+
+- `meta.modificat_per` de cada immoble passarà a ser l'identificador de l'usuari.
+- Amb l'usuari autenticat es podran aplicar **permisos per unitat**, si cal: per exemple, que cada parc només editi els seus immobles. Ara mateix tothom pot editar-ho tot, per cobrir vacances, baixes i suports entre equips.
+- La carpeta de treball deixarà de ser necessària: el desament anirà contra la base de dades de SINATCAT, mantenint el control de versions per immoble.
+
+### 7.2. Vincle entre actuacions i elements patrimonials
+
+Al Mòdul d'Actuacions de SINATCAT, **cada actuació s'ha de poder vincular a un o més elements patrimonials**, mitjançant l'identificador de l'element. Així es podrà comptabilitzar **quantes persones passen per cada espai** i **quantes persones fan activitats a cada espai**.
+
+Proposta de relació actuació ↔ element (N:M):
+
+```json
+{
+  "actuacio": "26_PNAE_012",
+  "element": "PNAE/mas_el_cortalet",
+  "zona": 1,
+  "rol": "lloc_activitat"
+}
+```
+
+- `zona` és opcional: permet precisar la zona de l'immoble (per exemple, l'aula d'un centre d'informació).
+- `rol` pot ser:
+  - `lloc_activitat`: l'activitat es fa a l'immoble.
+  - `objecte`: l'actuació és sobre l'immoble, com una obra o un manteniment.
+  - `seu`: l'immoble és la base de l'actuació.
+
+### 7.3. Recompte de persones
+
+S'hi proposen dos tipus de registre, tots dos lligats a l'element (i, si cal, a la zona).
+
+**a) Visitants que passen per l'espai** (afluència), per període:
+
+```json
+{
+  "element": "PNAE/mas_el_cortalet",
+  "zona": null,
+  "periode": { "inici": "2026-07-01", "fi": "2026-07-31" },
+  "tipus": "visitants",
+  "nombre": 8450,
+  "metode": "comptador_automatic",
+  "registrat_per": "<usuari SINATCAT>",
+  "data_registre": "2026-08-02T09:15:00Z"
+}
+```
+
+`metode` pot ser `comptador_automatic`, `recompte_manual`, `estimacio` o `entrades`.
+
+**b) Participants en activitats**, lligats a l'actuació:
+
+```json
+{
+  "actuacio": "26_PNAE_012",
+  "element": "PNAE/mas_el_cortalet",
+  "zona": 1,
+  "data": "2026-08-12",
+  "activitat": "Itinerari guiat d'observació d'ocells",
+  "participants": 25,
+  "perfil": { "escolars": 0, "adults": 21, "infants": 4 },
+  "registrat_per": "<usuari SINATCAT>"
+}
+```
+
+### 7.4. Dades agrupades
+
+Amb aquests registres, el Mòdul de Dades podrà oferir **dades agrupades de recompte d'usuaris**:
+- **Per element**: visitants i participants per immoble, zona i període.
+- **Per parc**: suma de tots els seus elements. Els elements compartits s'han de comptar una sola vegada, o repartir segons el criteri que es fixi.
+- **Per a tota la DG**: totals, evolució mensual i anual, comparativa entre espais, ràtios (participants per activitat, visitants per m², ús de les zones accessibles).
+
+Els camps actuals `us_i_regim.volum_anual_public` i `us_i_regim.perfil_public` passaran de ser una dada declarada a ser una **dada calculada** a partir dels recomptes de l'any, i en guardaran la font i el període.
+
+El Mòdul 2 d'aquest programa (filtres, mapa, indicadors i exportació) és la base sobre la qual s'afegiran aquests indicadors d'ús públic.
+
+---
+
+## 8. Pendents
+
+- Coordenada UTM de `PNDE/magatzem_deltebre` (l'original de l'Excel és truncada).
+- Enllaços (`url`) dels documents PDF referenciats (`documents.json`).
+- Revisar si la base de dades Access conté camps o taules addicionals respecte dels Excel.
+
+## 9. Aspectes tècnics
+
+- Un sol fitxer HTML, sense instal·lació. Llibreria externa: Leaflet 1.9.4 (cdnjs) per als mapes.
+- Mapes base: ICGC (topogràfic i ortofoto, © ICGC, CC BY) i OpenStreetMap.
+- Les coordenades es transformen de UTM 31N a latitud i longitud amb fórmules pròpies, verificades amb `pyproj` sobre els 388 punts del patrimoni (error inferior a 1 mm).
+- Paràmetres opcionals a l'URL, per a proves o per a un altre allotjament de les dades: `index.html?dades=<url de la carpeta data/>&unitats=<url de unitats_promotores.json>`.

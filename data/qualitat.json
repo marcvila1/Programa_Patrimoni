@@ -1,0 +1,1137 @@
+{
+  "generat": "2026-10-26",
+  "resum": {
+    "fitxers_xlsx": 14,
+    "columnes_llegides": 445,
+    "copies_descartades_secans_ports": 54,
+    "elements_compartits_fusionats": 1,
+    "elements_resultants": 390,
+    "unitats_amb_patrimoni": 14,
+    "documents_referenciats": 66,
+    "avisos_totals": 26,
+    "avisos_per_estat": {
+      "informatiu": 2,
+      "corregit_manual": 1,
+      "confirmat": 10,
+      "corregit_automatic": 12,
+      "pendent": 1
+    }
+  },
+  "decisions": [
+    "Fitxer d'unitats vàlid: unitats_promotores.json (v1.1, 28/09/2026). UNITATS-PROMOTORES-DGPA.json és una versió anterior.",
+    "El nom dels espais és el de unitats_promotores.json; el nom de l'Excel només es conserva a espais.json (nom_excel).",
+    "Els 15 elements de Secans pertanyen a la RMM (Reserva Natural Parcial de Mas de Melons).",
+    "Les còpies dels elements dels Ports que figuren a llistes_secans.xlsx es descarten; són vàlides les dels Ports.",
+    "Identificadors d'element: codi d'unitat del Motor de Contractació + codi d'element (p. ex. PNAE/acampada_cortalet).",
+    "Casa dels Parcs dels Pirineus: es conserva la versió d'Alt Pirineu per al camp ús principal.",
+    "Coordenada UTM de PNDE/magatzem_deltebre: pendent de dada.",
+    "S'ha corregit el codiPla del CEIV al repositori del Motor (CGA-PA2026 -> CEIV-PA2026, commit 57f1974)."
+  ],
+  "correccions_automatiques": {
+    "sense_personal_alie->null": 376,
+    "regim_juridic_unificat": 44,
+    "presencia_personal_unificada": 1,
+    "superficie_unitat_n2->m2": 1,
+    "utm_amb_typo_corregit": 2,
+    "tipus_element_unificat": 7,
+    "Si->Sí": 7,
+    "paviment_unificat": 4,
+    "error_formula_excel->null": 12,
+    "nom_error_formula->titol": 12,
+    "regim_personal_alie_unificat": 3,
+    "espais_sobrers": 17,
+    "Bi->No": 1,
+    "presencia_amb_detall": 2,
+    "correccio_manual": 1,
+    "pendent_de_dada": 1,
+    "avis_confirmat": 10,
+    "nom_parc_Interés->Interès": 2
+  },
+  "avisos": [
+    {
+      "element": "PNAE/caseta_fusta",
+      "camp": "codi",
+      "original": "caseta_fusta",
+      "accio": "codi repetit en una altra unitat amb un element diferent; l'ID inclou la unitat",
+      "estat": "informatiu"
+    },
+    {
+      "element": "PNMS/caseta_fusta",
+      "camp": "codi",
+      "original": "caseta_fusta",
+      "accio": "codi repetit en una altra unitat amb un element diferent; l'ID inclou la unitat",
+      "estat": "informatiu"
+    },
+    {
+      "element": "PNAE/aparcament_cortalet",
+      "camp": "coordenades_utm",
+      "original": "X0507493, Y46734707",
+      "accio": "format no interpretable; x/y a null, text original conservat",
+      "estat": "corregit_manual",
+      "decisio": "Y original 'Y46734707' amb 8 dígits; Marc confirma Y = 4673470"
+    },
+    {
+      "element": "PNAE/observatori_rogera",
+      "camp": "superficie_m2",
+      "original": "14 n2",
+      "accio": "unitat 'n2' interpretada com 'm2'",
+      "estat": "confirmat",
+      "decisio": "Correcte: m2"
+    },
+    {
+      "element": "PNAE/recuperacio_fauna",
+      "camp": "coordenades_utm",
+      "original": "CX0507689, Y4674792",
+      "accio": "typo evident; interpretat X=507689, Y=4674792",
+      "estat": "confirmat",
+      "decisio": "Correcte: X = 507689, Y = 4674792"
+    },
+    {
+      "element": "PNAP/lleure_arbolo",
+      "camp": "nom",
+      "original": "#REF!",
+      "accio": "error de fórmula de l'Excel al camp Nom; s'ha pres el Títol",
+      "estat": "corregit_automatic"
+    },
+    {
+      "element": "PNAP/lleure_cassibros",
+      "camp": "nom",
+      "original": "#REF!",
+      "accio": "error de fórmula de l'Excel al camp Nom; s'ha pres el Títol",
+      "estat": "corregit_automatic"
+    },
+    {
+      "element": "PNAP/lleure_despoblat",
+      "camp": "nom",
+      "original": "#REF!",
+      "accio": "error de fórmula de l'Excel al camp Nom; s'ha pres el Títol",
+      "estat": "corregit_automatic"
+    },
+    {
+      "element": "PNAP/lleure_estaron",
+      "camp": "nom",
+      "original": "#REF!",
+      "accio": "error de fórmula de l'Excel al camp Nom; s'ha pres el Títol",
+      "estat": "corregit_automatic"
+    },
+    {
+      "element": "PNAP/lleure_pallerols_inferior",
+      "camp": "nom",
+      "original": "#REF!",
+      "accio": "error de fórmula de l'Excel al camp Nom; s'ha pres el Títol",
+      "estat": "corregit_automatic"
+    },
+    {
+      "element": "PNAP/lleure_pallerols_superior",
+      "camp": "nom",
+      "original": "#REF!",
+      "accio": "error de fórmula de l'Excel al camp Nom; s'ha pres el Títol",
+      "estat": "corregit_automatic"
+    },
+    {
+      "element": "PNAP/lleure_pla_selva",
+      "camp": "nom",
+      "original": "#REF!",
+      "accio": "error de fórmula de l'Excel al camp Nom; s'ha pres el Títol",
+      "estat": "corregit_automatic"
+    },
+    {
+      "element": "PNAP/magatzem_ribera",
+      "camp": "nom",
+      "original": "#REF!",
+      "accio": "error de fórmula de l'Excel al camp Nom; s'ha pres el Títol",
+      "estat": "corregit_automatic"
+    },
+    {
+      "element": "PNAP/mas_llavaners",
+      "camp": "nom",
+      "original": "#REF!",
+      "accio": "error de fórmula de l'Excel al camp Nom; s'ha pres el Títol",
+      "estat": "corregit_automatic"
+    },
+    {
+      "element": "PNAP/planter_gerri",
+      "camp": "nom",
+      "original": "#REF!",
+      "accio": "error de fórmula de l'Excel al camp Nom; s'ha pres el Títol",
+      "estat": "corregit_automatic"
+    },
+    {
+      "element": "PNAP/refugi_comes_rubio",
+      "camp": "nom",
+      "original": "#REF!",
+      "accio": "error de fórmula de l'Excel al camp Nom; s'ha pres el Títol",
+      "estat": "corregit_automatic"
+    },
+    {
+      "element": "PNAP/seu_parc",
+      "camp": "nom",
+      "original": "#REF!",
+      "accio": "error de fórmula de l'Excel al camp Nom; s'ha pres el Títol",
+      "estat": "corregit_automatic"
+    },
+    {
+      "element": "PNMMBT/aparcament_port",
+      "camp": "referencia_cadastral",
+      "original": "Sense referència cadastral (Domini públic)",
+      "accio": "no és una referència cadastral; passada a nota",
+      "estat": "confirmat",
+      "decisio": "Correcte: domini públic sense referència cadastral"
+    },
+    {
+      "element": "PNMMBT/magatzem_nautica",
+      "camp": "zona2.inclos_pla_autoproteccio",
+      "original": null,
+      "accio": "valor buit; deixat a null",
+      "estat": "confirmat",
+      "decisio": "Correcte; es manté sense valor"
+    },
+    {
+      "element": "PNMMBT/observatori_platera",
+      "camp": "zona2.inclos_pla_autoproteccio",
+      "original": null,
+      "accio": "valor buit; deixat a null",
+      "estat": "confirmat",
+      "decisio": "Correcte; es manté sense valor"
+    },
+    {
+      "element": "PNDE/casa_fusta_informacio",
+      "camp": "coordenades_utm",
+      "original": "X0303481, X4503348",
+      "accio": "typo evident; interpretat X=303481, Y=4503348",
+      "estat": "confirmat",
+      "decisio": "Correcte: X = 303481, Y = 4503348"
+    },
+    {
+      "element": "PNDE/magatzem_deltebre",
+      "camp": "coordenades_utm",
+      "original": "X0307, Y4510558",
+      "accio": "format no interpretable; x/y a null, text original conservat",
+      "estat": "pendent",
+      "decisio": "UTM original 'X0307, Y4510558' truncada; pendent d'obtenir la coordenada correcta"
+    },
+    {
+      "element": "PNDE/magatzem_deltebre",
+      "camp": "obert_public",
+      "original": "Bi",
+      "accio": "typo 'Bi'; interpretat com a No perquè 'zones accessibles al públic' = No",
+      "estat": "confirmat",
+      "decisio": "No"
+    },
+    {
+      "element": "RMM/aguait_mobil",
+      "camp": "referencia_cadastral",
+      "original": "Variable",
+      "accio": "no és una referència cadastral; passada a nota",
+      "estat": "confirmat",
+      "decisio": "Correcte: aguait mòbil, valor 'Variable'"
+    },
+    {
+      "element": "RMM/aguait_mobil",
+      "camp": "coordenades_utm",
+      "original": "Variable",
+      "accio": "format no interpretable; x/y a null, text original conservat",
+      "estat": "confirmat",
+      "decisio": "Correcte: aguait mòbil, valor 'Variable'"
+    },
+    {
+      "element": "RMM/aguait_mobil",
+      "camp": "altitud",
+      "original": "Variable",
+      "accio": "format no interpretable; deixat a null",
+      "estat": "confirmat",
+      "decisio": "Correcte: aguait mòbil, valor 'Variable'"
+    }
+  ],
+  "elements_compartits": [
+    {
+      "codi": "casa_parcs_pirineus",
+      "unitats": [
+        "PNAP",
+        "PNCM"
+      ],
+      "base_conservada": "PNAP",
+      "diferencies": [
+        {
+          "camp": "Nom parc",
+          "fila": 3,
+          "valors": {
+            "PNAP": "Parc Natural de l'Alt Pirineu",
+            "PNCM": "Parc Natural de Cadí-Moixeró"
+          }
+        },
+        {
+          "camp": "Us principal",
+          "fila": 56,
+          "valors": {
+            "PNAP": "Centre d'informació i d'interpretació",
+            "PNCM": "Centre d'informació i d'interpretació per visitants"
+          }
+        }
+      ],
+      "decisio": "Es conserva la versió d'Alt Pirineu (confirmat per Marc, 26/10/2026)"
+    }
+  ],
+  "copies_descartades": [
+    {
+      "codi": "aguait_eres",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "T",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "aguait_tallnou",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "U",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "alberg_centre_educacio",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "V",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "aparcament_aigua_natura",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "W",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "aparcament_caramella",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "X",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "aparcament_coll_herbassana",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "Y",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "aparcament_cova_avellanes",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "Z",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "aparcament_esquirol",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AA",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "aparcament_estrets_nord",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AB",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "aparcament_estrets_sud",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AC",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "aparcament_pla_llebres",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AD",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "aparcament_refoia",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AE",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "aparcament_rupestres",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AF",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "aparcament_toll_de_vidre",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AG",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "aparcament_vall",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AH",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "area_creueta",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AI",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "area_interpretativa_mas_quiquet",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AJ",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "area_marbrera",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AK",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "area_recreativa_sant_roc",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AL",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "casa_forestal_vall",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AM",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Riscos per a les persones",
+          "fila": 46,
+          "valor_descartat": "No",
+          "valor_conservat": "No es detecten riscos"
+        },
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "casa_gabia_voltors",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AN",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "casa_ganduls",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AO",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "caseto_prat_rubera",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AP",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "caseto_viver_vall",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AQ",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "centre_informacio_pauls",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AR",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "centre_natura_cova_avellanes",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AS",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "centre_visitants_prat_comte",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AT",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "centre_visitants_senia",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AU",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "corral_ganduls",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AV",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "edifici_carrer_bailen",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AW",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "gabia_voltors",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AX",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "informacio_arnes",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AY",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "informacio_horta_sant_joan",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "AZ",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "lleure_cova_avellanes",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BA",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "lleure_el_moli",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BB",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Any construccio",
+          "fila": 26,
+          "valor_descartat": null,
+          "valor_conservat": "Desconegut"
+        },
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "lleure_fonteta",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BC",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "lleure_franqueta",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BD",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "lleure_lafou",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BE",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "lleure_santa_madrona",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BF",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "lleure_sant_julia",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BG",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "lleure_toscar",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BH",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "lleure_vall",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BI",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "lleure_valldebous",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BJ",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "lleure_vall_jepa",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BK",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "magatzem_baix_ebre",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BL",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "magatzem_prat_comte",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BM",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "mas_amat",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BN",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Aclariments",
+          "fila": 15,
+          "valor_descartat": "Sí",
+          "valor_conservat": "No"
+        },
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "mas_burot",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BO",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "mirador_cim_caro",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BP",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "mirador_el_portell",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BQ",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "mirador_salt_ferrasso",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BR",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "mirador_valls_pauls",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BS",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "museu_pauma",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BT",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    },
+    {
+      "codi": "seu_roquetes_centre_visitants",
+      "fitxer": "llistes_secans.xlsx",
+      "columna": "BU",
+      "unitat_propietaria": "PNP",
+      "diferencies": [
+        {
+          "camp": "Pla autoproteccio o similar",
+          "fila": 68,
+          "valor_descartat": "No consta",
+          "valor_conservat": "No"
+        }
+      ]
+    }
+  ],
+  "noms_espais_excel_vs_unitat": [
+    {
+      "unitat": "PNAE",
+      "nom_excel": "Parc Natural dels Aiguamolls de l'Empordà",
+      "nom_unitat": "Parc Natural dels Aiguamolls de l'Empordà",
+      "coincideix": true
+    },
+    {
+      "unitat": "PNAESM",
+      "nom_excel": "Parc Nacional d'Aigüestortes i Estany de Sant Maurici",
+      "nom_unitat": "Parc Nacional d'Aigüestortes i Estany de Sant Maurici",
+      "coincideix": true
+    },
+    {
+      "unitat": "PNINA",
+      "nom_excel": "Paratge Natural d'Interès Nacional de l'Albera",
+      "nom_unitat": "Paratge Natural d'Interès Nacional de l'Albera",
+      "coincideix": true
+    },
+    {
+      "unitat": "PNAP",
+      "nom_excel": "Parc Natural de l'Alt Pirineu",
+      "nom_unitat": "Parc Natural de l'Alt Pirineu",
+      "coincideix": true
+    },
+    {
+      "unitat": "PNMMBT",
+      "nom_excel": "Parc Natural del Montgrí, les Illes Medes i el Baix Ter",
+      "nom_unitat": "Parc Natural del Montgrí les Illes Medes i el Baix Ter",
+      "coincideix": false
+    },
+    {
+      "unitat": "PNCM",
+      "nom_excel": "Parc Natural de Cadí-Moixeró",
+      "nom_unitat": "Parc Natural del Cadí-Moixeró",
+      "coincideix": false
+    },
+    {
+      "unitat": "PCTF",
+      "nom_excel": "Parc Natural de les Capçaleres del Ter i del Freser",
+      "nom_unitat": "Parc Natural de les Capçaleres del Ter i del Freser",
+      "coincideix": true
+    },
+    {
+      "unitat": "PNCC",
+      "nom_excel": "Parc Natural del Cap de Creus",
+      "nom_unitat": "Parc Natural de Cap de Creus",
+      "coincideix": false
+    },
+    {
+      "unitat": "PNDE",
+      "nom_excel": "Parc Natural del Delta de l'Ebre",
+      "nom_unitat": "Parc Natural del Delta de l'Ebre",
+      "coincideix": true
+    },
+    {
+      "unitat": "PNZVG",
+      "nom_excel": "Parc Natural de la Zona Volcànica de la Garrotxa",
+      "nom_unitat": "Parc Natural de la Zona Volcànica de la Garrotxa",
+      "coincideix": true
+    },
+    {
+      "unitat": "PNMS",
+      "nom_excel": "Parc Natural de la Serra de Montsant",
+      "nom_unitat": "Parc Natural del Montsant",
+      "coincideix": false
+    },
+    {
+      "unitat": "PNINP",
+      "nom_excel": "Paratge Natural d'Interès Nacional de Poblet",
+      "nom_unitat": "Paratge Natural d'Interès Nacional de Poblet",
+      "coincideix": true
+    },
+    {
+      "unitat": "PNP",
+      "nom_excel": "Parc Natural dels Ports",
+      "nom_unitat": "Parc Natural de Ports",
+      "coincideix": false
+    },
+    {
+      "unitat": "RMM",
+      "nom_excel": "Reserva Natural de Mas de Melons i Secans de Lleida",
+      "nom_unitat": "Reserva Natural Parcial de Mas de Melons",
+      "coincideix": false
+    }
+  ]
+}

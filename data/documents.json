@@ -1,0 +1,794 @@
+[
+  {
+    "fitxer": "acord_aparcaments_isil.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNAP/aparcament_fornet",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNAP/aparcament_pont_perosa",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNAP/informacio_fornet",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNAP/informacio_marimanha",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "acord_cova_avellanes.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNP/centre_natura_cova_avellanes",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "acord_emd_areu.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNAP/aparcament_pla_farga",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "acord_granja_mitjana.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNINP/pou_glac_mitjana",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "acord_miguel_torres.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNINP/mirador_tossal_creu",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "cessio_centre_terra.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNAP/informacio_centre_terra",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "concessio_carrete.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNDE/mirador_carrete",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "concessio_ocupacio.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNCC/barraca_taballera",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "concessio_platera.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNMMBT/observatori_platera",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "concessio_tancada.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNDE/mirador_tancada",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "concessio_traves.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNDE/mirador_pont_traves_1",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "concessio_tudela.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNCC/aparcament_capcreus",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNCC/aparcament_guillola",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNCC/aparcament_pla_tudela",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNCC/aparcament_sesportes",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNCC/caseta_informacio_tudela",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNCC/mirador_gransala",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNCC/mirador_tudela",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNCC/parada_autobus_tudela",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNCC/wc_tudela",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "consorci_administratiu.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNCC/mas_de_la_mata",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNCC/mas_margall",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNCC/mas_rabassers_dabaix",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNCC/mirador_mas_ventos",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNCC/lleure_mas_ventos",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNCC/aparcament_mas_ventos",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNCC/mas_ventos",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "contracte_magatzem.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNCC/magatzem_vilajuiga",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "contracte_nautica.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNMMBT/magatzem_nautica",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_can_jorda.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNZVG/aparcament_can_jorda",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNZVG/mas_can_jorda",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_can_santa.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNZVG/aparcament_sta_margarida",
+        "camp": "document_juridic"
+      },
+      {
+        "element": "PNZVG/mas_can_santa",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_casal_volcans.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNZVG/seu_casal_volcans",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_ceinr.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PCTF/oficina_ribes",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_cessio_espolla.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNINA/seu_espolla",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_cessio_jonquera.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNINA/centre_jonquera",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_cobert_can_comes.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNAE/cobert_can_comes",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_domini_alberg.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNP/alberg_centre_educacio",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_ecomuseu.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNDE/ecomuseu_deltebre",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_estacio_biologica.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNDE/centre_recuperacio_fauna",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_informacio_areu.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNAP/informacio_areu",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_informacio_cap_creus.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNCC/informacio_capcreus",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_magatzem_roquetes.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNP/magatzem_baix_ebre",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_mas_melons.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "RMM/corral_melons",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_moli.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNZVG/moli_les_fonts",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_parcs_pirineus.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNAP/casa_parcs_pirineus",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_refugi_rubio.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNAP/refugi_comes_rubio",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_seu_deltebre.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNDE/seu_deltebre",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_seu_parc.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNMS/seu_morera",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_seu_roquetes.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNP/seu_roquetes_centre_visitants",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_seu_vilajuiga.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNCC/seu_vilajuiga",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_visitants_pratcomte.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNP/centre_visitants_prat_comte",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "conveni_visitants_senia.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNP/centre_visitants_senia",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "finca2124.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNAE/mas_el_cortalet",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "lliurament_seu_parc.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNINP/seu_espluga",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "lloguer_centremar.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNMMBT/magatzem_soterrani",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "lloguer_seu_tecnica.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNMMBT/seu_tecnica",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "ocupacio_temporal_molinassa.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNAP/aparcament_molinassa",
+        "camp": "document_juridic"
+      }
+    ]
+  },
+  {
+    "fitxer": "pla_emergencia.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNAE/mas_el_cortalet",
+        "camp": "pla_autoproteccio"
+      },
+      {
+        "element": "PNAE/mas_mata",
+        "camp": "pla_autoproteccio"
+      },
+      {
+        "element": "PNAE/observatori_senillosa",
+        "camp": "pla_autoproteccio"
+      },
+      {
+        "element": "PNAE/recuperacio_fauna",
+        "camp": "pla_autoproteccio"
+      },
+      {
+        "element": "PNAE/sanitat_vegetal",
+        "camp": "pla_autoproteccio"
+      },
+      {
+        "element": "PNAE/tallers_magatzem_cortalet",
+        "camp": "pla_autoproteccio"
+      },
+      {
+        "element": "PNAE/torres_senillosa",
+        "camp": "pla_autoproteccio"
+      },
+      {
+        "element": "PNAE/vestidors_cortalet",
+        "camp": "pla_autoproteccio"
+      },
+      {
+        "element": "PNCC/corral_morell",
+        "camp": "pla_autoproteccio"
+      },
+      {
+        "element": "PNCC/informacio_capcreus",
+        "camp": "pla_autoproteccio"
+      },
+      {
+        "element": "PNCC/magatzem_vilajuiga",
+        "camp": "pla_autoproteccio"
+      },
+      {
+        "element": "PNCC/mas_caials",
+        "camp": "pla_autoproteccio"
+      },
+      {
+        "element": "PNCC/seu_vilajuiga",
+        "camp": "pla_autoproteccio"
+      }
+    ]
+  },
+  {
+    "fitxer": "pla_emergencia_can_jorda.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNZVG/mas_can_jorda",
+        "camp": "pla_autoproteccio"
+      }
+    ]
+  },
+  {
+    "fitxer": "pla_emergencia_casal_volcans.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNZVG/centre_informacio_can_serra",
+        "camp": "pla_autoproteccio"
+      },
+      {
+        "element": "PNZVG/mas_can_passavent",
+        "camp": "pla_autoproteccio"
+      },
+      {
+        "element": "PNZVG/seu_casal_volcans",
+        "camp": "pla_autoproteccio"
+      }
+    ]
+  },
+  {
+    "fitxer": "planol_ceinr.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PCTF/oficina_ribes",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planol_queralbs.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PCTF/informacio_queralbs",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_alberg.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNP/alberg_centre_educacio",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_caials.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNCC/mas_caials",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_can_jorda.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNZVG/mas_can_jorda",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_casa_ganduls.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNP/casa_ganduls",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_cortalet.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNAE/mas_el_cortalet",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_diposit_mata.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNAE/diposit_mata",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_jonquera.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNINA/centre_jonquera",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_mas_mata.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNAE/mas_mata",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_mas_roger.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNMS/mas_roger",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_mirador_caro.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNP/mirador_cim_caro",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_modul_sanitari_mata.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNAE/modul_sanitari_mata",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_moli_oli.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNMS/informacio_moli",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_seu.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNMS/seu_morera",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_seu_olot.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNZVG/seu_casal_volcans",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_seu_roquetes.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNP/seu_roquetes_centre_visitants",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_visitants_pratcomte.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNP/centre_visitants_prat_comte",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "planols_visitants_senia.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PNP/centre_visitants_senia",
+        "camp": "planols"
+      }
+    ]
+  },
+  {
+    "fitxer": "simulacre_emergencia_ceinr.pdf",
+    "url": null,
+    "referenciat_per": [
+      {
+        "element": "PCTF/oficina_ribes",
+        "camp": "pla_autoproteccio"
+      }
+    ]
+  }
+]
