@@ -1,5 +1,5 @@
 {
-  "generat": "2026-10-26",
+  "generat": "2026-10-28",
   "resum": {
     "fitxers_xlsx": 14,
     "columnes_llegides": 445,
@@ -45,6 +45,8 @@
     "correccio_manual": 1,
     "pendent_de_dada": 1,
     "avis_confirmat": 10,
+    "estat_execucio_operatiu": 322,
+    "estat_execucio_requereix_revisio": 68,
     "nom_parc_Interés->Interès": 2
   },
   "avisos": [

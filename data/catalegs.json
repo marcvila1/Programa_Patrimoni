@@ -83,6 +83,19 @@
       "si": "Sí",
       "no": "No",
       "no_consta": "No consta"
+    },
+    "estat_execucio": {
+      "planificacio": "Planificació",
+      "operatiu": "Operatiu",
+      "requereix_revisio": "Requereix revisió",
+      "suprimit": "Suprimit"
+    },
+    "fase_planificacio": {
+      "f1_concepte": "Fase 1: Concepte",
+      "f2_terrenys": "Fase 2: Terrenys",
+      "f3_avantprojecte": "Fase 3: Avantprojecte",
+      "f4_projecte": "Fase 4: Projecte",
+      "f5_obres": "Fase 5: Obres"
     }
   },
   "oberts": {

@@ -52,14 +52,33 @@ Amb el botó **✎ Editar**, tots els camps de la fitxa es poden modificar. L'ed
 - Les **comprovacions de coherència**: deficiències sense descripció, immoble no obert al públic però amb zones accessibles, CP que no correspon al municipi, immoble sense coordenades, etc. Són avisos: no impedeixen desar.
 - Un camp per indicar el **motiu** del canvi.
 
-### 2.3. Alta d'immobles
+### 2.3. Estat d'execució
+
+Cada immoble té un **estat d'execució** (`estat_execucio` a `elements.json`). Hi ha quatre categories:
+
+| Estat | Quan s'aplica |
+|---|---|
+| **Planificació** | Immoble en projecte. Cal indicar la fase: *Fase 1: Concepte*, *Fase 2: Terrenys*, *Fase 3: Avantprojecte*, *Fase 4: Projecte* o *Fase 5: Obres*. |
+| **Operatiu** | Immoble en funcionament i amb el títol d'ús en regla. |
+| **Requereix revisió** | Es posa **automàticament** quan el contracte ha deixat de ser vigent (document jurídic caducat) o quan l'ús es basa en un **contracte de paraula** (acord verbal). També es pot marcar a mà, però llavors cal escriure el motiu. |
+| **Suprimit** | Immoble que ja no forma part del patrimoni gestionat. Es conserva per a l'historial. |
+
+La regla automàtica:
+- Calcula els **motius automàtics** a partir del règim jurídic i del document jurídic (tipus i estat), i els mostra a la fitxa.
+- Si l'immoble és operatiu i apareix un motiu, passa a «Requereix revisió». Si el motiu desapareix (contracte renovat o formalitzat) i no hi ha cap motiu manual, torna a «Operatiu».
+- No canvia els immobles en planificació o suprimits, però el resum avisa si tenen un contracte per revisar.
+- S'aplica igual a `scripts/convert.py`, en desar des del programa i en obrir dades antigues que encara no tenen el camp.
+
+En la càrrega inicial, tots els immobles inventariats són operatius o requereixen revisió: 322 operatius i 68 que requereixen revisió (57 per contracte de paraula i 11 per document caducat).
+
+### 2.4. Alta d'immobles
 
 El botó **＋ Nou immoble** crea un immoble a l'espai seleccionat:
 - Es demanen el nom, el tipus i el codi. El codi es proposa a partir del nom.
 - L'identificador serà `UNITAT/codi`, per exemple `RMM/caseta_nova`.
-- Després s'obre la fitxa en edició.
+- Després s'obre la fitxa en edició. Cal triar l'estat d'execució (normalment *Planificació* amb la fase corresponent).
 
-### 2.4. Registre de canvis
+### 2.5. Registre de canvis
 
 El botó **Registre de canvis** mostra totes les modificacions:
 - Es poden filtrar per espai i cercar per persona, immoble o motiu.
@@ -73,13 +92,13 @@ El botó **Registre de canvis** mostra totes les modificacions:
 Permet analitzar tot el conjunt de dades:
 
 - **Filtres** per qualsevol camp rellevant:
-  - Llistes: espai natural, tipus d'element, estat de conservació, municipi, tipus de propietat, titular, tipus de finca, ús principal, règim jurídic, estat del document jurídic, tipus d'accés, sanejament i presència de personal.
+  - Llistes: espai natural, estat d'execució, fase de planificació, motiu de revisió, tipus d'element, estat de conservació, municipi, tipus de propietat, titular, tipus de finca, ús principal, règim jurídic, estat del document jurídic, tipus d'accés, sanejament i presència de personal.
   - Característiques Sí / No / Sense dada: protecció patrimonial, obert al públic, accés adaptat, serveis, deficiències, riscos, reformes programades, coordenades i dades pendents.
   - Rangs numèrics: superfície, altitud, any de construcció i persones per any.
   - Una cerca lliure.
 - Cada opció mostra **quants immobles** en resultarien amb la resta de filtres aplicats.
 - Els filtres actius es mostren com a etiquetes, que es poden treure una a una.
-- **Indicadors**: nombre d'immobles, superfície total, percentatge en bon estat, immobles amb deficiències o riscos, i immobles sense coordenades.
+- **Indicadors**: nombre d'immobles, superfície total, immobles que requereixen revisió, percentatge en bon estat, immobles amb deficiències o riscos, i immobles sense coordenades.
 - **Mapa** amb els immobles filtrats, sobre el mapa topogràfic o l'ortofoto de l'ICGC, o sobre OpenStreetMap.
   - Els punts tenen el color de l'estat de conservació i hi ha una llegenda.
   - En clicar un punt, s'obre la fitxa.

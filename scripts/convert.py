@@ -182,6 +182,11 @@ CAT = {
                        "amb_reformes": "Amb reformes"},
     "estat_dada_public": {"sense_dades": "Sense dades", "no_obert": "No obert al públic", "dada": "Amb dada"},
     "estat_pla": {"si": "Sí", "no": "No", "no_consta": "No consta"},
+    "estat_execucio": {"planificacio": "Planificació", "operatiu": "Operatiu",
+                       "requereix_revisio": "Requereix revisió", "suprimit": "Suprimit"},
+    "fase_planificacio": {"f1_concepte": "Fase 1: Concepte", "f2_terrenys": "Fase 2: Terrenys",
+                          "f3_avantprojecte": "Fase 3: Avantprojecte", "f4_projecte": "Fase 4: Projecte",
+                          "f5_obres": "Fase 5: Obres"},
 }
 
 
@@ -700,7 +705,9 @@ for e, slugs_el in elements_raw:
     elements.append({
         "id": eid, "codi": codi, "unitat": parcs[0], "unitats": parcs,
         "identificacio": identificacio, "localitzacio": localitzacio, "construccio": construccio,
-        "us_i_regim": us_i_regim, "zones": zones,
+        "us_i_regim": us_i_regim,
+        "estat_execucio": {"estat": "operatiu", "fase": None, "motius_automatics": [], "motiu": None},
+        "zones": zones,
         "fotografies": {"nombre": int_or_none(v[53]) or 0, "fitxers": []},
         "notes": {"identificacio": nota(v[15]), "localitzacio": nota(v[24]), "construccio": nota(v[51]),
                   "fotografies": nota(v[54]), "us": nota(v[69])},
@@ -760,6 +767,42 @@ if os.path.exists(man_path):
             sys.exit(f"Decisió sobre un element compartit inexistent: {c['codi']}")
         for x in trobats:
             x["decisio"] = c["decisio"]
+
+# ----------------------------------------------------------------------------
+# Estat d'execució. Tots els immobles inventariats són «operatiu» o «requereix_revisio».
+# Regla automàtica (la mateixa que aplica index.html en desar):
+#   - document jurídic caducat (el contracte ha deixat de ser vigent)
+#   - contracte de paraula (acord verbal) al règim jurídic o al tipus de document
+# ----------------------------------------------------------------------------
+def motius_execucio(el):
+    u = el["us_i_regim"]
+    d = u.get("document_juridic") or {}
+    motius = []
+    if d.get("estat") == "caducat":
+        doc = f"«{d['tipus']}» " if d.get("tipus") else ""
+        motius.append({"codi": "contracte_no_vigent",
+                       "text": f"El document jurídic {doc}ha deixat de ser vigent (caducat): cal renovar-lo o regularitzar l'ús."})
+    if any("acord verbal" in (t or "").lower() for t in (u.get("regim_juridic"), d.get("tipus"))):
+        motius.append({"codi": "contracte_paraula",
+                       "text": "L'ús es basa en un contracte de paraula (acord verbal) sense document formal: cal formalitzar-lo."})
+    return motius
+
+
+# Conserva la data de creació original si l'element ja existia en una conversió anterior
+prev_path = os.path.join(OUT, "elements.json")
+if os.path.exists(prev_path):
+    with open(prev_path, encoding="utf-8") as fh:
+        prev_creat = {p["id"]: p.get("meta", {}).get("creat") for p in json.load(fh)}
+    for el in elements:
+        if prev_creat.get(el["id"]):
+            el["meta"]["creat"] = prev_creat[el["id"]]
+
+for el in elements:
+    ex = el["estat_execucio"]
+    ex["motius_automatics"] = motius_execucio(el)
+    if ex["estat"] in ("operatiu", "requereix_revisio"):
+        ex["estat"] = "requereix_revisio" if ex["motius_automatics"] else "operatiu"
+    corr[f"estat_execucio_{ex['estat']}"] += 1
 
 # ----------------------------------------------------------------------------
 # Parcs, documents, catàlegs, qualitat
@@ -866,7 +909,8 @@ metadata = {
     },
     **man.get("metadades", {}),
     "recomptes": {"unitats_amb_patrimoni": len(espais), "elements": len(elements),
-                  "documents": len(documents), "elements_amb_pendents": sum(1 for el in elements if el["meta"]["pendents"])},
+                  "documents": len(documents), "elements_amb_pendents": sum(1 for el in elements if el["meta"]["pendents"]),
+                  "estat_execucio": dict(collections.Counter(el["estat_execucio"]["estat"] for el in elements))},
 }
 dump("metadata.json", metadata)
 print(json.dumps(qualitat["resum"], ensure_ascii=False, indent=2))

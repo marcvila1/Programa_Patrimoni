@@ -23,7 +23,8 @@ Generat per `scripts/convert.py` a partir dels 14 fitxers `llistes_*.xlsx` del r
 5. **Sí/No** → booleà. Els camps amb més de dos valors són enumeracions amb codi (veure `catalegs.json`).
 6. **Camps compostos descomposts:** CP i municipi, UTM (x, y), altitud (m), superfície (m²), polígon i parcel·la, nombre de plantes, any de construcció, reformes, volum anual de públic.
 7. **Zones:** les 7 zones repetides de l'Excel són una llista `zones[]` amb només les zones declarades.
-8. **Documents:** els noms de PDF queden com a `{fitxer, url: null}` per afegir-hi l'enllaç més endavant.
+8. **Estat d'execució:** tots els immobles inventariats són `operatiu` o `requereix_revisio`. Requereixen revisió els que tenen el document jurídic caducat o un contracte de paraula (acord verbal al règim jurídic o al tipus de document). El motiu queda a `motius_automatics`.
+9. **Documents:** els noms de PDF queden com a `{fitxer, url: null}` per afegir-hi l'enllaç més endavant.
 
 ## Estructura d'un element
 
@@ -46,6 +47,10 @@ us_i_regim      us_principal, propietari, usuari_explotador, regim_juridic,
                 presencia_personal_parc, presencia_personal_alie, tipus_presencia_personal,
                 detall_presencia_personal, volum_anual_public{estat, valor},
                 perfil_public{estat, text}, pla_autoproteccio{estat, fitxer}
+estat_execucio  estat (planificacio | operatiu | requereix_revisio | suprimit),
+                fase (f1_concepte … f5_obres, només si estat = planificacio),
+                motius_automatics[{codi, text}] (contracte_no_vigent | contracte_paraula; calculats),
+                motiu (text manual, només si estat = requereix_revisio)
 zones[]         numero, nom, usos, usuaris, accessible_public, accessible_menors,
                 adaptat_discapacitats, presencia_personal_parc, presencia_personal_alie,
                 regim_personal_alie, tipus_presencia_personal, detall_presencia_personal,

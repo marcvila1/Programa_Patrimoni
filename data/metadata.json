@@ -1,6 +1,6 @@
 {
   "projecte": "Motor Patrimoni — DGPA",
-  "generat": "2026-10-26",
+  "generat": "2026-10-28",
   "fonts": {
     "fitxes_excel": "marcvila1/Programa_Patrimoni (llistes_*.xlsx)",
     "unitats_promotores": {
@@ -27,6 +27,10 @@
     "unitats_amb_patrimoni": 14,
     "elements": 390,
     "documents": 66,
-    "elements_amb_pendents": 1
+    "elements_amb_pendents": 1,
+    "estat_execucio": {
+      "operatiu": 322,
+      "requereix_revisio": 68
+    }
   }
 }
