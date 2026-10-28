@@ -105,7 +105,10 @@
       "Antic pou de glaç",
       "Antiga barraca de pescadors",
       "Aula",
+      "Barana",
+      "Boia",
       "Cafeteria",
+      "Cartell",
       "Casa forestal",
       "Caseta d'anellament",
       "Caseta de fusta",
@@ -117,6 +120,7 @@
       "Centre de recuperació",
       "Cobert",
       "Cobert agrícola",
+      "Comptador de persones",
       "Cova",
       "Dipòsit d'aigua",
       "Edificació",
@@ -132,6 +136,7 @@
       "Masia",
       "Mirador",
       "Mirador astronòmic",
+      "Mobiliari exterior",
       "Museu",
       "Mòdul sanitari",
       "Observatori",
@@ -153,7 +158,8 @@
       "Zona d'aparcament",
       "Zona de lleure",
       "Zona per planter vegetal",
-      "Àrea interpretativa a l'aire lliure"
+      "Àrea interpretativa a l'aire lliure",
+      "Altres"
     ],
     "municipis": [
       "Alfara de Carles",

@@ -345,6 +345,7 @@
       <select id="sel-parc"></select>
     </div>
 
+    <div id="avisos-vigencia" class="avis-box" hidden></div>
     <div id="vista-inici"><div id="parcs-resum" class="parcs-grid"></div></div>
 
     <div id="vista-parc" hidden>
@@ -568,15 +569,43 @@ const CAT_EXECUCIO = {
   fase_planificacio: { f1_concepte: 'Fase 1: Concepte', f2_terrenys: 'Fase 2: Terrenys', f3_avantprojecte: 'Fase 3: Avantprojecte',
     f4_projecte: 'Fase 4: Projecte', f5_obres: 'Fase 5: Obres' },
 };
-function motiusExecucio({ regim, tipus, docEstat }) {
-  const m = [];
+const PARAULES_CONTRACTE_PARAULA = ['acord verbal', 'mutu acord'];
+const MESOS_AVIS_VIGENCIA = 6;
+const avui = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+function motiusExecucio({ regim, tipus, docEstat, dataFi }) {
+  const m = [], doc = tipus ? `«${tipus}» ` : '';
   if (docEstat === 'caducat') m.push({ codi: 'contracte_no_vigent',
-    text: `El document jurídic ${tipus ? `«${tipus}» ` : ''}ha deixat de ser vigent (caducat): cal renovar-lo o regularitzar l'ús.` });
-  if ([regim, tipus].some(t => String(t || '').toLowerCase().includes('acord verbal'))) m.push({ codi: 'contracte_paraula',
+    text: `El document jurídic ${doc}ha deixat de ser vigent (caducat): cal renovar-lo o regularitzar l'ús.` });
+  else if (dataFi && dataFi < avui()) m.push({ codi: 'contracte_no_vigent',
+    text: `El document jurídic ${doc}va deixar de ser vigent el ${dataFi}: cal renovar-lo o regularitzar l'ús.` });
+  else if (docEstat === 'en_tramit') m.push({ codi: 'contracte_en_tramit', text: `El document jurídic ${doc}és en tràmit: encara no és vigent.` });
+  if ([regim, tipus].some(t => PARAULES_CONTRACTE_PARAULA.some(k => String(t || '').toLowerCase().includes(k)))) m.push({ codi: 'contracte_paraula',
     text: "L'ús es basa en un contracte de paraula (acord verbal) sense document formal: cal formalitzar-lo." });
   return m;
 }
-const dadesContracte = el => ({ regim: el.us_i_regim?.regim_juridic, tipus: el.us_i_regim?.document_juridic?.tipus, docEstat: el.us_i_regim?.document_juridic?.estat });
+const dadesContracte = el => ({ regim: el.us_i_regim?.regim_juridic, tipus: el.us_i_regim?.document_juridic?.tipus,
+  docEstat: el.us_i_regim?.document_juridic?.estat, dataFi: el.us_i_regim?.document_juridic?.data_fi_vigencia });
+/** Avís de venciment: document vigent que caduca en els propers 6 mesos. */
+function avisVigencia(el) {
+  const d = el.us_i_regim?.document_juridic, fi = d?.data_fi_vigencia;
+  if (!fi || d.estat === 'caducat' || fi < avui()) return null;
+  const lim = new Date(); lim.setMonth(lim.getMonth() + MESOS_AVIS_VIGENCIA);
+  const dfi = new Date(fi + 'T00:00:00');
+  if (dfi > lim) return null;
+  const dies = Math.round((dfi - new Date(avui() + 'T00:00:00')) / 864e5);
+  return { data: fi, dies, text: `El document jurídic${d.tipus ? ` «${d.tipus}»` : ''} deixa de ser vigent el ${fmtData(fi)} (${dies === 0 ? 'avui' : dies === 1 ? 'demà' : `d'aquí a ${dies} dies`}): cal preparar-ne la renovació.` };
+}
+function htmlAvisVigencia(el) {
+  const a = avisVigencia(el);
+  return a ? `<div class="avis-box"><strong>⏰ Venciment proper:</strong> ${esc(a.text)}</div>` : '';
+}
+function pintaAvisosVigencia() {
+  const box = $('#avisos-vigencia');
+  const llista = S.elements.map(e => [e, avisVigencia(e)]).filter(([, a]) => a).sort((a, b) => a[1].dies - b[1].dies);
+  box.hidden = !llista.length;
+  box.innerHTML = llista.length ? `<details><summary><strong>⏰ ${llista.length} ${llista.length === 1 ? 'document jurídic deixa' : 'documents jurídics deixen'} de ser vigents en els propers ${MESOS_AVIS_VIGENCIA} mesos</strong></summary>
+    <ul style="margin:6px 0 0 18px">${llista.map(([e, a]) => `<li><button type="button" class="btn-link" data-ves="${esc(e.id)}">${esc(e.identificacio?.nom || e.id)}</button> (${esc(e.unitat)}) · ${esc(fmtData(a.data))} · ${a.dies} dies</li>`).join('')}</ul></details>` : '';
+}
 /** Estat resultant: els motius automàtics forcen «Requereix revisió» si l'immoble és operatiu. */
 function estatResultant(estat, motius, motiuManual) {
   if (estat === 'operatiu' && motius.length) return 'requereix_revisio';
@@ -718,6 +747,7 @@ const GRUPS = [
     F('us_i_regim.regim_juridic', "Règim jurídic d'ús o explotació", 'open'),
     F('us_i_regim.document_juridic.tipus', 'Document jurídic', 'open'),
     F('us_i_regim.document_juridic.estat', 'Estat del document', 'enum', { c: 'estat_document' }),
+    F('us_i_regim.document_juridic.data_fi_vigencia', 'Període fi vigència', 'date', { ajuda: `Data en què el document deixa de ser vigent. S'avisa ${MESOS_AVIS_VIGENCIA} mesos abans i, un cop passada, l'immoble passa a «Requereix revisió».` }),
     F('us_i_regim.document_juridic.fitxer', 'Document jurídic (fitxer)', 'text'),
     F('us_i_regim.document_juridic.url', 'Document jurídic (enllaç)', 'url'),
     F('us_i_regim.pla_autoproteccio.estat', "Pla d'autoprotecció", 'enum', { c: 'estat_pla' }),
@@ -766,6 +796,7 @@ function textValor(f, v) {
     case 'bool': return v === true ? 'Sí' : v === false ? 'No' : String(v);
     case 'enum': return etiq(f.c, v);
     case 'csvtext': case 'csvint': return Array.isArray(v) ? v.join(', ') : String(v);
+    case 'date': return fmtData(v);
     case 'motius': return Array.isArray(v) ? v.map(m => m.text).join(' / ') : String(v);
     case 'int': case 'num': return (f.cru ? String(v) : fmtNum(v)) + (f.u ? ' ' + f.u : '');
     default: return typeof v === 'object' ? JSON.stringify(v) : String(v);
@@ -1137,6 +1168,7 @@ async function triaParc(c, { mantenirSeleccio = false } = {}) {
   else $('#panell-fitxa').innerHTML = `<div class="fitxa-buida">Selecciona un immoble de la llista per veure'n la fitxa.</div>`;
 }
 $('#sel-parc').addEventListener('change', e => triaParc(e.target.value));
+$('#avisos-vigencia').addEventListener('click', e => { const b = e.target.closest('[data-ves]'); if (b) vesAElement(b.dataset.ves); });
 $('#parcs-resum').addEventListener('click', e => { const b = e.target.closest('[data-parc]'); if (b) triaParc(b.dataset.parc); });
 
 function pintaLlista() {
@@ -1152,6 +1184,7 @@ function pintaLlista() {
       <span class="sub">${esc([e.identificacio?.tipus_element, e.localitzacio?.municipi].filter(Boolean).join(' · '))}</span>
       <span class="linia">${htmlExecucio(e.estat_execucio)} ${htmlEstat(e.construccio?.estat_conservacio)}
         ${e.meta?.pendents?.length ? '<span class="marca" title="Té dades pendents">pendent</span>' : ''}
+        ${avisVigencia(e) ? `<span class="marca" title="${esc(avisVigencia(e).text)}">⏰ venç ${esc(fmtData(avisVigencia(e).data))}</span>` : ''}
         ${unitatsDe(e).length > 1 ? `<span class="marca comp" title="Compartit amb ${esc(unitatsDe(e).filter(u => u !== S.parc).join(', '))}">compartit</span>` : ''}</span>
     </button></li>`).join('') || `<li class="fitxa-buida">Cap immoble coincideix amb la cerca.</li>`;
 }
@@ -1212,7 +1245,7 @@ function pintaFitxa(el) {
   const docs = documentsDe(el);
   const hist = S.historial.filter(h => h.element === el.id).sort((a, b) => ordCa(b.data, a.data));
   $('#panell-fitxa').innerHTML = `${htmlCapFitxa(el, false)}
-    <div class="fitxa-cos">${htmlPendents(el)}${grups}
+    <div class="fitxa-cos">${htmlAvisVigencia(el)}${htmlPendents(el)}${grups}
       <details class="grup"><summary>Zones <span class="compte">${(el.zones || []).length}</span></summary><div class="grup-cos">${zones || '<p class="buit">Sense zones.</p>'}</div></details>
       <details class="grup"><summary>Documents <span class="compte">${docs.length}</span></summary><div class="grup-cos">${docs.length ? `<table class="canvis-llista"><thead><tr><th>Tipus</th><th>Fitxer</th><th>Enllaç</th></tr></thead><tbody>${docs.map(d => `<tr><td>${esc(d.tipus)}</td><td>${esc(d.fitxer)}</td><td>${d.url ? `<a href="${esc(d.url)}" target="_blank" rel="noopener">Obre</a>` : '<span class="buit">Enllaç pendent</span>'}</td></tr>`).join('')}</tbody></table>` : '<p class="buit">Sense documents referenciats.</p>'}</div></details>
       <details class="grup"><summary>Historial de canvis <span class="compte">${hist.length}</span></summary><div class="grup-cos">${hist.length ? hist.map(htmlEntradaHistorial).join('') : '<p class="buit">Aquest immoble no s\'ha modificat des de la càrrega inicial.</p>'}</div></details>
@@ -1299,6 +1332,7 @@ function htmlInput(f, v, cami) {
       inp = `<select ${attrs}><option value="">— Sense dada —</option>${fora}${ops.map(([k, l]) => `<option value="${esc(k)}" ${k === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
       break;
     }
+    case 'date': inp = `<input type="date" ${attrs} value="${esc(val)}">`; break;
     case 'open': inp = `<input type="text" ${attrs} list="${dlId(f.p)}" value="${esc(val)}" autocomplete="off">`; break;
     case 'int': case 'num': inp = `<input type="text" inputmode="${f.t === 'int' ? 'numeric' : 'decimal'}" ${attrs} value="${esc(val)}">`; break;
     case 'ro': return buit(v) ? '' : `<div class="camp"><label>${esc(f.l)}</label><div class="vl">${esc(val)}</div></div>`;
@@ -1335,7 +1369,7 @@ function plantillaElement(u, codi, nom, tipus) {
       obert_public: null, interior_adaptat_discapacitats: null, estat_conservacio: null,
       deficiencies: { detectades: null, descripcio: null, reparacions_i_cost: null, nombre_fotografies: 0 }, riscos: { detectats: null, descripcio: null } },
     us_i_regim: { us_principal: null, propietari: null, usuari_explotador: null, regim_juridic: null,
-      document_juridic: { tipus: null, estat: null, fitxer: null, url: null }, zones_accessibles_public: null, presencia_personal_parc: null,
+      document_juridic: { tipus: null, estat: null, data_fi_vigencia: null, fitxer: null, url: null }, zones_accessibles_public: null, presencia_personal_parc: null,
       presencia_personal_alie: null, tipus_presencia_personal: null, detall_presencia_personal: null,
       volum_anual_public: { estat: 'sense_dades', valor: null }, perfil_public: { estat: 'sense_dades', text: null }, pla_autoproteccio: { estat: 'no', fitxer: null } },
     estat_execucio: { estat: null, fase: null, motius_automatics: [], motiu: null },
@@ -1389,13 +1423,13 @@ function pintaEdicio() {
   sincronitzaExecucio(false);
   p.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-const CAMPS_CONTRACTE = ['us_i_regim.regim_juridic', 'us_i_regim.document_juridic.tipus', 'us_i_regim.document_juridic.estat'];
+const CAMPS_CONTRACTE = ['us_i_regim.regim_juridic', 'us_i_regim.document_juridic.tipus', 'us_i_regim.document_juridic.estat', 'us_i_regim.document_juridic.data_fi_vigencia'];
 /** Recalcula els motius automàtics amb els valors del formulari i mostra/amaga fase i motiu manual. */
 function sincronitzaExecucio(avisa) {
   const v = c => $(`[data-cami="${c}"]`)?.value.trim() || null;
   const sel = $('[data-cami="estat_execucio.estat"]');
   if (!sel) return;
-  const motius = motiusExecucio({ regim: v(CAMPS_CONTRACTE[0]), tipus: v(CAMPS_CONTRACTE[1]), docEstat: v(CAMPS_CONTRACTE[2]) });
+  const motius = motiusExecucio({ regim: v(CAMPS_CONTRACTE[0]), tipus: v(CAMPS_CONTRACTE[1]), docEstat: v(CAMPS_CONTRACTE[2]), dataFi: v(CAMPS_CONTRACTE[3]) });
   $('#motius-auto').innerHTML = htmlMotius(motius);
   if (sel.value === 'operatiu' && motius.length) {
     sel.value = 'requereix_revisio';
@@ -1454,6 +1488,7 @@ function llegeixInput(inp) {
       break;
     }
     case 'url': if (v && !/^https?:\/\/\S+$/i.test(v)) err = 'Ha de començar per http:// o https://'; break;
+    case 'date': if (v && !/^\d{4}-\d{2}-\d{2}$/.test(v)) err = 'Data incorrecta.'; break;
   }
   if (!err && f.req && buit(v)) err = 'Camp obligatori.';
   if (!err && typeof v === 'number' && f.min != null && (v < f.min || v > f.max)) err = `Ha d'estar entre ${fmtNum(f.min)} i ${fmtNum(f.max)}${f.u ? ' ' + f.u : ''}.`;
@@ -1720,7 +1755,7 @@ const Dades = (() => {
     multi('execucio', "Estat d'execució", e => [e.estat_execucio?.estat], { cat: 'estat_execucio', obert: true }),
     multi('fase', 'Fase de planificació', e => [e.estat_execucio?.fase], { cat: 'fase_planificacio' }),
     multi('motiurev', 'Motiu de revisió', e => (e.estat_execucio?.motius_automatics || []).map(m => m.codi).concat(e.estat_execucio?.motiu ? ['manual'] : []),
-      { etiqueta: c => ({ contracte_no_vigent: 'Contracte no vigent', contracte_paraula: 'Contracte de paraula', manual: 'Motiu manual' }[c] || c) }),
+      { etiqueta: c => ({ contracte_no_vigent: 'Contracte no vigent', contracte_paraula: 'Contracte de paraula', contracte_en_tramit: 'Contracte en tràmit', manual: 'Motiu manual' }[c] || c) }),
     multi('estat', 'Estat de conservació', e => [e.construccio?.estat_conservacio], { cat: 'estat_conservacio', obert: true }),
     multi('municipi', 'Municipi', e => [e.localitzacio?.municipi], { cerca: true }),
     multi('propietat', 'Tipus de propietat', e => [e.identificacio?.tipus_propietat], { cat: 'tipus_propietat' }),
@@ -1746,6 +1781,7 @@ const Dades = (() => {
     ['reformes', 'Reformes programades', e => e.construccio?.reformes_programades?.programades],
     ['coords', 'Té coordenades', e => e.localitzacio?.utm?.x != null],
     ['pendents', 'Té dades pendents', e => (e.meta?.pendents?.length || 0) > 0],
+    ['venciment', `Venç en ${MESOS_AVIS_VIGENCIA} mesos`, e => !!avisVigencia(e)],
   ].map(([id, l, get]) => ({ id, l, get }));
   const RANGS = [
     ['sup', 'Superfície (m²)', e => e.construccio?.superficie_m2],
@@ -1850,7 +1886,8 @@ const Dades = (() => {
     const k = [
       ['Immobles', fmtNum(n), n === tot ? 'Tot el patrimoni' : `de ${fmtNum(tot)} (${pct(n, tot)} %)`],
       ['Superfície total', fmtNum(Math.round(sup)) + ' m²', n ? `${fmtNum(Math.round(sup / n))} m² de mitjana` : ''],
-      ['Requereixen revisió', fmtNum(resultats.filter(e => e.estat_execucio?.estat === 'requereix_revisio').length), 'Contracte no vigent, de paraula o motiu manual'],
+      ['Requereixen revisió', fmtNum(resultats.filter(e => e.estat_execucio?.estat === 'requereix_revisio').length), 'Contracte no vigent, en tràmit, de paraula o motiu manual'],
+      ['Vencen en 6 mesos', fmtNum(resultats.filter(e => avisVigencia(e)).length), 'Documents jurídics per renovar'],
       ['En bon estat', pct(bo, ambEstat.length) + ' %', `${fmtNum(bo)} de ${fmtNum(ambEstat.length)} amb estat informat`],
       ['Amb deficiències o riscos', fmtNum(def), `${pct(def, n)} % dels filtrats`],
       ['Sense coordenades', fmtNum(sense), sense ? 'No surten al mapa' : 'Tots surten al mapa'],
@@ -2016,6 +2053,7 @@ const Dades = (() => {
 // ════════════════════════════════════════════════════════════════════
 function refrescaTot() {
   pintaSelectorParc();
+  pintaAvisosVigencia();
   if (S.parc && !S.espais[S.parc]) S.parc = null;
   if (!$('#vista-registre').hidden) mostraRegistre();
   else triaParc(S.parc, { mantenirSeleccio: true });

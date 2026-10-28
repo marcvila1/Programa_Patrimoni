@@ -60,7 +60,7 @@ Cada immoble té un **estat d'execució** (`estat_execucio` a `elements.json`). 
 |---|---|
 | **Planificació** | Immoble en projecte. Cal indicar la fase: *Fase 1: Concepte*, *Fase 2: Terrenys*, *Fase 3: Avantprojecte*, *Fase 4: Projecte* o *Fase 5: Obres*. |
 | **Operatiu** | Immoble en funcionament i amb el títol d'ús en regla. |
-| **Requereix revisió** | Es posa **automàticament** quan el contracte ha deixat de ser vigent (document jurídic caducat) o quan l'ús es basa en un **contracte de paraula** (acord verbal). També es pot marcar a mà, però llavors cal escriure el motiu. |
+| **Requereix revisió** | Es posa **automàticament** quan el contracte ha deixat de ser vigent (document caducat o data de fi de vigència passada), quan el document és **en tràmit** o quan l'ús es basa en un **contracte de paraula** (acord verbal o compromís de mutu acord). També es pot marcar a mà, però llavors cal escriure el motiu. |
 | **Suprimit** | Immoble que ja no forma part del patrimoni gestionat. Es conserva per a l'historial. |
 
 La regla automàtica:
@@ -69,7 +69,14 @@ La regla automàtica:
 - No canvia els immobles en planificació o suprimits, però el resum avisa si tenen un contracte per revisar.
 - S'aplica igual a `scripts/convert.py`, en desar des del programa i en obrir dades antigues que encara no tenen el camp.
 
-En la càrrega inicial, tots els immobles inventariats són operatius o requereixen revisió: 322 operatius i 68 que requereixen revisió (57 per contracte de paraula i 11 per document caducat).
+En la càrrega inicial, tots els immobles inventariats són operatius o requereixen revisió: 318 operatius i 72 que requereixen revisió (58 per contracte de paraula, 11 per document caducat i 3 per document en tràmit).
+
+**Fi de vigència i avís de venciment.** El document jurídic té el camp **Període fi vigència** (`us_i_regim.document_juridic.data_fi_vigencia`, data AAAA-MM-DD):
+- **6 mesos abans** de la data, el programa avisa: bàner a la pàgina de Gestió del Patrimoni amb tots els documents que vencen, avís a la fitxa, marca «⏰ venç» a la llista, filtre i indicador a Gestió de Dades.
+- **Passada la data**, l'immoble passa automàticament a «Requereix revisió» amb el motiu «va deixar de ser vigent el …».
+- Les fitxes Excel no tenen aquestes dates: s'han d'anar omplint.
+
+**Tipus d'element.** A més dels tipus que surten a les fitxes, es poden triar: Cartell, Mobiliari exterior, Boia, Comptador de persones, Barana i Altres.
 
 ### 2.4. Alta d'immobles
 

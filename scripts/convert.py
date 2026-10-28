@@ -416,7 +416,7 @@ def parse_doc_juridic(tipus_v, fitxer_v):
         elif "tràmit" in low or "tramitació" in low:
             estat = "en_tramit"
         t = re.sub(r"\s*\((?:caducat|caducada|en tràmit|en tramitació)\)", "", t).strip()
-    return {"tipus": t, "estat": estat, "fitxer": doc_fitxer(fitxer_v), "url": None}
+    return {"tipus": t, "estat": estat, "data_fi_vigencia": None, "fitxer": doc_fitxer(fitxer_v), "url": None}
 
 
 def nullish(v, extra=()):
@@ -774,15 +774,25 @@ if os.path.exists(man_path):
 #   - document jurídic caducat (el contracte ha deixat de ser vigent)
 #   - contracte de paraula (acord verbal) al règim jurídic o al tipus de document
 # ----------------------------------------------------------------------------
+PARAULES_CONTRACTE_PARAULA = ("acord verbal", "mutu acord")
+
+
 def motius_execucio(el):
     u = el["us_i_regim"]
     d = u.get("document_juridic") or {}
     motius = []
+    doc = f"«{d['tipus']}» " if d.get("tipus") else ""
+    fi = d.get("data_fi_vigencia")
     if d.get("estat") == "caducat":
-        doc = f"«{d['tipus']}» " if d.get("tipus") else ""
         motius.append({"codi": "contracte_no_vigent",
                        "text": f"El document jurídic {doc}ha deixat de ser vigent (caducat): cal renovar-lo o regularitzar l'ús."})
-    if any("acord verbal" in (t or "").lower() for t in (u.get("regim_juridic"), d.get("tipus"))):
+    elif fi and fi < TODAY:
+        motius.append({"codi": "contracte_no_vigent",
+                       "text": f"El document jurídic {doc}va deixar de ser vigent el {fi}: cal renovar-lo o regularitzar l'ús."})
+    elif d.get("estat") == "en_tramit":
+        motius.append({"codi": "contracte_en_tramit",
+                       "text": f"El document jurídic {doc}és en tràmit: encara no és vigent."})
+    if any(k in (t or "").lower() for t in (u.get("regim_juridic"), d.get("tipus")) for k in PARAULES_CONTRACTE_PARAULA):
         motius.append({"codi": "contracte_paraula",
                        "text": "L'ús es basa en un contracte de paraula (acord verbal) sense document formal: cal formalitzar-lo."})
     return motius
@@ -853,8 +863,11 @@ for el in elements:
             d["referenciat_per"].append({"element": el["id"], "camp": tipus})
 documents = sorted(docs.values(), key=lambda d: d["fitxer"])
 
+# Tipus d'element que no surten a les fitxes però s'han de poder triar (decisió de 2026-10-28)
+TIPUS_ELEMENT_ADDICIONALS = ["Cartell", "Mobiliari exterior", "Boia", "Comptador de persones", "Barana", "Altres"]
 oberts = {
-    "tipus_element": sorted({el["identificacio"]["tipus_element"] for el in elements if el["identificacio"]["tipus_element"]}),
+    "tipus_element": sorted({el["identificacio"]["tipus_element"] for el in elements if el["identificacio"]["tipus_element"]}
+                            | set(TIPUS_ELEMENT_ADDICIONALS), key=lambda t: (t == "Altres", t)),
     "municipis": sorted({el["localitzacio"]["municipi"] for el in elements if el["localitzacio"]["municipi"]}),
     "titulars": sorted({el["identificacio"]["titular"] for el in elements if el["identificacio"]["titular"]}),
     "propietaris": sorted({el["us_i_regim"]["propietari"] for el in elements if el["us_i_regim"]["propietari"]}),

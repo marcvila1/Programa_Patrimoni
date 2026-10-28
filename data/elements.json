@@ -97,6 +97,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -263,6 +264,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -429,6 +431,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -595,6 +598,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -761,6 +765,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -927,6 +932,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -1093,6 +1099,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -1259,6 +1266,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -1425,6 +1433,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -1591,6 +1600,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -1762,6 +1772,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -1928,6 +1939,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -2094,6 +2106,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -2260,6 +2273,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -2426,6 +2440,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -2592,6 +2607,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -2758,6 +2774,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -2924,6 +2941,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -3090,6 +3108,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -3256,6 +3275,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -3422,6 +3442,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -3588,6 +3609,7 @@
       "document_juridic": {
         "tipus": "Adjudicació d'aprofitament agrícola",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_cobert_can_comes.pdf",
         "url": null
       },
@@ -3754,6 +3776,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -3920,6 +3943,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -4086,6 +4110,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -4252,6 +4277,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -4418,6 +4444,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -4586,6 +4613,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -4754,6 +4782,7 @@
       "document_juridic": {
         "tipus": "Inscripció registral",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "finca2124.pdf",
         "url": null
       },
@@ -4986,6 +5015,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -5216,6 +5246,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -5382,6 +5413,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -5548,6 +5580,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -5714,6 +5747,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -5880,6 +5914,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -6046,6 +6081,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -6212,6 +6248,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -6378,6 +6415,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -6544,6 +6582,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -6710,6 +6749,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -6876,6 +6916,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -7042,6 +7083,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -7208,6 +7250,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -7374,6 +7417,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -7540,6 +7584,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -7706,6 +7751,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -7872,6 +7918,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -8038,6 +8085,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -8206,6 +8254,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -8372,6 +8421,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -8538,6 +8588,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -8704,6 +8755,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -8870,6 +8922,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -9036,6 +9089,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -9202,6 +9256,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -9368,6 +9423,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -9534,6 +9590,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -9700,6 +9757,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -9868,6 +9926,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -10034,6 +10093,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -10200,6 +10260,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -10368,6 +10429,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -10534,6 +10596,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -10700,6 +10763,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -10866,6 +10930,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -11032,6 +11097,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -11198,6 +11264,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -11364,6 +11431,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -11530,6 +11598,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -11696,6 +11765,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -11862,6 +11932,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -12031,6 +12102,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -12197,6 +12269,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -12363,6 +12436,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -12545,6 +12619,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -12729,6 +12804,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -12915,6 +12991,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -13113,6 +13190,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -13295,6 +13373,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -13477,6 +13556,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -13643,6 +13723,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -13809,6 +13890,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -13975,6 +14057,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -14141,6 +14224,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -14307,6 +14391,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -14473,6 +14558,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -14639,6 +14725,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -14805,6 +14892,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -14971,6 +15059,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -15137,6 +15226,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -15303,6 +15393,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -15469,6 +15560,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -15635,6 +15727,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -15801,6 +15894,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -15983,6 +16077,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -16181,6 +16276,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -16367,6 +16463,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -16533,6 +16630,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -16731,6 +16829,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -16897,6 +16996,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -17063,6 +17163,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -17247,6 +17348,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -17445,6 +17547,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -17611,6 +17714,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -17777,6 +17881,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -17943,6 +18048,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -18109,6 +18215,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -18275,6 +18382,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -18441,6 +18549,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -18607,6 +18716,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -18775,6 +18885,7 @@
       "document_juridic": {
         "tipus": "Conveni de cessió de l'ús",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_cessio_jonquera.pdf",
         "url": null
       },
@@ -18957,6 +19068,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -19123,6 +19235,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -19307,6 +19420,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -19491,6 +19605,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -19657,6 +19772,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -19826,6 +19942,7 @@
       "document_juridic": {
         "tipus": "Conveni de cessió de l'ús",
         "estat": "caducat",
+        "data_fi_vigencia": null,
         "fitxer": "conveni_cessio_espolla.pdf",
         "url": null
       },
@@ -20029,6 +20146,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -20211,6 +20329,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -20377,6 +20496,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -20543,6 +20663,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -20709,6 +20830,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -20875,6 +20997,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -21041,6 +21164,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -21207,6 +21331,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -21373,6 +21498,7 @@
       "document_juridic": {
         "tipus": "Acord del Ple de l'Entitat Municipal Descentralitzada",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "acord_aparcaments_isil.pdf",
         "url": null
       },
@@ -21541,6 +21667,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -21707,6 +21834,7 @@
       "document_juridic": {
         "tipus": "Acord del Ple de l'Entitat Municipal Descentralitzada",
         "estat": "en_tramit",
+        "data_fi_vigencia": null,
         "fitxer": "ocupacio_temporal_molinassa.pdf",
         "url": null
       },
@@ -21729,9 +21857,14 @@
       }
     },
     "estat_execucio": {
-      "estat": "operatiu",
+      "estat": "requereix_revisio",
       "fase": null,
-      "motius_automatics": [],
+      "motius_automatics": [
+        {
+          "codi": "contracte_en_tramit",
+          "text": "El document jurídic «Acord del Ple de l'Entitat Municipal Descentralitzada» és en tràmit: encara no és vigent."
+        }
+      ],
       "motiu": null
     },
     "zones": [
@@ -21875,6 +22008,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -22041,6 +22175,7 @@
       "document_juridic": {
         "tipus": "Acord del Ple de l'Entitat Municipal Descentralitzada",
         "estat": "en_tramit",
+        "data_fi_vigencia": null,
         "fitxer": "acord_emd_areu.pdf",
         "url": null
       },
@@ -22063,9 +22198,14 @@
       }
     },
     "estat_execucio": {
-      "estat": "operatiu",
+      "estat": "requereix_revisio",
       "fase": null,
-      "motius_automatics": [],
+      "motius_automatics": [
+        {
+          "codi": "contracte_en_tramit",
+          "text": "El document jurídic «Acord del Ple de l'Entitat Municipal Descentralitzada» és en tràmit: encara no és vigent."
+        }
+      ],
       "motiu": null
     },
     "zones": [
@@ -22207,6 +22347,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -22373,6 +22514,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -22546,6 +22688,7 @@
       "document_juridic": {
         "tipus": "Acord del Ple de l'Entitat Municipal Descentralitzada",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "acord_aparcaments_isil.pdf",
         "url": null
       },
@@ -22714,6 +22857,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -22880,6 +23024,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -23048,6 +23193,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -23221,6 +23367,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -23405,6 +23552,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -23588,6 +23736,7 @@
       "document_juridic": {
         "tipus": "Conveni de col·laboració",
         "estat": "caducat",
+        "data_fi_vigencia": null,
         "fitxer": "conveni_parcs_pirineus.pdf",
         "url": null
       },
@@ -23793,6 +23942,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -23959,6 +24109,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -24127,6 +24278,7 @@
       "document_juridic": {
         "tipus": "Compromís de mutu acord",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_informacio_areu.pdf",
         "url": null
       },
@@ -24149,9 +24301,14 @@
       }
     },
     "estat_execucio": {
-      "estat": "operatiu",
+      "estat": "requereix_revisio",
       "fase": null,
-      "motius_automatics": [],
+      "motius_automatics": [
+        {
+          "codi": "contracte_paraula",
+          "text": "L'ús es basa en un contracte de paraula (acord verbal) sense document formal: cal formalitzar-lo."
+        }
+      ],
       "motiu": null
     },
     "zones": [
@@ -24295,6 +24452,7 @@
       "document_juridic": {
         "tipus": "Acord del Ple de l'Ajuntament de Soriguera",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "cessio_centre_terra.pdf",
         "url": null
       },
@@ -24511,6 +24669,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -24679,6 +24838,7 @@
       "document_juridic": {
         "tipus": "Acord del Ple de l'Entitat Municipal Descentralitzada",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "acord_aparcaments_isil.pdf",
         "url": null
       },
@@ -24847,6 +25007,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -25015,6 +25176,7 @@
       "document_juridic": {
         "tipus": "Acord del Ple de l'Entitat Municipal Descentralitzada",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "acord_aparcaments_isil.pdf",
         "url": null
       },
@@ -25185,6 +25347,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -25374,6 +25537,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -25540,6 +25704,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -25715,6 +25880,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -25902,6 +26068,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -26068,6 +26235,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -26234,6 +26402,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -26400,6 +26569,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -26568,6 +26738,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -26736,6 +26907,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -26902,6 +27074,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -27075,6 +27248,7 @@
       "document_juridic": {
         "tipus": "Contracte d'arrendament",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -27273,6 +27447,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -27455,6 +27630,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -27637,6 +27813,7 @@
       "document_juridic": {
         "tipus": "Conveni de cessió de l'ús",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_refugi_rubio.pdf",
         "url": null
       },
@@ -27872,6 +28049,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -28070,6 +28248,7 @@
       "document_juridic": {
         "tipus": "Concessió administrativa",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -28240,6 +28419,7 @@
       "document_juridic": {
         "tipus": "Conveni per la cessió i dipòsit de documentació",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -28406,6 +28586,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -28577,6 +28758,7 @@
       "document_juridic": {
         "tipus": "Contracte de pupil·latge",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "contracte_nautica.pdf",
         "url": null
       },
@@ -28761,6 +28943,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -28934,6 +29117,7 @@
       "document_juridic": {
         "tipus": "Contracte de lloguer directe del Parc",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "lloguer_centremar.pdf",
         "url": null
       },
@@ -29100,6 +29284,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -29271,6 +29456,7 @@
       "document_juridic": {
         "tipus": "Concessió administrativa d'ocupació del domini públic",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "concessio_platera.pdf",
         "url": null
       },
@@ -29453,6 +29639,7 @@
       "document_juridic": {
         "tipus": "Concessió administrativa",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -29619,6 +29806,7 @@
       "document_juridic": {
         "tipus": "Contracte de lloguer",
         "estat": "caducat",
+        "data_fi_vigencia": null,
         "fitxer": "lloguer_seu_tecnica.pdf",
         "url": null
       },
@@ -29790,6 +29978,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -29972,6 +30161,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -30154,6 +30344,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -30352,6 +30543,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -30520,6 +30712,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -30688,6 +30881,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -30854,6 +31048,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -31038,6 +31233,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -31206,6 +31402,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -31420,6 +31617,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -31586,6 +31784,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -31752,6 +31951,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -31918,6 +32118,7 @@
       "document_juridic": {
         "tipus": "Conveni de cessió de l'ús",
         "estat": "en_tramit",
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -31940,9 +32141,14 @@
       }
     },
     "estat_execucio": {
-      "estat": "operatiu",
+      "estat": "requereix_revisio",
       "fase": null,
-      "motius_automatics": [],
+      "motius_automatics": [
+        {
+          "codi": "contracte_en_tramit",
+          "text": "El document jurídic «Conveni de cessió de l'ús» és en tràmit: encara no és vigent."
+        }
+      ],
       "motiu": null
     },
     "zones": [
@@ -32102,6 +32308,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -32273,6 +32480,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -32439,6 +32647,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -32605,6 +32814,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -32773,6 +32983,7 @@
       "document_juridic": {
         "tipus": "Conveni de col·laboració",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_ceinr.pdf",
         "url": null
       },
@@ -32989,6 +33200,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -33155,6 +33367,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -33321,6 +33534,7 @@
       "document_juridic": {
         "tipus": "Concessió de l'ocupació del domini públic",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "concessio_tudela.pdf",
         "url": null
       },
@@ -33487,6 +33701,7 @@
       "document_juridic": {
         "tipus": "Concessió de l'ocupació del domini públic",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "concessio_tudela.pdf",
         "url": null
       },
@@ -33653,6 +33868,7 @@
       "document_juridic": {
         "tipus": "Concessió de l'ocupació del domini públic",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "concessio_tudela.pdf",
         "url": null
       },
@@ -33819,6 +34035,7 @@
       "document_juridic": {
         "tipus": "Concessió de l'ocupació del domini públic",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "concessio_tudela.pdf",
         "url": null
       },
@@ -33987,6 +34204,7 @@
       "document_juridic": {
         "tipus": "Concessió de l'ocupació del domini públic",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "concessio_ocupacio.pdf",
         "url": null
       },
@@ -34153,6 +34371,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -34319,6 +34538,7 @@
       "document_juridic": {
         "tipus": "Concessió de l'ocupació del domini públic",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "concessio_tudela.pdf",
         "url": null
       },
@@ -34487,6 +34707,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -34661,6 +34882,7 @@
       "document_juridic": {
         "tipus": "Conveni de col·laboració",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_informacio_cap_creus.pdf",
         "url": null
       },
@@ -34843,6 +35065,7 @@
       "document_juridic": {
         "tipus": "Contracte de lloguer",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "contracte_magatzem.pdf",
         "url": null
       },
@@ -35041,6 +35264,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -35257,6 +35481,7 @@
       "document_juridic": {
         "tipus": "Consorci administratiu",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "consorci_administratiu.pdf",
         "url": null
       },
@@ -35426,6 +35651,7 @@
       "document_juridic": {
         "tipus": "Consorci administratiu",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "consorci_administratiu.pdf",
         "url": null
       },
@@ -35610,6 +35836,7 @@
       "document_juridic": {
         "tipus": "Consorci administratiu",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "consorci_administratiu.pdf",
         "url": null
       },
@@ -35776,6 +36003,7 @@
       "document_juridic": {
         "tipus": "Consorci administratiu",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "consorci_administratiu.pdf",
         "url": null
       },
@@ -35942,6 +36170,7 @@
       "document_juridic": {
         "tipus": "Consorci administratiu",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "consorci_administratiu.pdf",
         "url": null
       },
@@ -36108,6 +36337,7 @@
       "document_juridic": {
         "tipus": "Consorci administratiu",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "consorci_administratiu.pdf",
         "url": null
       },
@@ -36277,6 +36507,7 @@
       "document_juridic": {
         "tipus": "Consorci administratiu",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "consorci_administratiu.pdf",
         "url": null
       },
@@ -36475,6 +36706,7 @@
       "document_juridic": {
         "tipus": "Concessió de l'ocupació del domini públic",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "concessio_tudela.pdf",
         "url": null
       },
@@ -36643,6 +36875,7 @@
       "document_juridic": {
         "tipus": "Concessió de l'ocupació del domini públic",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "concessio_tudela.pdf",
         "url": null
       },
@@ -36809,6 +37042,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -36980,6 +37214,7 @@
       "document_juridic": {
         "tipus": "Concessió de l'ocupació del domini públic",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "concessio_tudela.pdf",
         "url": null
       },
@@ -37146,6 +37381,7 @@
       "document_juridic": {
         "tipus": "Conveni de col·laboració",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_seu_vilajuiga.pdf",
         "url": null
       },
@@ -37344,6 +37580,7 @@
       "document_juridic": {
         "tipus": "Concessió de l'ocupació del domini públic",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "concessio_tudela.pdf",
         "url": null
       },
@@ -37510,6 +37747,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -37676,6 +37914,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -37842,6 +38081,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -38008,6 +38248,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -38174,6 +38415,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -38344,6 +38586,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -38514,6 +38757,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -38682,6 +38926,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -38851,6 +39096,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -39033,6 +39279,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -39199,6 +39446,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -39365,6 +39613,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -39533,6 +39782,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -39715,6 +39965,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -39881,6 +40132,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -40047,6 +40299,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -40245,6 +40498,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -40411,6 +40665,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -40577,6 +40832,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -40743,6 +40999,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -40925,6 +41182,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -41091,6 +41349,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -41308,6 +41567,7 @@
       "document_juridic": {
         "tipus": "Conveni de cessió",
         "estat": "caducat",
+        "data_fi_vigencia": null,
         "fitxer": "conveni_estacio_biologica.pdf",
         "url": null
       },
@@ -41559,6 +41819,7 @@
       "document_juridic": {
         "tipus": "Conveni de cessió",
         "estat": "caducat",
+        "data_fi_vigencia": null,
         "fitxer": "conveni_ecomuseu.pdf",
         "url": null
       },
@@ -41828,6 +42089,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -42015,6 +42277,7 @@
       "document_juridic": {
         "tipus": "Concessió administrativa",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "concessio_carrete.pdf",
         "url": null
       },
@@ -42183,6 +42446,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -42349,6 +42613,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -42515,6 +42780,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -42681,6 +42947,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -42847,6 +43114,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -43013,6 +43281,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -43179,6 +43448,7 @@
       "document_juridic": {
         "tipus": "Concessió administrativa",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "concessio_traves.pdf",
         "url": null
       },
@@ -43345,6 +43615,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -43513,6 +43784,7 @@
       "document_juridic": {
         "tipus": "Concessió administrativa",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "concessio_tancada.pdf",
         "url": null
       },
@@ -43679,6 +43951,7 @@
       "document_juridic": {
         "tipus": "Conveni de cessió",
         "estat": "caducat",
+        "data_fi_vigencia": null,
         "fitxer": "conveni_seu_deltebre.pdf",
         "url": null
       },
@@ -43900,6 +44173,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -44066,6 +44340,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -44232,6 +44507,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -44401,6 +44677,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -44567,6 +44844,7 @@
       "document_juridic": {
         "tipus": "Conveni de col·laboració",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_can_jorda.pdf",
         "url": null
       },
@@ -44733,6 +45011,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -44901,6 +45180,7 @@
       "document_juridic": {
         "tipus": "Conveni de col·laboració",
         "estat": "caducat",
+        "data_fi_vigencia": null,
         "fitxer": "conveni_can_santa.pdf",
         "url": null
       },
@@ -45072,6 +45352,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -45254,6 +45535,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -45420,6 +45702,7 @@
       "document_juridic": {
         "tipus": "Conveni de col·laboració",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_can_jorda.pdf",
         "url": null
       },
@@ -45668,6 +45951,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -45853,6 +46137,7 @@
       "document_juridic": {
         "tipus": "Conveni de col·laboració",
         "estat": "caducat",
+        "data_fi_vigencia": null,
         "fitxer": "conveni_can_santa.pdf",
         "url": null
       },
@@ -46026,6 +46311,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -46208,6 +46494,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -46422,6 +46709,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -46588,6 +46876,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -46754,6 +47043,7 @@
       "document_juridic": {
         "tipus": "Conveni de col·laboració",
         "estat": "caducat",
+        "data_fi_vigencia": null,
         "fitxer": "conveni_moli.pdf",
         "url": null
       },
@@ -46943,6 +47233,7 @@
       "document_juridic": {
         "tipus": "Conveni de cooperació",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_casal_volcans.pdf",
         "url": null
       },
@@ -47125,6 +47416,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -47291,6 +47583,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -47473,6 +47766,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -47662,6 +47956,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -47848,6 +48143,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -48018,6 +48314,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -48216,6 +48513,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -48398,6 +48696,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -48569,6 +48868,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -48742,6 +49042,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -48929,6 +49230,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -49100,6 +49402,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -49271,6 +49574,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -49442,6 +49746,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -49613,6 +49918,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -49784,6 +50090,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -49955,6 +50262,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -50126,6 +50434,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -50297,6 +50606,7 @@
       "document_juridic": {
         "tipus": "Conveni de cessió del domini",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_seu_parc.pdf",
         "url": null
       },
@@ -50495,6 +50805,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -50663,6 +50974,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -50829,6 +51141,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -51011,6 +51324,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -51177,6 +51491,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -51346,6 +51661,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -51594,6 +51910,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -51776,6 +52093,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -51942,6 +52260,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -52108,6 +52427,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -52279,6 +52599,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -52477,6 +52798,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -52650,6 +52972,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -52816,6 +53139,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -52982,6 +53306,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -53148,6 +53473,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -53319,6 +53645,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -53485,6 +53812,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -53651,6 +53979,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -53817,6 +54146,7 @@
       "document_juridic": {
         "tipus": "Acord de col·laboració",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "acord_miguel_torres.pdf",
         "url": null
       },
@@ -53983,6 +54313,7 @@
       "document_juridic": {
         "tipus": "Acord de col·laboració",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "acord_granja_mitjana.pdf",
         "url": null
       },
@@ -54149,6 +54480,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -54315,6 +54647,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -54481,6 +54814,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -54647,6 +54981,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -54813,6 +55148,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -54979,6 +55315,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -55145,6 +55482,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -55311,6 +55649,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -55477,6 +55816,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -55647,6 +55987,7 @@
       "document_juridic": {
         "tipus": "Acta de lliurament i recepció",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "lliurament_seu_parc.pdf",
         "url": null
       },
@@ -55829,6 +56170,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -56000,6 +56342,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -56171,6 +56514,7 @@
       "document_juridic": {
         "tipus": "Conveni de cessió del domini",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_domini_alberg.pdf",
         "url": null
       },
@@ -56337,6 +56681,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -56508,6 +56853,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -56679,6 +57025,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -56845,6 +57192,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -57016,6 +57364,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -57189,6 +57538,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -57362,6 +57712,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -57533,6 +57884,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -57699,6 +58051,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -57870,6 +58223,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -58041,6 +58395,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -58212,6 +58567,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -58378,6 +58734,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -58544,6 +58901,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -58715,6 +59073,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -58886,6 +59245,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -59057,6 +59417,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -59241,6 +59602,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -59407,6 +59769,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -59573,6 +59936,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -59739,6 +60103,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -59909,6 +60274,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -60080,6 +60446,7 @@
       "document_juridic": {
         "tipus": "Conveni de cessió de l'ús i gestió",
         "estat": "caducat",
+        "data_fi_vigencia": null,
         "fitxer": "acord_cova_avellanes.pdf",
         "url": null
       },
@@ -60253,6 +60620,7 @@
       "document_juridic": {
         "tipus": "Conveni de cessió del domini",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_visitants_pratcomte.pdf",
         "url": null
       },
@@ -60453,6 +60821,7 @@
       "document_juridic": {
         "tipus": "Conveni de cessió del domini",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_visitants_senia.pdf",
         "url": null
       },
@@ -60651,6 +61020,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -60817,6 +61187,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -60983,6 +61354,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -61169,6 +61541,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -61358,6 +61731,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -61561,6 +61935,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -61732,6 +62107,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -61903,6 +62279,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -62074,6 +62451,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -62245,6 +62623,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -62427,6 +62806,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -62598,6 +62978,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -62785,6 +63166,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -62972,6 +63354,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -63154,6 +63537,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -63341,6 +63725,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -63525,6 +63910,7 @@
       "document_juridic": {
         "tipus": "Conveni de cessió de l'ús",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_magatzem_roquetes.pdf",
         "url": null
       },
@@ -63693,6 +64079,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -63859,6 +64246,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -64025,6 +64413,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -64196,6 +64585,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -64362,6 +64752,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -64528,6 +64919,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -64701,6 +65093,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -64872,6 +65265,7 @@
       "document_juridic": {
         "tipus": "Acord verbal",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -65045,6 +65439,7 @@
       "document_juridic": {
         "tipus": "Conveni de cessió del domini",
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": "conveni_seu_roquetes.pdf",
         "url": null
       },
@@ -65227,6 +65622,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -65393,6 +65789,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -65559,6 +65956,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -65725,6 +66123,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -65907,6 +66306,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -66073,6 +66473,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -66239,6 +66640,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -66405,6 +66807,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -66571,6 +66974,7 @@
       "document_juridic": {
         "tipus": "Adjudicació d'aprofitament agrícola",
         "estat": "caducat",
+        "data_fi_vigencia": null,
         "fitxer": "conveni_mas_melons.pdf",
         "url": null
       },
@@ -66758,6 +67162,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -66926,6 +67331,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -67108,6 +67514,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -67324,6 +67731,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -67538,6 +67946,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
@@ -67704,6 +68113,7 @@
       "document_juridic": {
         "tipus": null,
         "estat": null,
+        "data_fi_vigencia": null,
         "fitxer": null,
         "url": null
       },
