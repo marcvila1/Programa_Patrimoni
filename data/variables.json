@@ -1,0 +1,302 @@
+{
+  "versio": "1.0",
+  "data_actualitzacio": "2026-10-29",
+  "descripcio": "Variables del mòdul de Manteniment. Els valors generals s'apliquen a tots els parcs; a per_parc cada parc pot definir els seus responsables (i afegir-ne de propis) i el contacte de la direcció, que rep l'avís de cada incidència nova.",
+  "prioritats": [
+    {
+      "codi": "baixa",
+      "nom": "Baixa",
+      "ordre": 1,
+      "requereix_data_limit": true
+    },
+    {
+      "codi": "moderada",
+      "nom": "Moderada",
+      "ordre": 2,
+      "requereix_data_limit": true
+    },
+    {
+      "codi": "alta",
+      "nom": "Alta",
+      "ordre": 3,
+      "requereix_data_limit": true
+    },
+    {
+      "codi": "urgent",
+      "nom": "Urgent",
+      "ordre": 4,
+      "requereix_data_limit": true
+    },
+    {
+      "codi": "en_espera",
+      "nom": "En espera",
+      "ordre": 0,
+      "requereix_data_limit": false
+    }
+  ],
+  "dies_avis_data_limit": 7,
+  "estats": [
+    {
+      "codi": "nova",
+      "nom": "Nova",
+      "descripcio": "Entrada pel sol·licitant, pendent que el responsable de manteniment l'assigni."
+    },
+    {
+      "codi": "assignada",
+      "nom": "Assignada",
+      "descripcio": "Té prioritat i responsable."
+    },
+    {
+      "codi": "en_curs",
+      "nom": "En curs",
+      "descripcio": "S'hi està treballant."
+    },
+    {
+      "codi": "resolta",
+      "nom": "Resolta",
+      "descripcio": "Feina feta."
+    },
+    {
+      "codi": "descartada",
+      "nom": "Descartada",
+      "descripcio": "No es farà (cal indicar-ne el motiu a les observacions)."
+    }
+  ],
+  "estats_tancats": [
+    "resolta",
+    "descartada"
+  ],
+  "responsables": [
+    {
+      "codi": "brigada_parc",
+      "nom": "Brigada Parc"
+    },
+    {
+      "codi": "forestal_catalana",
+      "nom": "Forestal Catalana"
+    },
+    {
+      "codi": "empresa_externa",
+      "nom": "Empresa externa"
+    }
+  ],
+  "per_defecte": {
+    "responsables": [
+      "brigada_parc",
+      "forestal_catalana",
+      "empresa_externa"
+    ]
+  },
+  "per_parc": {
+    "PNAE": {
+      "nom": "Parc Natural dels Aiguamolls de l'Empordà",
+      "responsables": [
+        "brigada_parc",
+        "forestal_catalana",
+        "empresa_externa"
+      ],
+      "responsables_propis": [],
+      "direccio": {
+        "nom": null,
+        "carrec": "Director/a",
+        "email": null,
+        "telefon": null
+      }
+    },
+    "PNAESM": {
+      "nom": "Parc Nacional d'Aigüestortes i Estany de Sant Maurici",
+      "responsables": [
+        "brigada_parc",
+        "forestal_catalana",
+        "empresa_externa"
+      ],
+      "responsables_propis": [],
+      "direccio": {
+        "nom": null,
+        "carrec": "Director/a",
+        "email": null,
+        "telefon": null
+      }
+    },
+    "PNINA": {
+      "nom": "Paratge Natural d'Interès Nacional de l'Albera",
+      "responsables": [
+        "brigada_parc",
+        "forestal_catalana",
+        "empresa_externa"
+      ],
+      "responsables_propis": [],
+      "direccio": {
+        "nom": null,
+        "carrec": "Director/a",
+        "email": null,
+        "telefon": null
+      }
+    },
+    "PNAP": {
+      "nom": "Parc Natural de l'Alt Pirineu",
+      "responsables": [
+        "brigada_parc",
+        "forestal_catalana",
+        "empresa_externa"
+      ],
+      "responsables_propis": [],
+      "direccio": {
+        "nom": null,
+        "carrec": "Director/a",
+        "email": null,
+        "telefon": null
+      }
+    },
+    "PNMMBT": {
+      "nom": "Parc Natural del Montgrí les Illes Medes i el Baix Ter",
+      "responsables": [
+        "brigada_parc",
+        "forestal_catalana",
+        "empresa_externa"
+      ],
+      "responsables_propis": [],
+      "direccio": {
+        "nom": null,
+        "carrec": "Director/a",
+        "email": null,
+        "telefon": null
+      }
+    },
+    "PNCM": {
+      "nom": "Parc Natural del Cadí-Moixeró",
+      "responsables": [
+        "brigada_parc",
+        "forestal_catalana",
+        "empresa_externa"
+      ],
+      "responsables_propis": [],
+      "direccio": {
+        "nom": null,
+        "carrec": "Director/a",
+        "email": null,
+        "telefon": null
+      }
+    },
+    "PCTF": {
+      "nom": "Parc Natural de les Capçaleres del Ter i del Freser",
+      "responsables": [
+        "brigada_parc",
+        "forestal_catalana",
+        "empresa_externa"
+      ],
+      "responsables_propis": [],
+      "direccio": {
+        "nom": null,
+        "carrec": "Director/a",
+        "email": null,
+        "telefon": null
+      }
+    },
+    "PNCC": {
+      "nom": "Parc Natural de Cap de Creus",
+      "responsables": [
+        "brigada_parc",
+        "forestal_catalana",
+        "empresa_externa"
+      ],
+      "responsables_propis": [],
+      "direccio": {
+        "nom": null,
+        "carrec": "Director/a",
+        "email": null,
+        "telefon": null
+      }
+    },
+    "PNDE": {
+      "nom": "Parc Natural del Delta de l'Ebre",
+      "responsables": [
+        "brigada_parc",
+        "forestal_catalana",
+        "empresa_externa"
+      ],
+      "responsables_propis": [],
+      "direccio": {
+        "nom": null,
+        "carrec": "Director/a",
+        "email": null,
+        "telefon": null
+      }
+    },
+    "PNZVG": {
+      "nom": "Parc Natural de la Zona Volcànica de la Garrotxa",
+      "responsables": [
+        "brigada_parc",
+        "forestal_catalana",
+        "empresa_externa"
+      ],
+      "responsables_propis": [],
+      "direccio": {
+        "nom": null,
+        "carrec": "Director/a",
+        "email": null,
+        "telefon": null
+      }
+    },
+    "PNMS": {
+      "nom": "Parc Natural del Montsant",
+      "responsables": [
+        "brigada_parc",
+        "forestal_catalana",
+        "empresa_externa"
+      ],
+      "responsables_propis": [],
+      "direccio": {
+        "nom": null,
+        "carrec": "Director/a",
+        "email": null,
+        "telefon": null
+      }
+    },
+    "PNINP": {
+      "nom": "Paratge Natural d'Interès Nacional de Poblet",
+      "responsables": [
+        "brigada_parc",
+        "forestal_catalana",
+        "empresa_externa"
+      ],
+      "responsables_propis": [],
+      "direccio": {
+        "nom": null,
+        "carrec": "Director/a",
+        "email": null,
+        "telefon": null
+      }
+    },
+    "PNP": {
+      "nom": "Parc Natural de Ports",
+      "responsables": [
+        "brigada_parc",
+        "forestal_catalana",
+        "empresa_externa"
+      ],
+      "responsables_propis": [],
+      "direccio": {
+        "nom": null,
+        "carrec": "Director/a",
+        "email": null,
+        "telefon": null
+      }
+    },
+    "RMM": {
+      "nom": "Reserva Natural Parcial de Mas de Melons",
+      "responsables": [
+        "brigada_parc",
+        "forestal_catalana",
+        "empresa_externa"
+      ],
+      "responsables_propis": [],
+      "direccio": {
+        "nom": null,
+        "carrec": "Director/a",
+        "email": null,
+        "telefon": null
+      }
+    }
+  }
+}

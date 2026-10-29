@@ -298,6 +298,29 @@
     .llista-immobles { max-height: 360px; }
     .dues-col { grid-template-columns: 1fr; }
   }
+  /* ---------- Mòdul de manteniment ---------- */
+  .nav-badge { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 6px; border-radius: 9px; background: #d03b3b; color: #fff; font-size: 11px; line-height: 18px; text-align: center; }
+  .mant-filtres { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+  .mant-filtres select, .mant-filtres input[type=search] { padding: 7px 8px; border: 1px solid var(--color-border); font: inherit; font-size: 13px; background: #fff; max-width: 240px; }
+  .mant-filtres input[type=search] { flex: 1; min-width: 180px; }
+  .mant-mapa { height: 360px; }
+  .llista-cap { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--color-border); gap: 8px; }
+  .llista-cap select { font: inherit; font-size: 12px; padding: 3px 4px; }
+  .prio { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 10px; border: 1px solid; white-space: nowrap; }
+  .prio-urgent { background: #fdecec; color: #9b1c1c; border-color: #ef9a9a; }
+  .prio-alta { background: #fff1e6; color: #8a3b00; border-color: #f2b77c; }
+  .prio-moderada { background: #fff8e1; color: #6d5300; border-color: #f2d27c; }
+  .prio-baixa { background: #e8f5f3; color: #05594f; border-color: #9fd5cc; }
+  .prio-en_espera { background: #f0f0ee; color: #55554f; border-color: #c9c9c4; }
+  .prio-cap { background: #e3f2fd; color: #0b4f8a; border-color: #9cc7ec; }
+  .mant-foto { max-width: 100%; max-height: 360px; border: 1px solid var(--color-border); display: block; margin-top: 6px; }
+  .mant-foto-buida { padding: 16px; background: #f7f7f5; color: var(--color-text-secondary); font-size: 13px; }
+  .mant-form-mapa { height: 320px; border: 2px solid var(--color-primary-teal); cursor: crosshair; margin-top: 8px; }
+  .mant-seccio { padding: 16px 20px; border-bottom: 1px solid var(--color-border); }
+  .mant-seccio h3 { font-size: 15px; color: var(--color-primary-teal); margin-bottom: 10px; }
+  .mant-hist { font-size: 13px; border-left: 3px solid var(--color-accent-mint, #9fd5cc); padding: 4px 10px; margin-bottom: 8px; }
+  .mant-config-cap { border: 1px solid var(--color-border); padding: 10px 12px; margin-bottom: 8px; background: #fafafa; }
+  .boto-correu { text-decoration: none; display: inline-block; }
   @media (max-width: 768px) {
     .module-nav button { padding: 12px 16px; font-size: 13px; }
     .container { padding: 12px; }
@@ -324,6 +347,7 @@
 <nav class="module-nav">
   <button type="button" class="nav-button active" data-modul="patrimoni">GESTIÓ DEL PATRIMONI</button>
   <button type="button" class="nav-button" data-modul="dades">GESTIÓ DE DADES</button>
+  <button type="button" class="nav-button" data-modul="manteniment">MANTENIMENT<span id="nav-mant-badge" class="nav-badge" hidden></span></button>
 </nav>
 <div id="barra-carpeta" class="barra-carpeta"></div>
 
@@ -413,6 +437,46 @@
       </section>
     </div>
   </section>
+
+  <!-- ============================================================
+       MÒDUL 3: MANTENIMENT
+       ============================================================ -->
+  <section id="module-manteniment" class="module" aria-labelledby="t-mant">
+    <div class="cap-modul">
+      <div>
+        <h1 id="t-mant">Manteniment</h1>
+        <p>Peticions i incidències dels espais naturals. Qualsevol persona pot entrar-ne una; el responsable de manteniment hi assigna la prioritat, la data límit i qui l'ha de fer.</p>
+      </div>
+      <div class="accions-modul">
+        <button type="button" class="btn btn-secondary" id="mant-config">⚙ Configuració dels parcs</button>
+        <button type="button" class="btn btn-secondary" id="mant-csv">Exporta a CSV</button>
+        <button type="button" class="btn btn-primary" id="mant-nova">＋ Nova incidència</button>
+      </div>
+    </div>
+    <div id="mant-avisos" class="avis-box" hidden></div>
+    <div class="mant-filtres">
+      <select id="mf-parc" aria-label="Parc"></select>
+      <select id="mf-estat" aria-label="Estat"></select>
+      <select id="mf-prioritat" aria-label="Prioritat"></select>
+      <select id="mf-tipologia" aria-label="Tipologia"></select>
+      <select id="mf-responsable" aria-label="Responsable"></select>
+      <input type="search" id="mf-cerca" placeholder="Cerca (codi, descripció, immoble…)" aria-label="Cerca">
+      <label class="text-small"><input type="checkbox" id="mf-tancades"> Mostra les resoltes i descartades</label>
+    </div>
+    <div id="mant-kpis" class="kpis"></div>
+    <div class="targeta">
+      <div class="targeta-cap"><h2>Mapa de les incidències</h2><span id="mant-mapa-nota" class="text-small text-muted"></span></div>
+      <div id="mant-mapa" class="mapa-dades mant-mapa" role="region" aria-label="Mapa de les incidències"></div>
+    </div>
+    <div class="layout-patrimoni">
+      <div class="panell-llista">
+        <div class="llista-cap"><span id="mant-recompte" class="text-small text-muted"></span>
+          <select id="mf-ordre" aria-label="Ordena"><option value="limit">Per data límit</option><option value="prioritat">Per prioritat</option><option value="recent">Més recents</option></select></div>
+        <ul id="mant-llista" class="llista-immobles"></ul>
+      </div>
+      <div id="mant-panell" class="panell-fitxa"><div class="fitxa-buida">Selecciona una incidència o crea'n una de nova.</div></div>
+    </div>
+  </section>
 </main>
 
 <footer class="app-footer">
@@ -437,7 +501,12 @@ const CONFIG = {
   DADES_URL: QS.get('dades') || 'https://raw.githubusercontent.com/marcvila1/Programa_Patrimoni/main/data/',
   UNITATS_URL: QS.get('unitats') || 'https://raw.githubusercontent.com/marcvila1/Motor-Contractacio-DGPA/main/unitats_promotores.json',
   SUBCARPETA: 'patrimoni',
-  FITXERS: ['elements.json', 'historial_canvis.json', 'espais.json', 'catalegs.json', 'documents.json', 'metadata.json', 'unitats_promotores.json'],
+  FITXERS: ['elements.json', 'historial_canvis.json', 'espais.json', 'catalegs.json', 'documents.json', 'metadata.json', 'unitats_promotores.json',
+    'manteniment.json', 'manteniment_tipologies.json', 'variables.json', 'caps_brigada.json'],
+  // Valor si el fitxer no és ni a la carpeta ni al GitHub (undefined = obligatori)
+  DEFECTES: { 'historial_canvis.json': [], 'documents.json': [], 'metadata.json': {}, 'manteniment.json': [],
+    'manteniment_tipologies.json': { tipologies: [] }, 'variables.json': {}, 'caps_brigada.json': { per_parc: {} } },
+  CARPETA_FOTOS: 'manteniment_fotos',
   VERSIO: '1.0',
 };
 
@@ -882,7 +951,7 @@ async function demanaUsuari(motiu) {
     ],
   });
   if (r?.accio === 'si') {
-    S.usuari = r.dades;
+    S.usuari = { ...(S.usuari || {}), ...r.dades };
     try { localStorage.setItem(CLAU_USUARI, JSON.stringify(S.usuari)); } catch (e) { /* sense emmagatzematge: només per a la sessió */ }
     pintaUsuari();
   }
@@ -970,6 +1039,41 @@ const Carpeta = (() => {
     return { elements, historial };
   }
 
+  /** Desa una incidència de manteniment (i la seva fotografia). Rellegeix el fitxer abans d'escriure. */
+  async function desaManteniment(tasca, versioEsperada, esAlta, fotoBlob) {
+    const dir = await subcarpeta();
+    const llista = (await llegeix('manteniment.json', dir)) || [];
+    if (esAlta) {
+      const any = new Date().getFullYear(), pre = `MANT-${any}-`;
+      const n = Math.max(0, ...llista.filter(t => t.id?.startsWith(pre)).map(t => +t.id.slice(pre.length) || 0));
+      tasca.id = pre + String(n + 1).padStart(4, '0');
+      if (fotoBlob) {
+        const fotos = await dir.getDirectoryHandle(CONFIG.CARPETA_FOTOS, { create: true });
+        const nom = tasca.id + '.jpg';
+        const w = await (await fotos.getFileHandle(nom, { create: true })).createWritable();
+        await w.write(fotoBlob); await w.close();
+        tasca.fotografia = { fitxer: `${CONFIG.CARPETA_FOTOS}/${nom}`, dades: null };
+      }
+      llista.push(tasca);
+    } else {
+      const i = llista.findIndex(t => t.id === tasca.id);
+      if (i < 0) throw Object.assign(new Error(`La incidència ${tasca.id} ja no existeix a la carpeta.`), { conflicte: true });
+      if ((llista[i].versio || 1) !== versioEsperada) throw Object.assign(new Error(`${llista[i].modificat_per || 'Una altra persona'} ha modificat aquesta incidència (${fmtData(llista[i].modificat)}).`), { conflicte: true });
+      llista[i] = tasca;
+    }
+    await escriu('manteniment.json', llista, dir);
+    return { llista, tasca };
+  }
+  async function llegeixBlob(cami) {
+    try {
+      let dir = await subcarpeta();
+      const parts = cami.split('/');
+      for (const pt of parts.slice(0, -1)) dir = await dir.getDirectoryHandle(pt);
+      return await (await dir.getFileHandle(parts.at(-1))).getFile();
+    } catch (e) { return null; }
+  }
+  const escriuFitxer = (nom, obj) => escriu(nom, obj);
+
   function pinta(estat, nom) {
     const b = $('#barra-carpeta');
     const boto = (accio, text) => `<button type="button" class="btn-carpeta" data-carpeta="${accio}">${text}</button>`;
@@ -1056,7 +1160,7 @@ const Carpeta = (() => {
     else if (a === 'recarrega') recarregaDades().then(() => { repinta(); toast('Dades recarregades de la carpeta.'); });
     else if (a === 'descarrega') descarregaPendents();
   });
-  return { disponible, inicia, finestraInicial, connectar, llegeixTot, desa, pinta, repinta, activa: () => !!arrel, nom: () => arrel?.name, estat: null };
+  return { disponible, inicia, finestraInicial, connectar, llegeixTot, desa, desaManteniment, llegeixBlob, escriuFitxer, pinta, repinta, activa: () => !!arrel, nom: () => arrel?.name, estat: null };
 })();
 
 function dadesActuals() {
@@ -1064,12 +1168,14 @@ function dadesActuals() {
     'elements.json': S.elements, 'historial_canvis.json': S.historial, 'espais.json': S.espais,
     'catalegs.json': S.cat, 'documents.json': S.docs, 'metadata.json': S.meta,
     'unitats_promotores.json': S.unitatsRaw ?? undefined,
+    'manteniment.json': S.mant, 'manteniment_tipologies.json': S.tipologies, 'variables.json': S.variables, 'caps_brigada.json': S.capsBrigada,
   };
 }
 function descarregaPendents() {
-  descarrega('elements.json', JSON.stringify(S.elements, null, 2) + '\n');
-  setTimeout(() => descarrega('historial_canvis.json', JSON.stringify(S.historial, null, 2) + '\n'), 400);
-  toast('S’han descarregat elements.json i historial_canvis.json. Substitueix-los a la carpeta de dades.', 'ok', 8000);
+  const noms = ['elements.json', 'historial_canvis.json', 'manteniment.json', ...(S.configCanviada ? ['variables.json', 'caps_brigada.json'] : [])];
+  const d = dadesActuals();
+  noms.forEach((n, i) => setTimeout(() => descarrega(n, JSON.stringify(d[n], null, 2) + '\n'), i * 400));
+  toast(`S’han descarregat ${noms.join(', ')}. Substitueix-los a la carpeta de dades. Les fotografies de les incidències van dins de manteniment.json.`, 'ok', 9000);
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -1092,7 +1198,7 @@ async function carregaDades() {
     catch (e) { toast('No s’ha pogut llegir la carpeta; es fan servir les dades del GitHub. ' + e.message, 'error', 8000); d = {}; }
   }
   const falten = CONFIG.FITXERS.filter(n => d[n] === undefined && n !== 'unitats_promotores.json');
-  const llegits = await Promise.all(falten.map(n => fetchJSON(CONFIG.DADES_URL + n, n === 'historial_canvis.json' ? [] : (n === 'documents.json' || n === 'metadata.json' ? (n === 'documents.json' ? [] : {}) : undefined))));
+  const llegits = await Promise.all(falten.map(n => fetchJSON(CONFIG.DADES_URL + n, CONFIG.DEFECTES[n])));
   falten.forEach((n, i) => { d[n] = llegits[i]; });
   // Unitats: primer les del Motor de Contractació (sempre actualitzades); si no, la còpia local
   let unitats = await fetchJSON(CONFIG.UNITATS_URL, null);
@@ -1103,6 +1209,10 @@ async function carregaDades() {
   S.cat = d['catalegs.json'];
   S.docs = d['documents.json'] || [];
   S.meta = d['metadata.json'] || {};
+  S.mant = Array.isArray(d['manteniment.json']) ? d['manteniment.json'] : [];
+  S.tipologies = d['manteniment_tipologies.json'] || { tipologies: [] };
+  S.variables = d['variables.json'] || {};
+  S.capsBrigada = d['caps_brigada.json'] || { per_parc: {} };
   S.unitatsRaw = unitats;
   S.unitats = Object.fromEntries((unitats?.unitats || []).map(u => [u.codi, u]));
   if (!Array.isArray(S.elements)) throw new Error('elements.json no té el format esperat.');
@@ -1120,10 +1230,12 @@ let modulActual = 'patrimoni';
 async function mostraModul(id) {
   if (id === modulActual) return;
   if (!(await potSortirEdicio())) return;
+  if (modulActual === 'manteniment' && !(await Manteniment.potSortir())) return;
   modulActual = id;
   $$('.module').forEach(m => m.classList.toggle('active', m.id === 'module-' + id));
   $$('.module-nav button').forEach(b => b.classList.toggle('active', b.dataset.modul === id));
   if (id === 'dades') Dades.mostra();
+  if (id === 'manteniment') Manteniment.mostra();
   window.scrollTo({ top: 0 });
 }
 $$('[data-modul]').forEach(b => b.addEventListener('click', () => mostraModul(b.dataset.modul)));
@@ -1262,6 +1374,7 @@ function pintaFitxa(el) {
     <div class="fitxa-cos">${htmlAvisVigencia(el)}${htmlPendents(el)}${grups}
       <details class="grup"><summary>Zones <span class="compte">${(el.zones || []).length}</span></summary><div class="grup-cos">${zones || '<p class="buit">Sense zones.</p>'}</div></details>
       <details class="grup"><summary>Documents <span class="compte">${docs.length}</span></summary><div class="grup-cos">${docs.length ? `<table class="canvis-llista"><thead><tr><th>Tipus</th><th>Fitxer</th><th>Enllaç</th></tr></thead><tbody>${docs.map(d => `<tr><td>${esc(d.tipus)}</td><td>${esc(d.fitxer)}</td><td>${d.url ? `<a href="${esc(d.url)}" target="_blank" rel="noopener">Obre</a>` : '<span class="buit">Enllaç pendent</span>'}</td></tr>`).join('')}</tbody></table>` : '<p class="buit">Sense documents referenciats.</p>'}</div></details>
+      ${Manteniment.htmlGrupFitxa(el)}
       <details class="grup"><summary>Historial de canvis <span class="compte">${hist.length}</span></summary><div class="grup-cos">${hist.length ? hist.map(htmlEntradaHistorial).join('') : '<p class="buit">Aquest immoble no s\'ha modificat des de la càrrega inicial.</p>'}</div></details>
       <details class="grup"><summary>Metadades</summary><div class="grup-cos"><div class="camps">
         ${[['Identificador', el.id], ['Codi', el.codi], ['Unitat principal', `${el.unitat} – ${nomUnitat(el.unitat)}`],
@@ -1272,6 +1385,8 @@ function pintaFitxa(el) {
       </div></div></details>
     </div>`;
   $('#panell-fitxa [data-accio="editar"]').addEventListener('click', () => iniciaEdicio(el));
+  $$('#panell-fitxa [data-obre-mant]').forEach(b => b.addEventListener('click', () => Manteniment.obre(b.dataset.obreMant)));
+  $('#panell-fitxa [data-nova-mant]')?.addEventListener('click', () => Manteniment.nova({ unitat: S.parc || el.unitat, element: el.id }));
   pintaMiniMapa(el, false);
 }
 function documentsDe(el) {
@@ -2136,9 +2251,607 @@ const Dades = (() => {
 // ════════════════════════════════════════════════════════════════════
 // INICI
 // ════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════
+// MÒDUL 3: MANTENIMENT
+//   · manteniment.json            incidències (una entrada per incidència, amb el seu historial)
+//   · manteniment_tipologies.json tipologies de petició o incidència
+//   · variables.json              prioritats, estats, responsables i configuració de cada parc
+//   · caps_brigada.json           caps de brigada de cada parc
+//   · manteniment_fotos/          fotografies (a la carpeta de treball)
+// ════════════════════════════════════════════════════════════════════
+const Manteniment = (() => {
+  const st = { sel: null, mode: null, form: null, iniciat: false };
+  let mapa = null, capa = null, mapaForm = null, cfgClic = null, cfgCanvi = null;
+  const PRIO_HEX = { urgent: '#d03b3b', alta: '#ec835a', moderada: '#fab219', baixa: '#088074', en_espera: '#8a8a85', _: '#2a7fd4' };
+
+  // ---------- Dades i configuració ----------
+  const V = () => S.variables || {};
+  const tipologies = () => (S.tipologies?.tipologies || []);
+  const nomTipologia = c => tipologies().find(t => t.codi === c)?.nom || c || '—';
+  const prioritat = c => (V().prioritats || []).find(p => p.codi === c);
+  const nomPrioritat = c => prioritat(c)?.nom || c || 'Sense prioritat';
+  const estat = c => (V().estats || []).find(e => e.codi === c);
+  const nomEstat = c => estat(c)?.nom || c || '—';
+  const esTancada = t => (V().estats_tancats || ['resolta', 'descartada']).includes(t.estat);
+  const configParc = u => V().per_parc?.[u] || { responsables: V().per_defecte?.responsables || [], responsables_propis: [], direccio: {} };
+  /** Responsables disponibles en un parc: els generals que el parc té activats més els propis. */
+  function responsablesParc(u) {
+    const c = configParc(u);
+    const gen = (V().responsables || []).filter(r => (c.responsables || []).includes(r.codi));
+    return [...gen, ...(c.responsables_propis || [])];
+  }
+  const nomResponsable = (u, codi) => responsablesParc(u).find(r => r.codi === codi)?.nom
+    || (V().responsables || []).find(r => r.codi === codi)?.nom || codi || '—';
+  const capsBrigada = u => (S.capsBrigada?.per_parc?.[u]?.caps_brigada || []).filter(c => c.nom || c.email || c.telefon);
+  const diesAvis = () => V().dies_avis_data_limit ?? 7;
+
+  /** Avís de data límit: vençuda o dins dels dies d'avís (per defecte, 7). */
+  function avisLimit(t) {
+    const g = t.gestio || {};
+    if (esTancada(t) || !g.data_limit || !prioritat(g.prioritat)?.requereix_data_limit) return null;
+    const dies = Math.round((new Date(g.data_limit + 'T00:00:00') - new Date(avui() + 'T00:00:00')) / 864e5);
+    if (dies < 0) return { tipus: 'vencuda', dies, text: `Data límit vençuda fa ${-dies} ${dies === -1 ? 'dia' : 'dies'} (${fmtData(g.data_limit)}).` };
+    if (dies <= diesAvis()) return { tipus: 'propera', dies, text: dies === 0 ? `La data límit és avui (${fmtData(g.data_limit)}).` : `Falten ${dies} ${dies === 1 ? 'dia' : 'dies'} per a la data límit (${fmtData(g.data_limit)}).` };
+    return null;
+  }
+  const htmlPrio = c => `<span class="prio prio-${esc(c || 'cap')}">${esc(c ? nomPrioritat(c) : 'Sense prioritat')}</span>`;
+  const latLonT = t => (t.utm?.x != null && t.utm?.y != null ? UTM.aLatLon(t.utm.x, t.utm.y) : null);
+  const nomElement = id => (id ? S.perId?.get(id)?.identificacio?.nom || id : null);
+  const incidenciesDe = idElement => (S.mant || []).filter(t => t.element === idElement);
+
+  function nouId(llista) {
+    const any = new Date().getFullYear(), pre = `MANT-${any}-`;
+    const n = Math.max(0, ...llista.filter(t => t.id?.startsWith(pre)).map(t => +t.id.slice(pre.length) || 0));
+    return pre + String(n + 1).padStart(4, '0');
+  }
+
+  // ---------- Fotografia: es redueix a 1600 px i es desa en JPEG ----------
+  function redueixFoto(fitxer) {
+    return new Promise((ok, ko) => {
+      const img = new Image(), url = URL.createObjectURL(fitxer);
+      img.onload = () => {
+        const k = Math.min(1, 1600 / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        c.toBlob(b => (b ? ok({ blob: b, dataURL: c.toDataURL('image/jpeg', 0.82) }) : ko(new Error('No s\'ha pogut processar la imatge.'))), 'image/jpeg', 0.82);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); ko(new Error('El fitxer no és una imatge vàlida.')); };
+      img.src = url;
+    });
+  }
+  async function urlFoto(t) {
+    const f = t.fotografia;
+    if (!f) return null;
+    if (f.dades) return f.dades;
+    if (f.fitxer && Carpeta.activa()) { const b = await Carpeta.llegeixBlob(f.fitxer); return b ? URL.createObjectURL(b) : null; }
+    return null;
+  }
+
+  // ---------- Desament (carpeta o memòria) ----------
+  async function desaTasca(tasca, versioEsperada, esAlta, foto) {
+    if (Carpeta.activa()) {
+      const r = await Carpeta.desaManteniment(tasca, versioEsperada, esAlta, foto?.blob);
+      S.mant = r.llista;
+      return r.tasca;
+    }
+    if (esAlta) {
+      tasca.id = nouId(S.mant);
+      if (foto) tasca.fotografia = { fitxer: null, dades: foto.dataURL };
+      S.mant.push(tasca);
+    } else S.mant[S.mant.findIndex(t => t.id === tasca.id)] = tasca;
+    S.pendents++;
+    Carpeta.repinta();
+    return tasca;
+  }
+  async function desaConfig() {
+    if (Carpeta.activa()) { await Carpeta.escriuFitxer('variables.json', S.variables); await Carpeta.escriuFitxer('caps_brigada.json', S.capsBrigada); }
+    else { S.pendents++; S.configCanviada = true; Carpeta.repinta(); }
+  }
+
+  // ---------- Correu (mailto) ----------
+  function destinataris(t) {
+    const d = configParc(t.unitat).direccio || {};
+    const a = [t.sollicitant?.email, d.email].filter(Boolean);
+    const cap = t.gestio?.cap_brigada ? capsBrigada(t.unitat).find(c => c.nom === t.gestio.cap_brigada) : null;
+    if (cap?.email) a.push(cap.email);
+    return [...new Set(a)];
+  }
+  function mailto(t, motiu = 'alta') {
+    const ll = latLonT(t), g = t.gestio || {};
+    const linies = [
+      motiu === 'alta' ? `S'ha registrat una nova incidència de manteniment al ${nomUnitat(t.unitat)}.` : `Actualització de la incidència de manteniment ${t.id}.`,
+      '', `Codi: ${t.id}`, `Espai natural: ${nomUnitat(t.unitat)} (${t.unitat})`, `Tipologia: ${nomTipologia(t.tipologia)}`,
+      t.element ? `Immoble relacionat: ${nomElement(t.element)} (${t.element})` : 'Immoble relacionat: cap',
+      `Coordenades UTM (ETRS89 31N): X ${t.utm?.x ?? '—'} · Y ${t.utm?.y ?? '—'}`,
+      ll ? `Mapa: https://www.openstreetmap.org/?mlat=${ll[0].toFixed(6)}&mlon=${ll[1].toFixed(6)}#map=17/${ll[0].toFixed(6)}/${ll[1].toFixed(6)}` : '',
+      t.data_proposada ? `Data proposada de realització: ${fmtData(t.data_proposada)}` : '',
+      '', 'Descripció:', t.descripcio || '', '',
+      `Estat: ${nomEstat(t.estat)}`, g.prioritat ? `Prioritat: ${nomPrioritat(g.prioritat)}` : '', g.data_limit ? `Data límit: ${fmtData(g.data_limit)}` : '',
+      g.responsable ? `Responsable: ${nomResponsable(t.unitat, g.responsable)}${g.cap_brigada ? ' · ' + g.cap_brigada : ''}${g.empresa ? ' · ' + g.empresa : ''}` : '',
+      '', `Sol·licitant: ${t.sollicitant?.nom || ''}${t.sollicitant?.email ? ' <' + t.sollicitant.email + '>' : ''}`,
+      t.fotografia ? `Fotografia: ${t.fotografia.fitxer ? 'a la carpeta de treball, ' + CONFIG.SUBCARPETA + '/' + t.fotografia.fitxer : 'adjunta a la incidència al Motor de Patrimoni'}` : '',
+      '', '— Motor de Patrimoni · mòdul de Manteniment',
+    ].filter((l, i, a) => l !== '' || a[i - 1] !== '');
+    const assumpte = `[Manteniment ${t.unitat}] ${t.id} · ${nomTipologia(t.tipologia)}${t.element ? ' · ' + nomElement(t.element) : ''}`;
+    return `mailto:${destinataris(t).map(encodeURIComponent).join(',')}?subject=${encodeURIComponent(assumpte)}&body=${encodeURIComponent(linies.join('\n'))}`;
+  }
+  function htmlBotoCorreu(t, motiu, text) {
+    const dest = destinataris(t), dir = configParc(t.unitat).direccio || {};
+    const falta = !dir.email ? `<div class="text-small text-muted" style="margin-top:4px">⚠ La direcció del ${esc(t.unitat)} no té correu configurat: afegeix-lo a «Configuració dels parcs».</div>` : '';
+    return `<a class="btn btn-primary boto-correu" href="${esc(mailto(t, motiu))}" data-correu="${esc(t.id)}">✉ ${esc(text)}</a>
+      <span class="text-small text-muted">${dest.length ? 'Per a: ' + esc(dest.join(', ')) : 'Sense destinataris amb correu'}</span>${falta}`;
+  }
+
+  // ---------- Filtres, llista, mapa, indicadors ----------
+  const opcions = (sel, buida, llista, actual) => { $(sel).innerHTML = `<option value="">${esc(buida)}</option>` + llista.map(([v, l]) => `<option value="${esc(v)}" ${v === actual ? 'selected' : ''}>${esc(l)}</option>`).join(''); };
+  function pintaFiltres() {
+    const v = id => $(id).value;
+    const parcs = espaisOrdenats();
+    opcions('#mf-parc', 'Tots els espais', parcs.map(c => [c, nomUnitat(c)]), v('#mf-parc') || S.parc || '');
+    opcions('#mf-estat', 'Tots els estats', (V().estats || []).map(e => [e.codi, e.nom]), v('#mf-estat'));
+    opcions('#mf-prioritat', 'Totes les prioritats', [...(V().prioritats || []).map(p => [p.codi, p.nom]), ['_', 'Sense prioritat']], v('#mf-prioritat'));
+    opcions('#mf-tipologia', 'Totes les tipologies', tipologies().map(t => [t.codi, t.nom]), v('#mf-tipologia'));
+    opcions('#mf-responsable', 'Tots els responsables', (V().responsables || []).map(r => [r.codi, r.nom]), v('#mf-responsable'));
+  }
+  function filtrades() {
+    const f = { parc: $('#mf-parc').value, estat: $('#mf-estat').value, prio: $('#mf-prioritat').value, tip: $('#mf-tipologia').value,
+      resp: $('#mf-responsable').value, q: $('#mf-cerca').value.trim().toLowerCase(), tancades: $('#mf-tancades').checked };
+    return (S.mant || []).filter(t => (!f.parc || t.unitat === f.parc) && (!f.estat || t.estat === f.estat)
+      && (!f.prio || (f.prio === '_' ? !t.gestio?.prioritat : t.gestio?.prioritat === f.prio)) && (!f.tip || t.tipologia === f.tip)
+      && (!f.resp || t.gestio?.responsable === f.resp) && (f.tancades || f.estat || !esTancada(t))
+      && (!f.q || [t.id, t.descripcio, nomElement(t.element), t.sollicitant?.nom, nomTipologia(t.tipologia), t.gestio?.observacions].join(' ').toLowerCase().includes(f.q)));
+  }
+  function ordena(ll) {
+    const o = $('#mf-ordre').value;
+    const lim = t => t.gestio?.data_limit || '9999', pr = t => -(prioritat(t.gestio?.prioritat)?.ordre ?? 9);
+    return [...ll].sort((a, b) => o === 'recent' ? ordCa(b.creat, a.creat)
+      : o === 'prioritat' ? pr(a) - pr(b) || ordCa(lim(a), lim(b)) : ordCa(lim(a), lim(b)) || pr(a) - pr(b));
+  }
+  function pintaAvisos() {
+    const ll = (S.mant || []).map(t => [t, avisLimit(t)]).filter(([, a]) => a).sort((a, b) => a[1].dies - b[1].dies);
+    const box = $('#mant-avisos');
+    box.hidden = !ll.length;
+    const venc = ll.filter(([, a]) => a.tipus === 'vencuda').length;
+    box.innerHTML = ll.length ? `<details ${ll.length <= 5 ? 'open' : ''}><summary><strong>⏰ ${ll.length} ${ll.length === 1 ? 'incidència' : 'incidències'} amb la data límit ${venc ? `vençuda o ` : ''}en els propers ${diesAvis()} dies${venc ? ` (${venc} ${venc === 1 ? 'vençuda' : 'vençudes'})` : ''}</strong></summary>
+      <ul style="margin:6px 0 0 18px">${ll.map(([t, a]) => `<li><button type="button" class="btn-link" data-mant="${esc(t.id)}">${esc(t.id)}</button> · ${esc(t.unitat)} · ${esc(nomTipologia(t.tipologia))} · ${htmlPrio(t.gestio?.prioritat)} · ${esc(a.text)}</li>`).join('')}</ul></details>` : '';
+    const badge = $('#nav-mant-badge');
+    if (badge) { badge.hidden = !ll.length; badge.textContent = ll.length; badge.title = `${ll.length} incidències amb la data límit propera o vençuda`; }
+  }
+  function pintaKPIs(ll) {
+    const obertes = (S.mant || []).filter(t => !esTancada(t) && (!$('#mf-parc').value || t.unitat === $('#mf-parc').value));
+    const k = [
+      ['Incidències obertes', obertes.length, $('#mf-parc').value ? nomUnitat($('#mf-parc').value) : 'Tots els espais'],
+      ['Noves per assignar', obertes.filter(t => t.estat === 'nova').length, 'Sense prioritat ni responsable'],
+      ['Urgents', obertes.filter(t => t.gestio?.prioritat === 'urgent').length, 'Obertes amb prioritat urgent'],
+      [`Data límit en ${diesAvis()} dies`, obertes.filter(t => avisLimit(t)?.tipus === 'propera').length, 'Avís previ'],
+      ['Vençudes', obertes.filter(t => avisLimit(t)?.tipus === 'vencuda').length, 'Data límit superada'],
+    ];
+    $('#mant-kpis').innerHTML = k.map(([e, v, s]) => `<div class="kpi"><div class="et">${esc(e)}</div><div class="v">${fmtNum(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
+  }
+  function iniciaMapa() {
+    if (mapa || !window.L) return;
+    const capes = capesBase();
+    mapa = L.map('mant-mapa', { layers: [capes['Topogràfic (ICGC)']] }).setView(CENTRE_CAT, 8);
+    L.control.layers(capes, null, { collapsed: true }).addTo(mapa);
+    L.control.scale({ imperial: false }).addTo(mapa);
+    capa = L.layerGroup().addTo(mapa);
+    $('#mant-mapa').addEventListener('click', e => { const b = e.target.closest('[data-mant]'); if (b) obre(b.dataset.mant); });
+  }
+  function pintaMapa(ll) {
+    if (!mapa) return;
+    capa.clearLayers();
+    const punts = [];
+    ll.forEach(t => {
+      const p = latLonT(t); if (!p) return;
+      punts.push(p);
+      L.circleMarker(p, { radius: t.id === st.sel ? 10 : 7, color: '#fff', weight: 2, fillColor: PRIO_HEX[t.gestio?.prioritat] || PRIO_HEX._, fillOpacity: esTancada(t) ? 0.45 : 1 })
+        .bindPopup(`<strong>${esc(t.id)}</strong><br>${esc(nomTipologia(t.tipologia))} · ${htmlPrio(t.gestio?.prioritat)}<br>${esc((t.descripcio || '').slice(0, 120))}<p style="margin-top:6px"><button type="button" class="btn btn-primary btn-petit" data-mant="${esc(t.id)}">Obre</button></p>`)
+        .addTo(capa);
+    });
+    $('#mant-mapa-nota').textContent = `${punts.length} de ${ll.length} amb coordenades · color segons la prioritat`;
+    if (punts.length) mapa.fitBounds(L.latLngBounds(punts).pad(0.15), { maxZoom: 15 });
+  }
+  function pintaLlista() {
+    const ll = ordena(filtrades());
+    $('#mant-recompte').textContent = `${ll.length} ${ll.length === 1 ? 'incidència' : 'incidències'}`;
+    $('#mant-llista').innerHTML = ll.map(t => {
+      const a = avisLimit(t);
+      return `<li><button type="button" data-mant="${esc(t.id)}" class="${t.id === st.sel ? 'sel' : ''}">
+        <span class="nom">${esc(t.id)} · ${esc(nomTipologia(t.tipologia))}</span>
+        <span class="sub">${esc([t.unitat, nomElement(t.element), fmtData(t.creat)].filter(Boolean).join(' · '))}</span>
+        <span class="sub">${esc((t.descripcio || '').slice(0, 90))}${(t.descripcio || '').length > 90 ? '…' : ''}</span>
+        <span class="linia">${htmlPrio(t.gestio?.prioritat)} <span class="marca comp">${esc(nomEstat(t.estat))}</span>
+          ${t.gestio?.data_limit ? `<span class="text-small text-muted">límit ${esc(fmtData(t.gestio.data_limit))}</span>` : ''}
+          ${a ? `<span class="marca" title="${esc(a.text)}">⏰ ${a.tipus === 'vencuda' ? 'vençuda' : a.dies + ' d'}</span>` : ''}</span></button></li>`;
+    }).join('') || '<li class="fitxa-buida">Cap incidència amb aquests filtres.</li>';
+    pintaKPIs(ll);
+    pintaMapa(ll);
+  }
+  function refresca() {
+    if (!S.mant) return;
+    pintaAvisos();
+    if (!st.iniciat) return;
+    pintaFiltres();
+    pintaLlista();
+    if (st.mode === 'fitxa' && st.sel) pintaFitxa(st.sel);
+  }
+  function mostra() {
+    if (!st.iniciat) {
+      st.iniciat = true;
+      pintaFiltres();
+      ['#mf-parc', '#mf-estat', '#mf-prioritat', '#mf-tipologia', '#mf-responsable', '#mf-tancades', '#mf-ordre'].forEach(s => $(s).addEventListener('change', pintaLlista));
+      $('#mf-cerca').addEventListener('input', pintaLlista);
+      $('#mant-llista').addEventListener('click', e => { const b = e.target.closest('[data-mant]'); if (b) obre(b.dataset.mant); });
+      $('#mant-avisos').addEventListener('click', e => { const b = e.target.closest('[data-mant]'); if (b) obre(b.dataset.mant); });
+      $('#mant-nova').addEventListener('click', () => nova());
+      $('#mant-config').addEventListener('click', () => configuracio());
+      $('#mant-csv').addEventListener('click', exportaCSV);
+    }
+    iniciaMapa();
+    setTimeout(() => { mapa?.invalidateSize(); pintaLlista(); }, 50);
+  }
+  async function potSortir() {
+    if (!st.form) return true;
+    const a = await finestra({ titol: 'Canvis sense desar', cos: '<p>Hi ha un formulari de manteniment sense desar. Vols descartar-lo?</p>',
+      botons: [{ text: 'Continua', accio: 'no', principal: true }, { text: 'Descarta', accio: 'si' }] });
+    if (a !== 'si') return false;
+    st.form = null; return true;
+  }
+  async function obre(id) {
+    if (!(await potSortir())) return;
+    st.sel = id; st.mode = 'fitxa';
+    $$('#mant-llista button').forEach(b => b.classList.toggle('sel', b.dataset.mant === id));
+    pintaFitxa(id);
+    $('#mant-panell').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ---------- Fitxa d'una incidència ----------
+  const camp = (et, vl, ample) => `<div class="camp ${ample ? 'ample' : ''}"><div class="et">${esc(et)}</div><div class="vl">${vl}</div></div>`;
+  const txt = v => (buit(v) ? '<span class="buit">—</span>' : esc(v));
+  async function pintaFitxa(id) {
+    const t = (S.mant || []).find(x => x.id === id);
+    if (!t) { $('#mant-panell').innerHTML = '<div class="fitxa-buida">Aquesta incidència ja no existeix.</div>'; return; }
+    const g = t.gestio || {}, a = avisLimit(t);
+    $('#mant-panell').innerHTML = `<div class="fitxa-cap"><div><h2>${esc(t.id)} · ${esc(nomTipologia(t.tipologia))}</h2>
+        <div class="id">${esc(nomUnitat(t.unitat))}</div><div class="xips" style="margin-top:6px"><span class="xip">${esc(t.unitat)}</span> ${htmlPrio(g.prioritat)} <span class="marca comp">${esc(nomEstat(t.estat))}</span></div></div>
+        <div class="botons"><button type="button" class="btn btn-primary" data-m="gestio">⚑ Gestiona</button></div></div>
+      ${a ? `<div class="avis-box" style="margin:12px 20px 0"><strong>⏰ ${a.tipus === 'vencuda' ? 'Data límit vençuda' : 'Data límit propera'}:</strong> ${esc(a.text)}</div>` : ''}
+      ${t.estat === 'nova' ? '<div class="info-box text-small" style="margin:12px 20px 0">Incidència nova: el responsable de manteniment ha d\'assignar-hi la prioritat, la data límit i el responsable (botó «Gestiona»).</div>' : ''}
+      <div class="mant-seccio"><h3>Petició</h3><div class="camps">
+        ${camp('Descripció', txt(t.descripcio), true)}
+        ${camp('Tipologia', txt(nomTipologia(t.tipologia)))}
+        ${camp('Immoble relacionat', t.element ? `<button type="button" class="btn-link" data-ves="${esc(t.element)}">${esc(nomElement(t.element))}</button>` : '<span class="buit">Cap</span>')}
+        ${camp('Data proposada de realització', t.data_proposada ? esc(fmtData(t.data_proposada)) : '<span class="buit">—</span>')}
+        ${camp('Coordenades UTM', t.utm?.x != null ? `X ${esc(t.utm.x)} · Y ${esc(t.utm.y)}` : '<span class="buit">—</span>')}
+        ${camp('Sol·licitant', `${txt(t.sollicitant?.nom)}${t.sollicitant?.email ? ` · <a href="mailto:${esc(t.sollicitant.email)}">${esc(t.sollicitant.email)}</a>` : ''}`)}
+        ${camp('Data d\'entrada', esc(fmtData(t.creat)))}
+      </div><div id="mant-foto"><div class="mant-foto-buida">${t.fotografia ? 'Carregant la fotografia…' : 'Sense fotografia.'}</div></div></div>
+      <div class="mant-seccio"><h3>Gestió</h3><div class="camps">
+        ${camp('Prioritat', htmlPrio(g.prioritat))}
+        ${camp('Data límit', g.data_limit ? esc(fmtData(g.data_limit)) : '<span class="buit">—</span>')}
+        ${camp('Responsable', g.responsable ? esc(nomResponsable(t.unitat, g.responsable)) : '<span class="buit">—</span>')}
+        ${g.cap_brigada ? camp('Cap de brigada', esc(g.cap_brigada)) : ''}
+        ${g.empresa ? camp('Empresa', esc(g.empresa)) : ''}
+        ${camp('Estat', esc(nomEstat(t.estat)))}
+        ${t.data_resolucio ? camp('Data de resolució', esc(fmtData(t.data_resolucio))) : ''}
+        ${camp('Observacions', txt(g.observacions), true)}
+      </div></div>
+      <div class="mant-seccio"><h3>Avís per correu</h3>${htmlBotoCorreu(t, 'actualitzacio', 'Envia un correu sobre aquesta incidència')}</div>
+      <div class="mant-seccio"><h3>Historial</h3>${(t.historial || []).slice().reverse().map(h => `<div class="mant-hist"><strong>${esc(fmtData(h.data))}</strong> · ${esc(h.usuari?.nom || '')} · ${esc(h.accio === 'alta' ? 'Alta' : 'Gestió')}
+        ${(h.canvis || []).length ? `<ul style="margin:2px 0 0 18px">${h.canvis.map(c => `<li>${esc(c.etiqueta)}: ${esc(c.abans ?? '—')} → ${esc(c.despres ?? '—')}</li>`).join('')}</ul>` : ''}</div>`).join('') || '<p class="buit">—</p>'}</div>`;
+    $('#mant-panell [data-m="gestio"]').addEventListener('click', () => gestio(t));
+    $('#mant-panell').querySelector('[data-ves]')?.addEventListener('click', e => vesAElement(e.target.dataset.ves));
+    const u = await urlFoto(t);
+    const box = $('#mant-foto');
+    if (box && t.fotografia) box.innerHTML = u ? `<img class="mant-foto" src="${esc(u)}" alt="Fotografia de la incidència ${esc(t.id)}">`
+      : `<div class="mant-foto-buida">La fotografia és a la carpeta de treball (${esc(CONFIG.SUBCARPETA + '/' + (t.fotografia.fitxer || ''))}). Connecta la carpeta per veure-la.</div>`;
+  }
+
+  // ---------- Formulari d'entrada ----------
+  const h = (id, et, inp, x = {}) => `<div class="camp ${x.ample ? 'ample' : ''}"><label for="${id}" class="${x.req ? 'required' : ''}">${esc(et)}</label>${inp}${x.ajuda ? `<div class="ajuda">${esc(x.ajuda)}</div>` : ''}<div class="camp-error" hidden></div></div>`;
+  const ordenElements = u => elementsDe(u).filter(e => e.estat_execucio?.estat !== 'suprimit').sort((a, b) => ordCa(a.identificacio?.nom, b.identificacio?.nom));
+  async function nova(preset = {}) {
+    if (modulActual !== 'manteniment') await mostraModul('manteniment');
+    if (!(await potSortir())) return;
+    if (!S.usuari && !(await demanaUsuari('Abans d\'entrar una incidència, indica qui la demana.'))) return;
+    st.mode = 'nova'; st.sel = null; st.form = { foto: null };
+    const parc = preset.unitat || $('#mf-parc').value || S.parc || '';
+    const p = $('#mant-panell');
+    p.innerHTML = `<div class="fitxa-cap"><div><h2>Nova incidència de manteniment</h2><div class="id">Sol·licitant: ${esc(S.usuari?.nom || '')}</div></div></div>
+      <div class="fitxa-cos"><div id="mant-errors"></div>
+      <div class="mant-seccio"><div class="camps">
+        ${h('mn-parc', 'Parc natural', `<select id="mn-parc"><option value="">— Tria l'espai —</option>${espaisOrdenats().map(c => `<option value="${esc(c)}" ${c === parc ? 'selected' : ''}>${esc(nomUnitat(c))}</option>`).join('')}</select>`, { req: true, ample: true })}
+        ${h('mn-tipologia', 'Tipologia de petició o incidència', `<select id="mn-tipologia"><option value="">—</option>${tipologies().filter(t => t.activa !== false).map(t => `<option value="${esc(t.codi)}" title="${esc(t.descripcio || '')}">${esc(t.nom)}</option>`).join('')}</select>`, { req: true })}
+        ${h('mn-data', 'Data proposada de realització (opcional)', '<input type="date" id="mn-data">')}
+        ${h('mn-descripcio', 'Descripció', '<textarea id="mn-descripcio" rows="3" placeholder="Què passa, on exactament i què caldria fer"></textarea>', { req: true, ample: true })}
+        ${h('mn-element', 'Immoble relacionat del mòdul de patrimoni', '<select id="mn-element"></select>', { ample: true, ajuda: 'Si la incidència és en un immoble o al seu voltant. En marcar el punt al mapa es proposa l\'immoble més proper.' })}
+        <div id="mn-proper" class="ample text-small" hidden></div>
+      </div></div>
+      <div class="mant-seccio"><h3>Ubicació *</h3><div class="camps">
+        ${h('mn-x', 'Coordenada UTM X', '<input type="text" inputmode="numeric" id="mn-x" placeholder="p. ex. 507493">', { req: true })}
+        ${h('mn-y', 'Coordenada UTM Y', '<input type="text" inputmode="numeric" id="mn-y" placeholder="p. ex. 4673470">', { req: true })}
+      </div><div id="mn-mapa" class="mant-form-mapa"></div><div class="nota-mapa"><strong>📍 Clica el mapa</strong> o arrossega el punt per marcar la ubicació, o escriu les coordenades (ETRS89 / UTM 31N).</div></div>
+      <div class="mant-seccio"><h3>Fotografia *</h3>
+        <input type="file" id="mn-foto" accept="image/*" capture="environment"><div class="camp-error" id="mn-foto-err" hidden></div><div id="mn-foto-prev"></div></div>
+      <div class="mant-seccio"><div class="camps">
+        ${h('mn-nom', 'Nom del sol·licitant', `<input type="text" id="mn-nom" value="${esc(S.usuari?.nom || '')}">`, { req: true })}
+        ${h('mn-email', 'Correu electrònic del sol·licitant', `<input type="email" id="mn-email" value="${esc(S.usuari?.email || '')}" placeholder="nom@gencat.cat">`, { req: true, ajuda: 'Rebrà l\'avís de la incidència, igual que la direcció del parc.' })}
+      </div></div></div>
+      <div class="peu-edicio"><button type="button" class="btn btn-secondary" data-m="cancela">Cancel·la</button><button type="button" class="btn btn-primary" data-m="desa">Registra la incidència</button></div>`;
+    const omplElements = () => {
+      const u = $('#mn-parc').value;
+      $('#mn-element').innerHTML = `<option value="">— Cap —</option>` + (u ? ordenElements(u).map(e => `<option value="${esc(e.id)}">${esc(e.identificacio?.nom || e.codi)}${e.identificacio?.tipus_element ? ' · ' + esc(e.identificacio.tipus_element) : ''}</option>`).join('') : '');
+    };
+    omplElements();
+    if (preset.element) $('#mn-element').value = preset.element;
+    // Mapa
+    if (mapaForm) { mapaForm.remove(); mapaForm = null; }
+    let marca = null;
+    if (window.L) {
+      const capes = capesBase();
+      mapaForm = L.map('mn-mapa', { scrollWheelZoom: false, layers: [capes['Topogràfic (ICGC)']] }).setView(CENTRE_CAT, 8);
+      L.control.layers(capes, null, { collapsed: true }).addTo(mapaForm);
+      const posa = (p, centra) => {
+        if (!marca) { marca = L.marker(p, { draggable: true }).addTo(mapaForm); marca.on('dragend', () => { const q = marca.getLatLng(); escriuXY(q.lat, q.lng); }); }
+        else marca.setLatLng(p);
+        if (centra) mapaForm.setView(p, Math.max(mapaForm.getZoom(), 14));
+      };
+      const escriuXY = (lat, lng) => { const [x, y] = UTM.aUTM(lat, lng); $('#mn-x').value = x; $('#mn-y').value = y; proposaProper(); };
+      mapaForm.on('click', ev => { posa(ev.latlng); escriuXY(ev.latlng.lat, ev.latlng.lng); });
+      const deXY = () => { const x = +$('#mn-x').value, y = +$('#mn-y').value; if (x >= 250000 && x <= 540000 && y >= 4480000 && y <= 4760000) { posa(UTM.aLatLon(x, y), true); proposaProper(); } };
+      $('#mn-x').addEventListener('change', deXY); $('#mn-y').addEventListener('change', deXY);
+      st.form.centraParc = () => {
+        const u = $('#mn-parc').value, pts = u ? elementsDe(u).map(latLonDe).filter(Boolean) : [];
+        if (pts.length && !marca) mapaForm.fitBounds(L.latLngBounds(pts).pad(0.1));
+      };
+      st.form.posaElement = id => { const el = S.perId.get(id), ll = el && latLonDe(el); if (ll && !$('#mn-x').value) { posa(ll, true); escriuXY(ll[0], ll[1]); } };
+      st.form.centraParc();
+      if (preset.element) st.form.posaElement(preset.element);
+    }
+    function proposaProper() {
+      const u = $('#mn-parc').value, x = +$('#mn-x').value, y = +$('#mn-y').value, box = $('#mn-proper');
+      if (!u || !x || !y) { box.hidden = true; return; }
+      let millor = null;
+      for (const e of ordenElements(u)) { const ex = e.localitzacio?.utm; if (ex?.x == null) continue; const d = Math.hypot(ex.x - x, ex.y - y); if (!millor || d < millor.d) millor = { e, d }; }
+      if (!millor || millor.d > 500 || $('#mn-element').value === millor.e.id) { box.hidden = true; return; }
+      box.hidden = false;
+      if (box.dataset.proper === millor.e.id + '|' + Math.round(millor.d)) return;   // no el redibuixis: es perdria el clic
+      box.dataset.proper = millor.e.id + '|' + Math.round(millor.d);
+      box.innerHTML = `Immoble més proper: <strong>${esc(millor.e.identificacio?.nom)}</strong>, a ${fmtNum(Math.round(millor.d))} m. <button type="button" class="btn-link" data-proper="${esc(millor.e.id)}">Vincula-hi la incidència</button>`;
+    }
+    $('#mn-proper').addEventListener('click', e => { const b = e.target.closest('[data-proper]'); if (b) { $('#mn-element').value = b.dataset.proper; $('#mn-proper').hidden = true; } });
+    $('#mn-parc').addEventListener('change', () => { omplElements(); st.form.centraParc?.(); proposaProper(); });
+    $('#mn-element').addEventListener('change', e => { if (e.target.value) st.form.posaElement?.(e.target.value); });
+    $('#mn-foto').addEventListener('change', async e => {
+      const f = e.target.files?.[0];
+      if (!f) return;
+      try {
+        st.form.foto = await redueixFoto(f);
+        $('#mn-foto-prev').innerHTML = `<img class="mant-foto" src="${st.form.foto.dataURL}" alt="Previsualització de la fotografia">`;
+        $('#mn-foto-err').hidden = true;
+      } catch (err) { st.form.foto = null; $('#mn-foto-err').hidden = false; $('#mn-foto-err').textContent = err.message; }
+    });
+    p.querySelector('[data-m="cancela"]').addEventListener('click', async () => { if (await potSortir()) { st.mode = null; p.innerHTML = '<div class="fitxa-buida">Selecciona una incidència o crea\'n una de nova.</div>'; } });
+    p.querySelector('[data-m="desa"]').addEventListener('click', registra);
+    setTimeout(() => mapaForm?.invalidateSize(), 60);
+    p.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  // Treu la marca d'error d'un camp quan s'hi escriu
+  ['input', 'change'].forEach(ev => document.addEventListener(ev, e => {
+    const c = e.target.closest?.('#mant-panell .camp.te-error');
+    if (c) { c.classList.remove('te-error'); c.querySelector('.camp-error').hidden = true; }
+    if (e.target.id === 'mn-foto') $('#mn-foto-err').hidden = true;
+  }));
+  function marcaError(sel, msg) {
+    const c = $(sel)?.closest('.camp') || null;
+    if (c) { c.classList.add('te-error'); const b = c.querySelector('.camp-error'); b.hidden = false; b.textContent = msg; }
+    return msg;
+  }
+  async function registra() {
+    $$('#mant-panell .camp.te-error').forEach(c => { c.classList.remove('te-error'); c.querySelector('.camp-error').hidden = true; });
+    const v = s => $(s).value.trim(), err = [];
+    if (!v('#mn-parc')) err.push(marcaError('#mn-parc', 'Tria el parc natural.') && 'Parc natural');
+    if (!v('#mn-tipologia')) err.push(marcaError('#mn-tipologia', 'Tria la tipologia.') && 'Tipologia');
+    if (v('#mn-descripcio').length < 5) err.push(marcaError('#mn-descripcio', 'Descriu la incidència.') && 'Descripció');
+    const x = Number(v('#mn-x')), y = Number(v('#mn-y'));
+    if (!v('#mn-x') || !Number.isInteger(x) || x < 250000 || x > 540000) err.push(marcaError('#mn-x', 'Entre 250000 i 540000. Pots clicar el mapa.') && 'Coordenada X');
+    if (!v('#mn-y') || !Number.isInteger(y) || y < 4480000 || y > 4760000) err.push(marcaError('#mn-y', 'Entre 4480000 i 4760000. Pots clicar el mapa.') && 'Coordenada Y');
+    if (!st.form.foto) { err.push('Fotografia'); $('#mn-foto-err').hidden = false; $('#mn-foto-err').textContent = 'Cal adjuntar una fotografia.'; }
+    if (v('#mn-nom').length < 3) err.push(marcaError('#mn-nom', 'Escriu el nom i cognoms.') && 'Nom');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('#mn-email'))) err.push(marcaError('#mn-email', 'Correu electrònic no vàlid.') && 'Correu electrònic');
+    if (err.length) { $('#mant-errors').innerHTML = `<div class="error-box" style="margin:12px 20px 0"><strong>Falten dades:</strong> ${esc(err.join(', '))}.</div>`; $('#mant-errors').scrollIntoView({ block: 'center' }); return; }
+    // Desa el correu al perfil local de l'usuari, per a la propera vegada
+    S.usuari = { ...S.usuari, nom: v('#mn-nom'), email: v('#mn-email') };
+    try { localStorage.setItem(CLAU_USUARI, JSON.stringify(S.usuari)); } catch (e) { /* sense emmagatzematge */ }
+    pintaUsuari();
+    const moment = ara();
+    const tasca = {
+      id: null, versio: 1, creat: moment, modificat: moment, modificat_per: S.usuari.nom,
+      sollicitant: { nom: S.usuari.nom, email: S.usuari.email, unitat: S.usuari.unitat || null, font: 'manual' },
+      unitat: v('#mn-parc'), utm: { x, y }, element: v('#mn-element') || null, tipologia: v('#mn-tipologia'),
+      descripcio: v('#mn-descripcio'), data_proposada: v('#mn-data') || null, fotografia: null,
+      estat: 'nova', data_resolucio: null,
+      gestio: { prioritat: null, data_limit: null, responsable: null, cap_brigada: null, empresa: null, observacions: null, assignat_per: null, data_assignacio: null },
+      historial: [{ data: moment, usuari: { nom: S.usuari.nom, unitat: S.usuari.unitat || null, font: 'manual' }, accio: 'alta', canvis: [] }],
+    };
+    let desada;
+    try { desada = await desaTasca(tasca, 0, true, st.form.foto); }
+    catch (e) { toast('Error en desar la incidència: ' + e.message, 'error', 10000); return; }
+    st.form = null;
+    st.sel = desada.id; st.mode = 'fitxa';
+    refrescaTot();
+    pintaLlista();
+    await pintaFitxa(desada.id);
+    await finestra({
+      titol: `✓ Incidència ${esc(desada.id)} registrada`,
+      cos: `<p>La incidència s'ha desat${Carpeta.activa() ? ` a la carpeta <strong>${esc(Carpeta.nom())}</strong>` : ' en aquesta finestra (<strong>sense carpeta</strong>: recorda descarregar els fitxers)'}.</p>
+        <p>Ara cal <strong>avisar el sol·licitant i la direcció del parc</strong>. El botó obre un correu ja redactat al teu programa de correu:</p>
+        <p>${htmlBotoCorreu(desada, 'alta', 'Envia l\'avís per correu')}</p>`,
+      botons: [{ text: 'Tanca', accio: 'ok', principal: true }],
+    });
+  }
+
+  // ---------- Gestió (responsable de manteniment) ----------
+  async function gestio(t) {
+    if (!S.usuari && !(await demanaUsuari('Abans de gestionar la incidència, indica qui ho fa.'))) return;
+    st.mode = 'gestio'; st.form = { id: t.id };
+    const g = t.gestio || {}, resp = responsablesParc(t.unitat), caps = capsBrigada(t.unitat);
+    const p = $('#mant-panell');
+    p.innerHTML = `<div class="fitxa-cap"><div><h2>Gestió: ${esc(t.id)}</h2><div class="id">${esc(nomTipologia(t.tipologia))} · ${esc(nomUnitat(t.unitat))}</div></div></div>
+      <div class="fitxa-cos"><div id="mant-errors"></div><div class="mant-seccio">
+      <p class="text-small" style="margin-bottom:10px">${esc(t.descripcio || '')}</p><div class="camps">
+        ${h('mg-prioritat', 'Prioritat', `<select id="mg-prioritat"><option value="">— Sense assignar —</option>${(V().prioritats || []).map(x => `<option value="${esc(x.codi)}" ${x.codi === g.prioritat ? 'selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>`, { req: true })}
+        ${h('mg-limit', 'Data límit', `<input type="date" id="mg-limit" value="${esc(g.data_limit || '')}">`, { ajuda: `Obligatòria si la prioritat no és «En espera». S'avisa ${diesAvis()} dies abans.` })}
+        ${h('mg-resp', 'Responsable', `<select id="mg-resp"><option value="">—</option>${resp.map(r => `<option value="${esc(r.codi)}" ${r.codi === g.responsable ? 'selected' : ''}>${esc(r.nom)}</option>`).join('')}</select>`, { req: true, ajuda: resp.length ? `Responsables configurats per al ${t.unitat}.` : 'Aquest parc no té responsables configurats.' })}
+        <div class="camp" id="mg-cap-camp"><label for="mg-cap">Cap de brigada</label><select id="mg-cap"><option value="">—</option>${caps.map(c => `<option value="${esc(c.nom || c.email)}" ${(c.nom || c.email) === g.cap_brigada ? 'selected' : ''}>${esc(c.nom || c.email)}${c.ambit ? ' · ' + esc(c.ambit) : ''}</option>`).join('')}</select>${caps.length ? '' : '<div class="ajuda">Encara no hi ha caps de brigada per a aquest parc («Configuració dels parcs»).</div>'}</div>
+        ${h('mg-empresa', 'Empresa', `<input type="text" id="mg-empresa" value="${esc(g.empresa || '')}">`)}
+        ${h('mg-estat', 'Estat', `<select id="mg-estat">${(V().estats || []).map(x => `<option value="${esc(x.codi)}" ${x.codi === t.estat ? 'selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>`)}
+        ${h('mg-obs', 'Observacions', `<textarea id="mg-obs" rows="3">${esc(g.observacions || '')}</textarea>`, { ample: true })}
+      </div></div></div>
+      <div class="peu-edicio"><button type="button" class="btn btn-secondary" data-m="cancela">Cancel·la</button><button type="button" class="btn btn-primary" data-m="desa">Desa la gestió</button></div>`;
+    const sincr = () => {
+      const pr = prioritat($('#mg-prioritat').value), r = $('#mg-resp').value;
+      $('#mg-limit').closest('.camp').querySelector('label').classList.toggle('required', !!pr?.requereix_data_limit);
+      $('#mg-cap-camp').hidden = r !== 'brigada_parc';
+      $('#mg-empresa').closest('.camp').hidden = r !== 'empresa_externa';
+    };
+    ['#mg-prioritat', '#mg-resp'].forEach(s => $(s).addEventListener('change', sincr));
+    sincr();
+    p.querySelector('[data-m="cancela"]').addEventListener('click', () => { st.form = null; st.mode = 'fitxa'; pintaFitxa(t.id); });
+    p.querySelector('[data-m="desa"]').addEventListener('click', () => desaGestio(t));
+  }
+  async function desaGestio(t) {
+    $$('#mant-panell .camp.te-error').forEach(c => { c.classList.remove('te-error'); c.querySelector('.camp-error').hidden = true; });
+    const v = s => $(s).value.trim() || null, err = [];
+    const pr = prioritat(v('#mg-prioritat')), resp = v('#mg-resp');
+    if (!pr) err.push(marcaError('#mg-prioritat', 'Tria la prioritat.') && 'Prioritat');
+    if (pr?.requereix_data_limit && !v('#mg-limit')) err.push(marcaError('#mg-limit', `Amb prioritat «${pr.nom}» cal una data límit.`) && 'Data límit');
+    if (!resp && pr?.codi !== 'en_espera') err.push(marcaError('#mg-resp', 'Tria el responsable.') && 'Responsable');
+    let est = v('#mg-estat');
+    if (est === 'descartada' && !v('#mg-obs')) err.push(marcaError('#mg-obs', 'Explica per què es descarta.') && 'Observacions');
+    if (err.length) { $('#mant-errors').innerHTML = `<div class="error-box" style="margin:12px 20px 0"><strong>Falten dades:</strong> ${esc(err.join(', '))}.</div>`; return; }
+    if (est === 'nova' && pr && (resp || pr.codi === 'en_espera')) est = 'assignada';   // un cop assignada deixa de ser nova
+    const nou = clone(t), moment = ara();
+    nou.gestio = { ...nou.gestio, prioritat: pr.codi, data_limit: pr.requereix_data_limit ? v('#mg-limit') : null, responsable: resp,
+      cap_brigada: resp === 'brigada_parc' ? v('#mg-cap') : null, empresa: resp === 'empresa_externa' ? v('#mg-empresa') : null, observacions: v('#mg-obs') };
+    if (!t.gestio?.prioritat) { nou.gestio.assignat_per = S.usuari.nom; nou.gestio.data_assignacio = moment; }
+    nou.estat = est;
+    nou.data_resolucio = esTancada(nou) ? (t.data_resolucio || moment.slice(0, 10)) : null;
+    const ETIQ = { prioritat: ['Prioritat', nomPrioritat], data_limit: ['Data límit', fmtData], responsable: ['Responsable', c => nomResponsable(t.unitat, c)],
+      cap_brigada: ['Cap de brigada', x => x], empresa: ['Empresa', x => x], observacions: ['Observacions', x => x] };
+    const canvis = Object.entries(ETIQ).filter(([k]) => normal(t.gestio?.[k]) !== normal(nou.gestio[k]))
+      .map(([k, [l, f]]) => ({ camp: 'gestio.' + k, etiqueta: l, abans: t.gestio?.[k] ? f(t.gestio[k]) : null, despres: nou.gestio[k] ? f(nou.gestio[k]) : null }));
+    if (t.estat !== nou.estat) canvis.push({ camp: 'estat', etiqueta: 'Estat', abans: nomEstat(t.estat), despres: nomEstat(nou.estat) });
+    if (!canvis.length) { toast('No hi ha cap canvi per desar.', 'avis'); return; }
+    nou.versio = (t.versio || 1) + 1; nou.modificat = moment; nou.modificat_per = S.usuari.nom;
+    nou.historial = [...(t.historial || []), { data: moment, usuari: { nom: S.usuari.nom, unitat: S.usuari.unitat || null, font: 'manual' }, accio: 'gestio', canvis }];
+    try { await desaTasca(nou, t.versio || 1, false); }
+    catch (e) {
+      if (e.conflicte) { toast(e.message + ' Recarrega les dades i torna-ho a provar.', 'error', 10000); return; }
+      toast('Error en desar: ' + e.message, 'error', 10000); return;
+    }
+    st.form = null; st.mode = 'fitxa';
+    refrescaTot();
+    pintaLlista();
+    await pintaFitxa(nou.id);
+    toast(`Gestió desada (${canvis.length} ${canvis.length === 1 ? 'canvi' : 'canvis'}).`);
+  }
+
+  // ---------- Configuració per parc (variables.json i caps_brigada.json) ----------
+  async function configuracio(parcInicial) {
+    if (!(await potSortir())) return;
+    if (!S.usuari && !(await demanaUsuari('Abans de canviar la configuració, indica qui ho fa.'))) return;
+    st.mode = 'config'; st.sel = null;
+    const p0 = $('#mant-panell');
+    if (cfgClic) p0.removeEventListener('click', cfgClic);
+    if (cfgCanvi) p0.removeEventListener('change', cfgCanvi);
+    const parc = parcInicial || $('#mf-parc').value || S.parc || espaisOrdenats()[0];
+    const c = clone(configParc(parc)), caps = clone(S.capsBrigada?.per_parc?.[parc]?.caps_brigada || []);
+    const p = $('#mant-panell');
+    const filaCap = (x, i) => `<div class="mant-config-cap camps" data-cap="${i}">
+      ${h(`cb-nom-${i}`, 'Nom i cognoms', `<input type="text" id="cb-nom-${i}" data-k="nom" value="${esc(x.nom || '')}">`)}
+      ${h(`cb-email-${i}`, 'Correu electrònic', `<input type="email" id="cb-email-${i}" data-k="email" value="${esc(x.email || '')}">`)}
+      ${h(`cb-tel-${i}`, 'Telèfon', `<input type="tel" id="cb-tel-${i}" data-k="telefon" value="${esc(x.telefon || '')}">`)}
+      ${h(`cb-amb-${i}`, 'Àmbit o sector', `<input type="text" id="cb-amb-${i}" data-k="ambit" value="${esc(x.ambit || '')}">`)}
+      <div><button type="button" class="btn btn-perill btn-petit" data-treu-cap="${i}">Treu</button></div></div>`;
+    const pinta = () => {
+      p.innerHTML = `<div class="fitxa-cap"><div><h2>Configuració del manteniment</h2><div class="id">variables.json · caps_brigada.json</div></div></div>
+      <div class="fitxa-cos"><div id="mant-errors"></div>
+      <div class="mant-seccio"><div class="camps">${h('cf-parc', 'Parc natural', `<select id="cf-parc">${espaisOrdenats().map(u => `<option value="${esc(u)}" ${u === parc ? 'selected' : ''}>${esc(nomUnitat(u))}</option>`).join('')}</select>`, { ample: true })}</div></div>
+      <div class="mant-seccio"><h3>Direcció del parc</h3><p class="text-small text-muted" style="margin-bottom:8px">Rep l'avís per correu de cada incidència nova del parc.</p><div class="camps">
+        ${h('cf-dnom', 'Nom i cognoms', `<input type="text" id="cf-dnom" value="${esc(c.direccio?.nom || '')}">`)}
+        ${h('cf-dcarrec', 'Càrrec', `<input type="text" id="cf-dcarrec" value="${esc(c.direccio?.carrec || 'Director/a')}">`)}
+        ${h('cf-demail', 'Correu electrònic', `<input type="email" id="cf-demail" value="${esc(c.direccio?.email || '')}">`)}
+        ${h('cf-dtel', 'Telèfon', `<input type="tel" id="cf-dtel" value="${esc(c.direccio?.telefon || '')}">`)}</div></div>
+      <div class="mant-seccio"><h3>Responsables disponibles en aquest parc</h3>
+        ${(V().responsables || []).map(r => `<label style="display:block;margin:4px 0"><input type="checkbox" data-resp="${esc(r.codi)}" ${(c.responsables || []).includes(r.codi) ? 'checked' : ''}> ${esc(r.nom)}</label>`).join('')}
+        <div style="margin-top:10px"><strong class="text-small">Responsables propis del parc</strong> <span class="text-small text-muted">(p. ex. una empresa concreta o un altre equip)</span>
+        <div id="cf-propis">${(c.responsables_propis || []).map((r, i) => `<div style="display:flex;gap:8px;margin:4px 0"><input type="text" data-propi="${i}" value="${esc(r.nom)}" style="flex:1"><button type="button" class="btn btn-perill btn-petit" data-treu-propi="${i}">Treu</button></div>`).join('')}</div>
+        <button type="button" class="btn btn-secondary btn-petit" id="cf-afegeix-propi">＋ Afegeix un responsable propi</button></div></div>
+      <div class="mant-seccio"><h3>Caps de brigada</h3><div id="cf-caps">${caps.map(filaCap).join('')}</div>
+        <button type="button" class="btn btn-secondary btn-petit" id="cf-afegeix-cap">＋ Afegeix un cap de brigada</button></div></div>
+      <div class="peu-edicio"><button type="button" class="btn btn-secondary" data-m="cancela">Tanca</button><button type="button" class="btn btn-primary" data-m="desa">Desa la configuració</button></div>`;
+    };
+    const recull = () => {
+      c.direccio = { nom: $('#cf-dnom').value.trim() || null, carrec: $('#cf-dcarrec').value.trim() || null, email: $('#cf-demail').value.trim() || null, telefon: $('#cf-dtel').value.trim() || null };
+      c.responsables = $$('#mant-panell [data-resp]').filter(i => i.checked).map(i => i.dataset.resp);
+      c.responsables_propis = $$('#mant-panell [data-propi]').map((i, k) => ({ codi: c.responsables_propis[k]?.codi || 'propi_' + i.value.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''), nom: i.value.trim() })).filter(r => r.nom);
+      caps.splice(0, caps.length, ...$$('#mant-panell [data-cap]').map(d => Object.fromEntries($$('[data-k]', d).map(i => [i.dataset.k, i.value.trim() || null]))));
+    };
+    pinta();
+    p.addEventListener('click', cfgClic = async e => {
+      if (st.mode !== 'config') return;
+      if (e.target.id === 'cf-afegeix-cap') { recull(); caps.push({ nom: null, email: null, telefon: null, ambit: null }); pinta(); }
+      else if (e.target.dataset.treuCap != null) { recull(); caps.splice(+e.target.dataset.treuCap, 1); pinta(); }
+      else if (e.target.id === 'cf-afegeix-propi') { recull(); c.responsables_propis.push({ codi: null, nom: '' }); pinta(); $$('#mant-panell [data-propi]').pop()?.focus(); }
+      else if (e.target.dataset.treuPropi != null) { recull(); c.responsables_propis.splice(+e.target.dataset.treuPropi, 1); pinta(); }
+      else if (e.target.dataset.m === 'cancela') { st.form = null; st.mode = null; p.innerHTML = '<div class="fitxa-buida">Selecciona una incidència o crea\'n una de nova.</div>'; }
+      else if (e.target.dataset.m === 'desa') {
+        recull();
+        const mal = [c.direccio.email, ...caps.map(x => x.email)].filter(m => m && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m));
+        if (mal.length) { $('#mant-errors').innerHTML = `<div class="error-box" style="margin:12px 20px 0">Correus no vàlids: ${esc(mal.join(', '))}</div>`; return; }
+        S.variables.per_parc = S.variables.per_parc || {};
+        S.variables.per_parc[parc] = { ...c, nom: nomUnitat(parc), modificat: ara(), modificat_per: S.usuari.nom };
+        S.capsBrigada = S.capsBrigada || { per_parc: {} };
+        S.capsBrigada.per_parc[parc] = { nom_parc: nomUnitat(parc), caps_brigada: caps.filter(x => x.nom || x.email || x.telefon), modificat: ara(), modificat_per: S.usuari.nom };
+        try { await desaConfig(); } catch (err) { toast('Error en desar la configuració: ' + err.message, 'error', 10000); return; }
+        toast(`Configuració del ${parc} desada${Carpeta.activa() ? '' : ' (sense carpeta: cal descarregar els fitxers)'}.`);
+        st.form = null; st.mode = 'config';
+      }
+    });
+    p.addEventListener('change', cfgCanvi = e => {
+      if (st.mode === 'config' && e.target.id === 'cf-parc') { st.form = null; configuracio(e.target.value); }
+    });
+  }
+
+  function exportaCSV() {
+    const ll = ordena(filtrades());
+    const files = [['Codi', 'Data entrada', 'Unitat', 'Espai natural', 'Tipologia', 'Immoble', 'Descripció', 'UTM X', 'UTM Y', 'Data proposada', 'Sol·licitant', 'Correu sol·licitant',
+      'Prioritat', 'Data límit', 'Responsable', 'Cap de brigada', 'Empresa', 'Estat', 'Data resolució', 'Observacions', 'Avís']];
+    ll.forEach(t => { const g = t.gestio || {}; files.push([t.id, fmtData(t.creat), t.unitat, nomUnitat(t.unitat), nomTipologia(t.tipologia), nomElement(t.element) || '', t.descripcio, t.utm?.x, t.utm?.y,
+      t.data_proposada || '', t.sollicitant?.nom, t.sollicitant?.email, g.prioritat ? nomPrioritat(g.prioritat) : '', g.data_limit || '', g.responsable ? nomResponsable(t.unitat, g.responsable) : '',
+      g.cap_brigada || '', g.empresa || '', nomEstat(t.estat), t.data_resolucio || '', g.observacions || '', avisLimit(t)?.text || '']); });
+    descarrega(`manteniment_${avui()}.csv`, aCSV(files), 'text/csv;charset=utf-8');
+  }
+
+  /** Bloc per a la fitxa d'un immoble al mòdul de patrimoni. */
+  function htmlGrupFitxa(el) {
+    const ll = incidenciesDe(el.id).sort((a, b) => ordCa(b.creat, a.creat)), obertes = ll.filter(t => !esTancada(t)).length;
+    return `<details class="grup" ${obertes ? 'open' : ''}><summary>Manteniment <span class="compte">${ll.length}${obertes ? ` (${obertes} ${obertes === 1 ? 'oberta' : 'obertes'})` : ''}</span></summary><div class="grup-cos">
+      ${ll.length ? `<table class="canvis-llista"><thead><tr><th>Codi</th><th>Tipologia</th><th>Prioritat</th><th>Estat</th><th>Data límit</th></tr></thead><tbody>${ll.map(t => `<tr><td><button type="button" class="btn-link" data-obre-mant="${esc(t.id)}">${esc(t.id)}</button></td><td>${esc(nomTipologia(t.tipologia))}</td><td>${htmlPrio(t.gestio?.prioritat)}</td><td>${esc(nomEstat(t.estat))}</td><td>${t.gestio?.data_limit ? esc(fmtData(t.gestio.data_limit)) : '—'}${avisLimit(t) ? ' ⏰' : ''}</td></tr>`).join('')}</tbody></table>` : '<p class="buit">Cap incidència de manteniment.</p>'}
+      <p style="margin-top:8px"><button type="button" class="btn btn-secondary btn-petit" data-nova-mant="${esc(el.id)}">＋ Nova incidència en aquest immoble</button></p></div></details>`;
+  }
+  async function obreDesDe(id) { await mostraModul('manteniment'); if (modulActual === 'manteniment') { $('#mf-tancades').checked = true; pintaLlista(); obre(id); } }
+
+  return { mostra, refresca, nova, obre: obreDesDe, htmlGrupFitxa, potSortir, avisLimit };
+})();
+
 function refrescaTot() {
   pintaSelectorParc();
   pintaAvisosVigencia();
+  Manteniment.refresca();
   if (S.parc && !S.espais[S.parc]) S.parc = null;
   if (!$('#vista-registre').hidden) mostraRegistre();
   else triaParc(S.parc, { mantenirSeleccio: true });

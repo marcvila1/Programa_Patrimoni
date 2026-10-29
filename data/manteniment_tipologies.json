@@ -1,0 +1,55 @@
+{
+  "versio": "1.0",
+  "data_actualitzacio": "2026-10-29",
+  "descripcio": "Tipologies de petició o incidència del mòdul de Manteniment. Es poden afegir tipologies noves; no se n'ha d'esborrar cap que ja s'hagi fet servir (es pot marcar activa: false).",
+  "tipologies": [
+    {
+      "codi": "seguretat",
+      "nom": "Seguretat",
+      "descripcio": "Risc per a les persones: estructures inestables, caiguda d'arbres, baranes trencades, incendis…",
+      "activa": true
+    },
+    {
+      "codi": "senyalitzacio",
+      "nom": "Senyalització",
+      "descripcio": "Cartells, fites, pals o senyals malmesos, caiguts, il·legibles o que falten.",
+      "activa": true
+    },
+    {
+      "codi": "gestio_ramadera",
+      "nom": "Gestió ramadera",
+      "descripcio": "Tancats, abeuradors, passos canadencs, bestiar fora de zona…",
+      "activa": true
+    },
+    {
+      "codi": "gestio_cinegetica",
+      "nom": "Gestió cinegètica",
+      "descripcio": "Fauna cinegètica, danys, senyalització de zones de caça, batudes…",
+      "activa": true
+    },
+    {
+      "codi": "desperfectes",
+      "nom": "Desperfectes",
+      "descripcio": "Danys en equipaments o instal·lacions: vandalisme, trencaments, deteriorament.",
+      "activa": true
+    },
+    {
+      "codi": "manteniment",
+      "nom": "Manteniment",
+      "descripcio": "Manteniment ordinari: neteja, desbrossada, pintura, reparacions menors, camins.",
+      "activa": true
+    },
+    {
+      "codi": "peticio_feina_tecnica",
+      "nom": "Petició de feina tècnica",
+      "descripcio": "Encàrrecs a la brigada o a l'equip tècnic: muntatges, suport a actuacions, preparació d'espais.",
+      "activa": true
+    },
+    {
+      "codi": "altres",
+      "nom": "Altres",
+      "descripcio": "Qualsevol altra petició o incidència.",
+      "activa": true
+    }
+  ]
+}

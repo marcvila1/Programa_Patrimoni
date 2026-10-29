@@ -127,9 +127,62 @@ Permet analitzar tot el conjunt de dades:
 
 ---
 
-## 4. Carpeta de treball i desament
+## 4. Mòdul 3. Manteniment
 
-### 4.1. Funcionament
+Recull les peticions i incidències de manteniment dels espais naturals.
+
+### 4.1. Entrada d'una incidència
+
+Qualsevol persona pot entrar-ne una amb el botó **＋ Nova incidència**. També es pot fer des de la fitxa d'un immoble, i llavors el formulari surt amb el parc, l'immoble i la ubicació ja omplerts. El formulari demana:
+- **Parc natural** (obligatori).
+- **Tipologia** (obligatòria): seguretat, senyalització, gestió ramadera, gestió cinegètica, desperfectes, manteniment, petició de feina tècnica o altres. Les tipologies són a `data/manteniment_tipologies.json`.
+- **Descripció** (obligatòria).
+- **Ubicació** (obligatòria): es pot clicar el mapa, arrossegar-ne el punt o escriure les coordenades UTM.
+- **Fotografia** (obligatòria): es redueix a 1.600 píxels i es desa a `patrimoni/manteniment_fotos/` de la carpeta de treball. Des del mòbil es pot fer directament amb la càmera.
+- **Immoble relacionat** del mòdul de patrimoni (opcional). En marcar la ubicació, el programa proposa l'immoble més proper si n'hi ha un a menys de 500 m.
+- **Data proposada de realització** (opcional).
+- **Nom i correu del sol·licitant**.
+
+En registrar-la, es crea un codi `MANT-AAAA-NNNN` i un botó obre un **correu ja redactat** (mailto) adreçat al sol·licitant i a la direcció del parc. El correu inclou el codi, la tipologia, l'immoble, les coordenades, un enllaç al mapa i la descripció.
+
+### 4.2. Gestió (responsable de manteniment)
+
+Amb el botó **Gestiona** de cada incidència es poden assignar:
+- **Prioritat**: Baixa, Moderada, Alta, Urgent o En espera.
+- **Data límit**: obligatòria per a totes les prioritats excepte «En espera». **Una setmana abans** apareix un avís, i també quan la data ja ha passat. L'avís es veu en un requadre al mòdul, a la llista, a la fitxa, en un comptador a la pestanya MANTENIMENT i als indicadors.
+- **Responsable**: els que tingui configurats el parc (Brigada Parc, Forestal Catalana, Empresa externa o responsables propis). Si és la brigada, es pot triar el cap de brigada. Si és una empresa externa, se'n pot escriure el nom.
+- **Estat**: Nova, Assignada, En curs, Resolta o Descartada. Una incidència nova passa a «Assignada» quan té prioritat i responsable. Per descartar-la cal explicar-ne el motiu.
+
+Cada canvi queda a l'historial de la incidència, amb la persona i la data. El botó de correu de la fitxa també avisa el cap de brigada assignat.
+
+### 4.3. Configuració per parc
+
+El botó **⚙ Configuració dels parcs** permet definir, per a cada parc:
+- La **direcció**: nom, càrrec, correu i telèfon. La direcció rep l'avís de les incidències noves.
+- Els **responsables** disponibles: quins dels generals fa servir el parc i, si cal, responsables propis.
+- Els **caps de brigada**: nom, correu, telèfon i àmbit.
+
+Es desa a `variables.json` i `caps_brigada.json` de la carpeta de treball.
+
+### 4.4. Fitxers
+
+| Fitxer | Contingut |
+|---|---|
+| `manteniment.json` | Incidències. Cada una té les dades d'entrada, la gestió (`gestio{prioritat, data_limit, responsable, cap_brigada, empresa, observacions}`), l'estat, la versió i l'historial |
+| `manteniment_tipologies.json` | Tipologies de petició o incidència |
+| `variables.json` | Prioritats (i si demanen data límit), dies d'avís (7), estats, responsables generals i configuració de cada parc (`per_parc`) |
+| `caps_brigada.json` | Caps de brigada de cada parc (pendents d'omplir) |
+
+### 4.5. Pendents
+
+- Omplir el correu de la direcció i els caps de brigada de cada parc (Configuració dels parcs).
+- **Integració a SINATCAT:** el sol·licitant s'agafarà de l'usuari autenticat, i els avisos per correu es podran enviar automàticament en lloc de fer-ho amb mailto.
+
+---
+
+## 5. Carpeta de treball i desament
+
+### 5.1. Funcionament
 
 Igual que al Motor de Contractació:
 - La primera vegada, el programa demana triar una **carpeta de treball** i hi crea la subcarpeta `patrimoni/`.
@@ -147,7 +200,7 @@ Igual que al Motor de Contractació:
 
 El navegador recorda la carpeta. Per seguretat, en tornar a obrir el programa pot demanar que es torni a donar permís.
 
-### 4.2. Treball compartit
+### 5.2. Treball compartit
 
 **Perquè diverses persones treballin sobre les mateixes dades, cal que tothom connecti la mateixa carpeta compartida** (SharePoint o OneDrive sincronitzat).
 
@@ -157,19 +210,19 @@ Per evitar que un canvi en trepitgi un altre:
 - Si una altra persona ha modificat aquell immoble mentre l'editàveu, **no desa** i avisa de qui l'ha modificat i quan.
 - Els canvis en immobles diferents no es bloquegen mai entre ells.
 
-### 4.3. Sense carpeta
+### 5.3. Sense carpeta
 
 Si no es connecta cap carpeta, o el navegador no ho permet:
 - Els canvis es fan igualment, però queden només a la finestra oberta.
 - Una barra avisa dels canvis sense desar i ofereix **descarregar** `elements.json` i `historial_canvis.json`, que s'han de copiar a la carpeta de dades.
 
-### 4.4. Publicació al GitHub
+### 5.4. Publicació al GitHub
 
 La carpeta de treball és on es treballa cada dia. Per actualitzar la versió pública, cal copiar `patrimoni/elements.json` i `patrimoni/historial_canvis.json` a `data/` d'aquest repositori i pujar-los.
 
 ---
 
-## 5. Registre de canvis
+## 6. Registre de canvis
 
 Cada desament afegeix una entrada a `historial_canvis.json`:
 
@@ -196,7 +249,7 @@ Cada desament afegeix una entrada a `historial_canvis.json`:
 
 ---
 
-## 6. Dades
+## 7. Dades
 
 | Fitxer | Contingut |
 |---|---|
@@ -210,7 +263,7 @@ Cada desament afegeix una entrada a `historial_canvis.json`:
 | `data/unitats_promotores.json` | Còpia de les unitats del Motor de Contractació (es fa servir si no s'hi pot accedir) |
 | `data/ESQUEMA.md` | Estructura detallada de cada immoble |
 
-### 6.1. Conversió inicial des dels Excel
+### 7.1. Conversió inicial des dels Excel
 
 `scripts/convert.py` genera els JSON a partir de les fitxes `llistes_*.xlsx`. Aplica la normalització i les decisions de `scripts/correccions_manuals.json`, i assigna cada fitxer a la seva unitat segons `scripts/mapa_unitats.json`.
 
@@ -222,11 +275,11 @@ python3 scripts/convert.py <carpeta amb els xlsx> data
 
 ---
 
-## 7. Integració a SINATCAT
+## 8. Integració a SINATCAT
 
 El programa està pensat per incorporar-se a SINATCAT (Sistema Intel·ligent d'Informació de la Natura de Catalunya) com una aplicació més sobre la base de dades comuna. Els punts d'integració són els següents.
 
-### 7.1. Usuari autenticat
+### 8.1. Usuari autenticat
 
 SINATCAT ja autentica l'usuari, de manera que **el registre de canvis incorporarà directament l'usuari identificat**:
 
@@ -241,7 +294,7 @@ SINATCAT ja autentica l'usuari, de manera que **el registre de canvis incorporar
 - Amb l'usuari autenticat es podran aplicar **permisos per unitat**, si cal: per exemple, que cada parc només editi els seus immobles. Ara mateix tothom pot editar-ho tot, per cobrir vacances, baixes i suports entre equips.
 - La carpeta de treball deixarà de ser necessària: el desament anirà contra la base de dades de SINATCAT, mantenint el control de versions per immoble.
 
-### 7.2. Vincle entre actuacions i elements patrimonials
+### 8.2. Vincle entre actuacions i elements patrimonials
 
 Al Mòdul d'Actuacions de SINATCAT, **cada actuació s'ha de poder vincular a un o més elements patrimonials**, mitjançant l'identificador de l'element. Així es podrà comptabilitzar **quantes persones passen per cada espai** i **quantes persones fan activitats a cada espai**.
 
@@ -262,7 +315,7 @@ Proposta de relació actuació ↔ element (N:M):
   - `objecte`: l'actuació és sobre l'immoble, com una obra o un manteniment.
   - `seu`: l'immoble és la base de l'actuació.
 
-### 7.3. Recompte de persones
+### 8.3. Recompte de persones
 
 S'hi proposen dos tipus de registre, tots dos lligats a l'element (i, si cal, a la zona).
 
@@ -298,7 +351,7 @@ S'hi proposen dos tipus de registre, tots dos lligats a l'element (i, si cal, a 
 }
 ```
 
-### 7.4. Dades agrupades
+### 8.4. Dades agrupades
 
 Amb aquests registres, el Mòdul de Dades podrà oferir **dades agrupades de recompte d'usuaris**:
 - **Per element**: visitants i participants per immoble, zona i període.
@@ -311,13 +364,13 @@ El Mòdul 2 d'aquest programa (filtres, mapa, indicadors i exportació) és la b
 
 ---
 
-## 8. Pendents
+## 9. Pendents
 
 - Coordenada UTM de `PNDE/magatzem_deltebre` (l'original de l'Excel és truncada).
 - Enllaços (`url`) dels documents PDF referenciats (`documents.json`).
 - Revisar si la base de dades Access conté camps o taules addicionals respecte dels Excel.
 
-## 9. Aspectes tècnics
+## 10. Aspectes tècnics
 
 - Un sol fitxer HTML, sense instal·lació. Llibreria externa: Leaflet 1.9.4 (cdnjs) per als mapes.
 - Mapes base: ICGC (topogràfic i ortofoto, © ICGC, CC BY) i OpenStreetMap.
