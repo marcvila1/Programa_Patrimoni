@@ -461,7 +461,7 @@
       <select id="mf-tipologia" aria-label="Tipologia"></select>
       <select id="mf-responsable" aria-label="Responsable"></select>
       <input type="search" id="mf-cerca" placeholder="Cerca (codi, descripció, immoble…)" aria-label="Cerca">
-      <label class="text-small"><input type="checkbox" id="mf-tancades"> Mostra les resoltes i descartades</label>
+      <label class="text-small"><input type="checkbox" id="mf-tancades"> Mostra les verificades i descartades</label>
     </div>
     <div id="mant-kpis" class="kpis"></div>
     <div class="targeta">
@@ -942,12 +942,13 @@ async function demanaUsuari(motiu) {
     cos: `${motiu ? `<p>${esc(motiu)}</p>` : ''}
       <p>Cada modificació queda registrada amb el nom de la persona que la fa. Quan el programa s'integri a SINATCAT, aquesta dada s'agafarà automàticament de l'usuari autenticat.</p>
       <div class="camp"><label for="u-nom" class="required">Nom i cognoms</label><input type="text" id="u-nom" autocomplete="name" value="${esc(S.usuari?.nom || '')}"><div class="camp-error" hidden></div></div>
+      <div class="camp"><label for="u-email">Correu electrònic</label><input type="email" id="u-email" autocomplete="email" value="${esc(S.usuari?.email || '')}"><div class="ajuda">Al mòdul de Manteniment serveix per reconèixer el teu rol (direcció, responsable de manteniment o cap de brigada).</div></div>
       <div class="camp"><label for="u-unitat">Unitat</label><select id="u-unitat"><option value="">—</option>${opcions}</select></div>`,
     botons: [
       { text: 'Cancel·la', accio: 'no' },
       { text: 'Desa', accio: 'si', principal: true,
         validar: fons => { const ok = $('#u-nom', fons).value.trim().length >= 3; const e = $('#u-nom', fons).nextElementSibling; e.hidden = ok; e.textContent = 'Escriu el nom i cognoms.'; return ok; },
-        recull: fons => ({ nom: $('#u-nom', fons).value.trim(), unitat: $('#u-unitat', fons).value || null }) },
+        recull: fons => ({ nom: $('#u-nom', fons).value.trim(), email: $('#u-email', fons).value.trim() || null, unitat: $('#u-unitat', fons).value || null }) },
     ],
   });
   if (r?.accio === 'si') {
@@ -2272,7 +2273,9 @@ const Manteniment = (() => {
   const nomPrioritat = c => prioritat(c)?.nom || c || 'Sense prioritat';
   const estat = c => (V().estats || []).find(e => e.codi === c);
   const nomEstat = c => estat(c)?.nom || c || '—';
-  const esTancada = t => (V().estats_tancats || ['resolta', 'descartada']).includes(t.estat);
+  const esTancada = t => (V().estats_tancats || ['verificada', 'descartada']).includes(t.estat);
+  /** Sense avís de data límit: la feina ja s'ha fet (resolta, pendent de verificar) o la incidència és tancada. */
+  const senseAvis = t => (V().estats_sense_avis || ['resolta', 'verificada', 'descartada']).includes(t.estat);
   const configParc = u => V().per_parc?.[u] || { responsables: V().per_defecte?.responsables || [], responsables_propis: [], direccio: {} };
   /** Responsables disponibles en un parc: els generals que el parc té activats més els propis. */
   function responsablesParc(u) {
@@ -2288,7 +2291,7 @@ const Manteniment = (() => {
   /** Avís de data límit: vençuda o dins dels dies d'avís (per defecte, 7). */
   function avisLimit(t) {
     const g = t.gestio || {};
-    if (esTancada(t) || !g.data_limit || !prioritat(g.prioritat)?.requereix_data_limit) return null;
+    if (senseAvis(t) || !g.data_limit || !prioritat(g.prioritat)?.requereix_data_limit) return null;
     const dies = Math.round((new Date(g.data_limit + 'T00:00:00') - new Date(avui() + 'T00:00:00')) / 864e5);
     if (dies < 0) return { tipus: 'vencuda', dies, text: `Data límit vençuda fa ${-dies} ${dies === -1 ? 'dia' : 'dies'} (${fmtData(g.data_limit)}).` };
     if (dies <= diesAvis()) return { tipus: 'propera', dies, text: dies === 0 ? `La data límit és avui (${fmtData(g.data_limit)}).` : `Falten ${dies} ${dies === 1 ? 'dia' : 'dies'} per a la data límit (${fmtData(g.data_limit)}).` };
@@ -2353,7 +2356,8 @@ const Manteniment = (() => {
   // ---------- Correu (mailto) ----------
   function destinataris(t) {
     const d = configParc(t.unitat).direccio || {};
-    const a = [t.sollicitant?.email, d.email].filter(Boolean);
+    const m = configParc(t.unitat).responsable_manteniment || {};
+    const a = [t.sollicitant?.email, d.email, m.email].filter(Boolean);
     const cap = t.gestio?.cap_brigada ? capsBrigada(t.unitat).find(c => c.nom === t.gestio.cap_brigada) : null;
     if (cap?.email) a.push(cap.email);
     return [...new Set(a)];
@@ -2424,7 +2428,8 @@ const Manteniment = (() => {
     const k = [
       ['Incidències obertes', obertes.length, $('#mf-parc').value ? nomUnitat($('#mf-parc').value) : 'Tots els espais'],
       ['Noves per assignar', obertes.filter(t => t.estat === 'nova').length, 'Sense prioritat ni responsable'],
-      ['Urgents', obertes.filter(t => t.gestio?.prioritat === 'urgent').length, 'Obertes amb prioritat urgent'],
+      ['Urgents', obertes.filter(t => t.gestio?.prioritat === 'urgent' && !senseAvis(t)).length, 'Obertes amb prioritat urgent'],
+      ['Pendents de verificar', obertes.filter(t => t.estat === 'resolta').length, 'Resoltes per la brigada'],
       [`Data límit en ${diesAvis()} dies`, obertes.filter(t => avisLimit(t)?.tipus === 'propera').length, 'Avís previ'],
       ['Vençudes', obertes.filter(t => avisLimit(t)?.tipus === 'vencuda').length, 'Data límit superada'],
     ];
@@ -2516,8 +2521,9 @@ const Manteniment = (() => {
     const g = t.gestio || {}, a = avisLimit(t);
     $('#mant-panell').innerHTML = `<div class="fitxa-cap"><div><h2>${esc(t.id)} · ${esc(nomTipologia(t.tipologia))}</h2>
         <div class="id">${esc(nomUnitat(t.unitat))}</div><div class="xips" style="margin-top:6px"><span class="xip">${esc(t.unitat)}</span> ${htmlPrio(g.prioritat)} <span class="marca comp">${esc(nomEstat(t.estat))}</span></div></div>
-        <div class="botons"><button type="button" class="btn btn-primary" data-m="gestio">⚑ Gestiona</button></div></div>
+        <div class="botons">${['verificada', 'descartada'].includes(t.estat) ? '' : `<button type="button" class="btn btn-primary" data-m="gestio">${t.estat === 'resolta' ? '✓ Verifica / gestiona' : '⚑ Gestiona'}</button>`}</div></div>
       ${a ? `<div class="avis-box" style="margin:12px 20px 0"><strong>⏰ ${a.tipus === 'vencuda' ? 'Data límit vençuda' : 'Data límit propera'}:</strong> ${esc(a.text)}</div>` : ''}
+      ${t.estat === 'resolta' ? '<div class="info-box text-small" style="margin:12px 20px 0">Feina feta per la brigada: pendent que el responsable de manteniment o la direcció del parc la verifiquin.</div>' : ''}
       ${t.estat === 'nova' ? '<div class="info-box text-small" style="margin:12px 20px 0">Incidència nova: el responsable de manteniment ha d\'assignar-hi la prioritat, la data límit i el responsable (botó «Gestiona»).</div>' : ''}
       <div class="mant-seccio"><h3>Petició</h3><div class="camps">
         ${camp('Descripció', txt(t.descripcio), true)}
@@ -2535,13 +2541,15 @@ const Manteniment = (() => {
         ${g.cap_brigada ? camp('Cap de brigada', esc(g.cap_brigada)) : ''}
         ${g.empresa ? camp('Empresa', esc(g.empresa)) : ''}
         ${camp('Estat', esc(nomEstat(t.estat)))}
-        ${t.data_resolucio ? camp('Data de resolució', esc(fmtData(t.data_resolucio))) : ''}
+        ${t.inici_feina ? camp('Inici de la feina', `${esc(fmtData(t.inici_feina.data))} · ${esc(t.inici_feina.per?.nom || '')}`) : ''}
+        ${t.data_resolucio ? camp('Resolta', `${esc(fmtData(t.data_resolucio))}${t.resolta_per ? ' · ' + esc(t.resolta_per.nom) : ''}`) : ''}
+        ${t.verificacio ? camp('Verificada', `${esc(fmtData(t.verificacio.data))} · ${esc(t.verificacio.per?.nom || '')}${t.verificacio.per?.rols?.length ? ' (' + esc(t.verificacio.per.rols.map(k => NOM_ROL[k]).join(', ')) + ')' : ''}`) : ''}
         ${camp('Observacions', txt(g.observacions), true)}
       </div></div>
       <div class="mant-seccio"><h3>Avís per correu</h3>${htmlBotoCorreu(t, 'actualitzacio', 'Envia un correu sobre aquesta incidència')}</div>
       <div class="mant-seccio"><h3>Historial</h3>${(t.historial || []).slice().reverse().map(h => `<div class="mant-hist"><strong>${esc(fmtData(h.data))}</strong> · ${esc(h.usuari?.nom || '')} · ${esc(h.accio === 'alta' ? 'Alta' : 'Gestió')}
         ${(h.canvis || []).length ? `<ul style="margin:2px 0 0 18px">${h.canvis.map(c => `<li>${esc(c.etiqueta)}: ${esc(c.abans ?? '—')} → ${esc(c.despres ?? '—')}</li>`).join('')}</ul>` : ''}</div>`).join('') || '<p class="buit">—</p>'}</div>`;
-    $('#mant-panell [data-m="gestio"]').addEventListener('click', () => gestio(t));
+    $('#mant-panell [data-m="gestio"]')?.addEventListener('click', () => gestio(t));
     $('#mant-panell').querySelector('[data-ves]')?.addEventListener('click', e => vesAElement(e.target.dataset.ves));
     const u = await urlFoto(t);
     const box = $('#mant-foto');
@@ -2693,52 +2701,120 @@ const Manteniment = (() => {
     });
   }
 
-  // ---------- Gestió (responsable de manteniment) ----------
+  // ---------- Rols i canvis d'estat ----------
+  //   manteniment: responsable de manteniment del parc · direccio: direcció del parc · brigada: caps de brigada del parc
+  //   El rol es reconeix pel correu electrònic de la persona identificada (amb SINATCAT, per l'usuari autenticat).
+  const NOM_ROL = { manteniment: 'Responsable de manteniment', direccio: 'Direcció del parc', brigada: 'Cap de brigada' };
+  const TRANSICIONS_DEFECTE = [
+    { de: ['nova', 'assignada'], a: 'assignada', rols: ['manteniment', 'direccio'] },
+    { de: ['assignada'], a: 'en_curs', rols: ['brigada'] },
+    { de: ['en_curs'], a: 'resolta', rols: ['brigada'] },
+    { de: ['resolta'], a: 'verificada', rols: ['manteniment', 'direccio'] },
+    { de: ['resolta'], a: 'en_curs', rols: ['manteniment', 'direccio'] },
+    { de: ['nova', 'assignada', 'en_curs'], a: 'descartada', rols: ['manteniment', 'direccio'] },
+  ];
+  const transicions = () => V().transicions || TRANSICIONS_DEFECTE;
+  const correu = x => String(x || '').trim().toLowerCase();
+  /** Rols de la persona identificada en el parc de la incidència. */
+  function rolsUsuari(t) {
+    const c = configParc(t.unitat), e = correu(S.usuari?.email), rols = new Set(), provisionals = new Set();
+    const dir = correu(c.direccio?.email), man = correu(c.responsable_manteniment?.email);
+    const caps = capsBrigada(t.unitat).map(x => correu(x.email)).filter(Boolean);
+    if (e && e === dir) rols.add('direccio');
+    if (e && e === man) rols.add('manteniment');
+    if (e && caps.includes(e)) rols.add('brigada');
+    // Mentre el parc no tingui configurat qui té cada rol, tothom el pot exercir (amb avís)
+    if (!dir && !man) ['manteniment', 'direccio'].forEach(r => { if (!rols.has(r)) { rols.add(r); provisionals.add(r); } });
+    if (!caps.length && !rols.has('brigada')) { rols.add('brigada'); provisionals.add('brigada'); }
+    // Si la feina no la fa la brigada del parc (Forestal Catalana, empresa…), el responsable de manteniment en porta el seguiment
+    if (t.gestio?.responsable && t.gestio.responsable !== 'brigada_parc' && rols.has('manteniment') && !rols.has('brigada')) rols.add('brigada');
+    return { rols, provisionals };
+  }
+  const potGestionar = r => r.rols.has('manteniment') || r.rols.has('direccio');
+  function estatsPermesos(t, r) {
+    return [...new Set(transicions().filter(x => x.de.includes(t.estat) && x.rols.some(k => r.rols.has(k))).map(x => x.a))]
+      .filter(a => a !== t.estat && !(a === 'assignada' && t.estat === 'nova'));   // «assignada» s'aplica sola en assignar prioritat i responsable
+  }
+  const rolsQuePoden = (de, a) => [...new Set(transicions().filter(x => x.de.includes(de) && x.a === a).flatMap(x => x.rols))].map(k => NOM_ROL[k]).join(' o ');
+  function htmlRols(t, r) {
+    const n = [...r.rols].filter(k => !r.provisionals.has(k)).map(k => NOM_ROL[k]);
+    const p = [...r.provisionals].map(k => NOM_ROL[k].toLowerCase());
+    return `<div class="info-box text-small" style="margin:12px 20px 0">El teu rol en aquest parc: <strong>${n.length ? esc(n.join(', ')) : 'cap rol assignat'}</strong>
+      ${S.usuari?.email ? `(${esc(S.usuari.email)})` : '— <button type="button" class="btn-link" data-m="usuari">indica el teu correu</button> perquè es reconegui el teu rol'}.
+      ${p.length ? `<br>⚠ El ${esc(t.unitat)} encara no té configurat el ${esc(p.join(' ni el '))}: de moment qualsevol persona pot fer aquestes accions («Configuració dels parcs»).` : ''}</div>`;
+  }
+
+  // ---------- Gestió de la incidència ----------
   async function gestio(t) {
     if (!S.usuari && !(await demanaUsuari('Abans de gestionar la incidència, indica qui ho fa.'))) return;
+    const r = rolsUsuari(t), permesos = estatsPermesos(t, r), gestiona = potGestionar(r) && !['verificada', 'descartada'].includes(t.estat);
+    if (!gestiona && !permesos.length) {
+      await finestra({ titol: 'Cap acció disponible', cos: `<p>Amb el teu rol no pots fer canvis en aquesta incidència (estat «${esc(nomEstat(t.estat))}»).</p>
+        <ul style="margin-left:18px">${(V().estats || []).filter(e => transicions().some(x => x.de.includes(t.estat) && x.a === e.codi)).map(e => `<li>Passar a «${esc(e.nom)}»: ${esc(rolsQuePoden(t.estat, e.codi))}</li>`).join('') || '<li>És un estat final.</li>'}</ul>
+        <p class="text-small">Els rols es reconeixen pel correu electrònic que has indicat (${esc(S.usuari?.email || 'cap')}).</p>`, botons: [{ text: 'Tanca', accio: 'ok', principal: true }] });
+      return;
+    }
     st.mode = 'gestio'; st.form = { id: t.id };
-    const g = t.gestio || {}, resp = responsablesParc(t.unitat), caps = capsBrigada(t.unitat);
+    const g = t.gestio || {}, resp = responsablesParc(t.unitat), caps = capsBrigada(t.unitat), dis = gestiona ? '' : 'disabled';
     const p = $('#mant-panell');
-    p.innerHTML = `<div class="fitxa-cap"><div><h2>Gestió: ${esc(t.id)}</h2><div class="id">${esc(nomTipologia(t.tipologia))} · ${esc(nomUnitat(t.unitat))}</div></div></div>
+    p.innerHTML = `<div class="fitxa-cap"><div><h2>Gestió: ${esc(t.id)}</h2><div class="id">${esc(nomTipologia(t.tipologia))} · ${esc(nomUnitat(t.unitat))} · estat actual: ${esc(nomEstat(t.estat))}</div></div></div>
+      ${htmlRols(t, r)}
       <div class="fitxa-cos"><div id="mant-errors"></div><div class="mant-seccio">
-      <p class="text-small" style="margin-bottom:10px">${esc(t.descripcio || '')}</p><div class="camps">
-        ${h('mg-prioritat', 'Prioritat', `<select id="mg-prioritat"><option value="">— Sense assignar —</option>${(V().prioritats || []).map(x => `<option value="${esc(x.codi)}" ${x.codi === g.prioritat ? 'selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>`, { req: true })}
-        ${h('mg-limit', 'Data límit', `<input type="date" id="mg-limit" value="${esc(g.data_limit || '')}">`, { ajuda: `Obligatòria si la prioritat no és «En espera». S'avisa ${diesAvis()} dies abans.` })}
-        ${h('mg-resp', 'Responsable', `<select id="mg-resp"><option value="">—</option>${resp.map(r => `<option value="${esc(r.codi)}" ${r.codi === g.responsable ? 'selected' : ''}>${esc(r.nom)}</option>`).join('')}</select>`, { req: true, ajuda: resp.length ? `Responsables configurats per al ${t.unitat}.` : 'Aquest parc no té responsables configurats.' })}
-        <div class="camp" id="mg-cap-camp"><label for="mg-cap">Cap de brigada</label><select id="mg-cap"><option value="">—</option>${caps.map(c => `<option value="${esc(c.nom || c.email)}" ${(c.nom || c.email) === g.cap_brigada ? 'selected' : ''}>${esc(c.nom || c.email)}${c.ambit ? ' · ' + esc(c.ambit) : ''}</option>`).join('')}</select>${caps.length ? '' : '<div class="ajuda">Encara no hi ha caps de brigada per a aquest parc («Configuració dels parcs»).</div>'}</div>
-        ${h('mg-empresa', 'Empresa', `<input type="text" id="mg-empresa" value="${esc(g.empresa || '')}">`)}
-        ${h('mg-estat', 'Estat', `<select id="mg-estat">${(V().estats || []).map(x => `<option value="${esc(x.codi)}" ${x.codi === t.estat ? 'selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>`)}
-        ${h('mg-obs', 'Observacions', `<textarea id="mg-obs" rows="3">${esc(g.observacions || '')}</textarea>`, { ample: true })}
+      <p class="text-small" style="margin-bottom:10px">${esc(t.descripcio || '')}</p>
+      ${gestiona ? '' : '<p class="text-small text-muted" style="margin-bottom:10px">La prioritat, la data límit i el responsable només els poden canviar el responsable de manteniment i la direcció del parc.</p>'}<div class="camps">
+        ${h('mg-prioritat', 'Prioritat', `<select id="mg-prioritat" ${dis}><option value="">— Sense assignar —</option>${(V().prioritats || []).map(x => `<option value="${esc(x.codi)}" ${x.codi === g.prioritat ? 'selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>`, { req: true })}
+        ${h('mg-limit', 'Data límit', `<input type="date" id="mg-limit" value="${esc(g.data_limit || '')}" ${dis}>`, { ajuda: `Obligatòria si la prioritat no és «En espera». S'avisa ${diesAvis()} dies abans.` })}
+        ${h('mg-resp', 'Responsable', `<select id="mg-resp" ${dis}><option value="">—</option>${resp.map(x => `<option value="${esc(x.codi)}" ${x.codi === g.responsable ? 'selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>`, { req: true, ajuda: resp.length ? `Responsables configurats per al ${t.unitat}.` : 'Aquest parc no té responsables configurats.' })}
+        <div class="camp" id="mg-cap-camp"><label for="mg-cap">Cap de brigada</label><select id="mg-cap" ${dis}><option value="">—</option>${caps.map(c => `<option value="${esc(c.nom || c.email)}" ${(c.nom || c.email) === g.cap_brigada ? 'selected' : ''}>${esc(c.nom || c.email)}${c.ambit ? ' · ' + esc(c.ambit) : ''}</option>`).join('')}</select>${caps.length ? '' : '<div class="ajuda">Encara no hi ha caps de brigada per a aquest parc («Configuració dels parcs»).</div>'}</div>
+        ${h('mg-empresa', 'Empresa', `<input type="text" id="mg-empresa" value="${esc(g.empresa || '')}" ${dis}>`)}
+        ${h('mg-estat', 'Estat', `<select id="mg-estat"><option value="${esc(t.estat)}" selected>${esc(nomEstat(t.estat))} (actual)</option>${permesos.map(a => `<option value="${esc(a)}">→ ${esc(nomEstat(a))}</option>`).join('')}</select>`,
+          { ajuda: permesos.length ? 'Només surten els canvis d\'estat que permet el teu rol.' : 'Amb el teu rol no pots canviar l\'estat ara.' })}
+        ${h('mg-obs', 'Observacions', `<textarea id="mg-obs" rows="3">${esc(g.observacions || '')}</textarea>`, { ample: true, ajuda: 'Obligatòries per descartar una incidència o per tornar-la a «En curs» si no es verifica.' })}
       </div></div></div>
-      <div class="peu-edicio"><button type="button" class="btn btn-secondary" data-m="cancela">Cancel·la</button><button type="button" class="btn btn-primary" data-m="desa">Desa la gestió</button></div>`;
+      <div class="peu-edicio"><button type="button" class="btn btn-secondary" data-m="cancela">Cancel·la</button><button type="button" class="btn btn-primary" data-m="desa">Desa</button></div>`;
     const sincr = () => {
-      const pr = prioritat($('#mg-prioritat').value), r = $('#mg-resp').value;
+      const pr = prioritat($('#mg-prioritat').value), rr = $('#mg-resp').value;
       $('#mg-limit').closest('.camp').querySelector('label').classList.toggle('required', !!pr?.requereix_data_limit);
-      $('#mg-cap-camp').hidden = r !== 'brigada_parc';
-      $('#mg-empresa').closest('.camp').hidden = r !== 'empresa_externa';
+      $('#mg-cap-camp').hidden = rr !== 'brigada_parc';
+      $('#mg-empresa').closest('.camp').hidden = rr !== 'empresa_externa';
     };
     ['#mg-prioritat', '#mg-resp'].forEach(s => $(s).addEventListener('change', sincr));
     sincr();
+    p.querySelector('[data-m="usuari"]')?.addEventListener('click', async () => { await demanaUsuari('Indica el teu correu electrònic perquè es reconegui el teu rol.'); gestio(t); });
     p.querySelector('[data-m="cancela"]').addEventListener('click', () => { st.form = null; st.mode = 'fitxa'; pintaFitxa(t.id); });
-    p.querySelector('[data-m="desa"]').addEventListener('click', () => desaGestio(t));
+    p.querySelector('[data-m="desa"]').addEventListener('click', () => desaGestio(t, r, gestiona));
   }
-  async function desaGestio(t) {
+  async function desaGestio(t, r, gestiona) {
     $$('#mant-panell .camp.te-error').forEach(c => { c.classList.remove('te-error'); c.querySelector('.camp-error').hidden = true; });
     const v = s => $(s).value.trim() || null, err = [];
-    const pr = prioritat(v('#mg-prioritat')), resp = v('#mg-resp');
-    if (!pr) err.push(marcaError('#mg-prioritat', 'Tria la prioritat.') && 'Prioritat');
-    if (pr?.requereix_data_limit && !v('#mg-limit')) err.push(marcaError('#mg-limit', `Amb prioritat «${pr.nom}» cal una data límit.`) && 'Data límit');
-    if (!resp && pr?.codi !== 'en_espera') err.push(marcaError('#mg-resp', 'Tria el responsable.') && 'Responsable');
-    let est = v('#mg-estat');
-    if (est === 'descartada' && !v('#mg-obs')) err.push(marcaError('#mg-obs', 'Explica per què es descarta.') && 'Observacions');
-    if (err.length) { $('#mant-errors').innerHTML = `<div class="error-box" style="margin:12px 20px 0"><strong>Falten dades:</strong> ${esc(err.join(', '))}.</div>`; return; }
-    if (est === 'nova' && pr && (resp || pr.codi === 'en_espera')) est = 'assignada';   // un cop assignada deixa de ser nova
     const nou = clone(t), moment = ara();
-    nou.gestio = { ...nou.gestio, prioritat: pr.codi, data_limit: pr.requereix_data_limit ? v('#mg-limit') : null, responsable: resp,
-      cap_brigada: resp === 'brigada_parc' ? v('#mg-cap') : null, empresa: resp === 'empresa_externa' ? v('#mg-empresa') : null, observacions: v('#mg-obs') };
-    if (!t.gestio?.prioritat) { nou.gestio.assignat_per = S.usuari.nom; nou.gestio.data_assignacio = moment; }
+    nou.gestio = { ...(t.gestio || {}) };
+    if (gestiona) {
+      const pr = prioritat(v('#mg-prioritat')), resp = v('#mg-resp');
+      if (!pr) err.push(marcaError('#mg-prioritat', 'Tria la prioritat.') && 'Prioritat');
+      if (pr?.requereix_data_limit && !v('#mg-limit')) err.push(marcaError('#mg-limit', `Amb prioritat «${pr.nom}» cal una data límit.`) && 'Data límit');
+      if (!resp && pr?.codi !== 'en_espera') err.push(marcaError('#mg-resp', 'Tria el responsable.') && 'Responsable');
+      if (pr) Object.assign(nou.gestio, { prioritat: pr.codi, data_limit: pr.requereix_data_limit ? v('#mg-limit') : null, responsable: resp,
+        cap_brigada: resp === 'brigada_parc' ? v('#mg-cap') : null, empresa: resp === 'empresa_externa' ? v('#mg-empresa') : null });
+    }
+    nou.gestio.observacions = v('#mg-obs');
+    let est = v('#mg-estat');
+    if (est !== t.estat && !estatsPermesos(t, r).includes(est)) err.push(`no pots passar a «${nomEstat(est)}»`);
+    if (est === 'descartada' && !v('#mg-obs')) err.push(marcaError('#mg-obs', 'Explica per què es descarta.') && 'Observacions');
+    if (t.estat === 'resolta' && est === 'en_curs' && normal(v('#mg-obs')) === normal(t.gestio?.observacions)) err.push(marcaError('#mg-obs', 'Explica què falta per verificar-la.') && 'Observacions');
+    if (err.length) { $('#mant-errors').innerHTML = `<div class="error-box" style="margin:12px 20px 0"><strong>Cal revisar:</strong> ${esc(err.join(', '))}.</div>`; return; }
+    // En assignar prioritat i responsable, la incidència nova passa sola a «Assignada»
+    if (est === 'nova' && gestiona && nou.gestio.prioritat && (nou.gestio.responsable || nou.gestio.prioritat === 'en_espera')) est = 'assignada';
+    if (gestiona && !t.gestio?.prioritat && nou.gestio.prioritat) { nou.gestio.assignat_per = S.usuari.nom; nou.gestio.data_assignacio = moment; }
     nou.estat = est;
-    nou.data_resolucio = esTancada(nou) ? (t.data_resolucio || moment.slice(0, 10)) : null;
+    const qui = { nom: S.usuari.nom, email: S.usuari.email || null, rols: [...r.rols].filter(k => !r.provisionals.has(k)) };
+    if (est !== t.estat) {
+      if (est === 'en_curs' && t.estat === 'assignada') nou.inici_feina = { data: moment, per: qui };
+      if (est === 'resolta') { nou.data_resolucio = moment.slice(0, 10); nou.resolta_per = qui; }
+      if (est === 'en_curs' && t.estat === 'resolta') { nou.data_resolucio = null; nou.resolta_per = null; }
+      if (est === 'verificada') nou.verificacio = { data: moment, per: qui };
+      if (est === 'descartada') nou.descartada = { data: moment, per: qui };
+    }
     const ETIQ = { prioritat: ['Prioritat', nomPrioritat], data_limit: ['Data límit', fmtData], responsable: ['Responsable', c => nomResponsable(t.unitat, c)],
       cap_brigada: ['Cap de brigada', x => x], empresa: ['Empresa', x => x], observacions: ['Observacions', x => x] };
     const canvis = Object.entries(ETIQ).filter(([k]) => normal(t.gestio?.[k]) !== normal(nou.gestio[k]))
@@ -2746,7 +2822,7 @@ const Manteniment = (() => {
     if (t.estat !== nou.estat) canvis.push({ camp: 'estat', etiqueta: 'Estat', abans: nomEstat(t.estat), despres: nomEstat(nou.estat) });
     if (!canvis.length) { toast('No hi ha cap canvi per desar.', 'avis'); return; }
     nou.versio = (t.versio || 1) + 1; nou.modificat = moment; nou.modificat_per = S.usuari.nom;
-    nou.historial = [...(t.historial || []), { data: moment, usuari: { nom: S.usuari.nom, unitat: S.usuari.unitat || null, font: 'manual' }, accio: 'gestio', canvis }];
+    nou.historial = [...(t.historial || []), { data: moment, usuari: { nom: S.usuari.nom, email: S.usuari.email || null, unitat: S.usuari.unitat || null, rols: qui.rols, font: 'manual' }, accio: 'gestio', canvis }];
     try { await desaTasca(nou, t.versio || 1, false); }
     catch (e) {
       if (e.conflicte) { toast(e.message + ' Recarrega les dades i torna-ho a provar.', 'error', 10000); return; }
@@ -2756,7 +2832,7 @@ const Manteniment = (() => {
     refrescaTot();
     pintaLlista();
     await pintaFitxa(nou.id);
-    toast(`Gestió desada (${canvis.length} ${canvis.length === 1 ? 'canvi' : 'canvis'}).`);
+    toast(`Desat (${canvis.length} ${canvis.length === 1 ? 'canvi' : 'canvis'}).`);
   }
 
   // ---------- Configuració per parc (variables.json i caps_brigada.json) ----------
@@ -2785,17 +2861,22 @@ const Manteniment = (() => {
         ${h('cf-dcarrec', 'Càrrec', `<input type="text" id="cf-dcarrec" value="${esc(c.direccio?.carrec || 'Director/a')}">`)}
         ${h('cf-demail', 'Correu electrònic', `<input type="email" id="cf-demail" value="${esc(c.direccio?.email || '')}">`)}
         ${h('cf-dtel', 'Telèfon', `<input type="tel" id="cf-dtel" value="${esc(c.direccio?.telefon || '')}">`)}</div></div>
+      <div class="mant-seccio"><h3>Responsable de manteniment</h3><p class="text-small text-muted" style="margin-bottom:8px">Assigna la prioritat, la data límit i el responsable, i verifica les feines resoltes (igual que la direcció).</p><div class="camps">
+        ${h('cf-mnom', 'Nom i cognoms', `<input type="text" id="cf-mnom" value="${esc(c.responsable_manteniment?.nom || '')}">`)}
+        ${h('cf-memail', 'Correu electrònic', `<input type="email" id="cf-memail" value="${esc(c.responsable_manteniment?.email || '')}">`)}
+        ${h('cf-mtel', 'Telèfon', `<input type="tel" id="cf-mtel" value="${esc(c.responsable_manteniment?.telefon || '')}">`)}</div></div>
       <div class="mant-seccio"><h3>Responsables disponibles en aquest parc</h3>
         ${(V().responsables || []).map(r => `<label style="display:block;margin:4px 0"><input type="checkbox" data-resp="${esc(r.codi)}" ${(c.responsables || []).includes(r.codi) ? 'checked' : ''}> ${esc(r.nom)}</label>`).join('')}
         <div style="margin-top:10px"><strong class="text-small">Responsables propis del parc</strong> <span class="text-small text-muted">(p. ex. una empresa concreta o un altre equip)</span>
         <div id="cf-propis">${(c.responsables_propis || []).map((r, i) => `<div style="display:flex;gap:8px;margin:4px 0"><input type="text" data-propi="${i}" value="${esc(r.nom)}" style="flex:1"><button type="button" class="btn btn-perill btn-petit" data-treu-propi="${i}">Treu</button></div>`).join('')}</div>
         <button type="button" class="btn btn-secondary btn-petit" id="cf-afegeix-propi">＋ Afegeix un responsable propi</button></div></div>
-      <div class="mant-seccio"><h3>Caps de brigada</h3><div id="cf-caps">${caps.map(filaCap).join('')}</div>
+      <div class="mant-seccio"><h3>Caps de brigada</h3><p class="text-small text-muted" style="margin-bottom:8px">Marquen les feines com a «En curs» i «Resolta». Es reconeixen pel correu electrònic.</p><div id="cf-caps">${caps.map(filaCap).join('')}</div>
         <button type="button" class="btn btn-secondary btn-petit" id="cf-afegeix-cap">＋ Afegeix un cap de brigada</button></div></div>
       <div class="peu-edicio"><button type="button" class="btn btn-secondary" data-m="cancela">Tanca</button><button type="button" class="btn btn-primary" data-m="desa">Desa la configuració</button></div>`;
     };
     const recull = () => {
       c.direccio = { nom: $('#cf-dnom').value.trim() || null, carrec: $('#cf-dcarrec').value.trim() || null, email: $('#cf-demail').value.trim() || null, telefon: $('#cf-dtel').value.trim() || null };
+      c.responsable_manteniment = { nom: $('#cf-mnom').value.trim() || null, email: $('#cf-memail').value.trim() || null, telefon: $('#cf-mtel').value.trim() || null };
       c.responsables = $$('#mant-panell [data-resp]').filter(i => i.checked).map(i => i.dataset.resp);
       c.responsables_propis = $$('#mant-panell [data-propi]').map((i, k) => ({ codi: c.responsables_propis[k]?.codi || 'propi_' + i.value.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''), nom: i.value.trim() })).filter(r => r.nom);
       caps.splice(0, caps.length, ...$$('#mant-panell [data-cap]').map(d => Object.fromEntries($$('[data-k]', d).map(i => [i.dataset.k, i.value.trim() || null]))));
@@ -2810,7 +2891,7 @@ const Manteniment = (() => {
       else if (e.target.dataset.m === 'cancela') { st.form = null; st.mode = null; p.innerHTML = '<div class="fitxa-buida">Selecciona una incidència o crea\'n una de nova.</div>'; }
       else if (e.target.dataset.m === 'desa') {
         recull();
-        const mal = [c.direccio.email, ...caps.map(x => x.email)].filter(m => m && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m));
+        const mal = [c.direccio.email, c.responsable_manteniment.email, ...caps.map(x => x.email)].filter(m => m && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m));
         if (mal.length) { $('#mant-errors').innerHTML = `<div class="error-box" style="margin:12px 20px 0">Correus no vàlids: ${esc(mal.join(', '))}</div>`; return; }
         S.variables.per_parc = S.variables.per_parc || {};
         S.variables.per_parc[parc] = { ...c, nom: nomUnitat(parc), modificat: ara(), modificat_per: S.usuari.nom };
@@ -2829,10 +2910,10 @@ const Manteniment = (() => {
   function exportaCSV() {
     const ll = ordena(filtrades());
     const files = [['Codi', 'Data entrada', 'Unitat', 'Espai natural', 'Tipologia', 'Immoble', 'Descripció', 'UTM X', 'UTM Y', 'Data proposada', 'Sol·licitant', 'Correu sol·licitant',
-      'Prioritat', 'Data límit', 'Responsable', 'Cap de brigada', 'Empresa', 'Estat', 'Data resolució', 'Observacions', 'Avís']];
+      'Prioritat', 'Data límit', 'Responsable', 'Cap de brigada', 'Empresa', 'Estat', 'Data resolució', 'Resolta per', 'Verificada', 'Verificada per', 'Observacions', 'Avís']];
     ll.forEach(t => { const g = t.gestio || {}; files.push([t.id, fmtData(t.creat), t.unitat, nomUnitat(t.unitat), nomTipologia(t.tipologia), nomElement(t.element) || '', t.descripcio, t.utm?.x, t.utm?.y,
       t.data_proposada || '', t.sollicitant?.nom, t.sollicitant?.email, g.prioritat ? nomPrioritat(g.prioritat) : '', g.data_limit || '', g.responsable ? nomResponsable(t.unitat, g.responsable) : '',
-      g.cap_brigada || '', g.empresa || '', nomEstat(t.estat), t.data_resolucio || '', g.observacions || '', avisLimit(t)?.text || '']); });
+      g.cap_brigada || '', g.empresa || '', nomEstat(t.estat), t.data_resolucio || '', t.resolta_per?.nom || '', t.verificacio?.data ? fmtData(t.verificacio.data) : '', t.verificacio?.per?.nom || '', g.observacions || '', avisLimit(t)?.text || '']); });
     descarrega(`manteniment_${avui()}.csv`, aCSV(files), 'text/csv;charset=utf-8');
   }
 

@@ -145,20 +145,38 @@ Qualsevol persona pot entrar-ne una amb el botó **＋ Nova incidència**. Tamb�
 
 En registrar-la, es crea un codi `MANT-AAAA-NNNN` i un botó obre un **correu ja redactat** (mailto) adreçat al sol·licitant i a la direcció del parc. El correu inclou el codi, la tipologia, l'immoble, les coordenades, un enllaç al mapa i la descripció.
 
-### 4.2. Gestió (responsable de manteniment)
+### 4.2. Estats i rols
 
-Amb el botó **Gestiona** de cada incidència es poden assignar:
-- **Prioritat**: Baixa, Moderada, Alta, Urgent o En espera.
-- **Data límit**: obligatòria per a totes les prioritats excepte «En espera». **Una setmana abans** apareix un avís, i també quan la data ja ha passat. L'avís es veu en un requadre al mòdul, a la llista, a la fitxa, en un comptador a la pestanya MANTENIMENT i als indicadors.
-- **Responsable**: els que tingui configurats el parc (Brigada Parc, Forestal Catalana, Empresa externa o responsables propis). Si és la brigada, es pot triar el cap de brigada. Si és una empresa externa, se'n pot escriure el nom.
-- **Estat**: Nova, Assignada, En curs, Resolta o Descartada. Una incidència nova passa a «Assignada» quan té prioritat i responsable. Per descartar-la cal explicar-ne el motiu.
+Una incidència passa per aquests estats:
 
-Cada canvi queda a l'historial de la incidència, amb la persona i la data. El botó de correu de la fitxa també avisa el cap de brigada assignat.
+| Estat | Qui hi fa passar | Què cal |
+|---|---|---|
+| **Nova** | Qualsevol persona, en entrar-la | — |
+| **Assignada** | Responsable de manteniment o direcció del parc | Prioritat, data límit (si no és «En espera») i responsable. Es posa sola en assignar-los |
+| **En curs** | Cap de brigada | — |
+| **Resolta** | Cap de brigada | — (deixa d'avisar per la data límit) |
+| **Verificada** | Responsable de manteniment o direcció del parc | Estat final |
+| **Descartada** | Responsable de manteniment o direcció del parc | Motiu a les observacions. Estat final |
+
+Una feina resolta que no es verifica es pot tornar a **En curs**, explicant-ne el motiu.
+
+- La **prioritat** (Baixa, Moderada, Alta, Urgent o En espera), la **data límit** i el **responsable** només els poden canviar el responsable de manteniment i la direcció del parc.
+- La **data límit** és obligatòria excepte amb «En espera». **Una setmana abans** apareix un avís, i també quan ja ha passat. L'avís es veu al mòdul, a la llista, a la fitxa, en un comptador a la pestanya i als indicadors.
+- El **responsable** pot ser qualsevol dels que tingui configurats el parc (Brigada Parc, Forestal Catalana, Empresa externa o responsables propis). Si la feina no la fa la Brigada Parc, el responsable de manteniment també pot marcar-la com a «En curs» i «Resolta».
+
+**Com es reconeix el rol.** Es fa pel **correu electrònic** de la persona identificada (botó de la capçalera):
+- Direcció i responsable de manteniment: el correu configurat per al parc.
+- Caps de brigada: els correus de `caps_brigada.json`.
+
+Mentre un parc no tingui configurat qui té un rol, qualsevol persona pot fer aquelles accions, amb un avís. Quan s'integri a SINATCAT, el rol vindrà de l'usuari autenticat. Fins llavors és un control d'organització, no de seguretat.
+
+Cada canvi queda a l'historial de la incidència, amb la persona, el correu, el rol i la data. També es desa qui va començar la feina, qui la va resoldre i qui la va verificar.
 
 ### 4.3. Configuració per parc
 
 El botó **⚙ Configuració dels parcs** permet definir, per a cada parc:
 - La **direcció**: nom, càrrec, correu i telèfon. La direcció rep l'avís de les incidències noves.
+- El **responsable de manteniment**: nom, correu i telèfon. També rep l'avís.
 - Els **responsables** disponibles: quins dels generals fa servir el parc i, si cal, responsables propis.
 - Els **caps de brigada**: nom, correu, telèfon i àmbit.
 
@@ -170,12 +188,12 @@ Es desa a `variables.json` i `caps_brigada.json` de la carpeta de treball.
 |---|---|
 | `manteniment.json` | Incidències. Cada una té les dades d'entrada, la gestió (`gestio{prioritat, data_limit, responsable, cap_brigada, empresa, observacions}`), l'estat, la versió i l'historial |
 | `manteniment_tipologies.json` | Tipologies de petició o incidència |
-| `variables.json` | Prioritats (i si demanen data límit), dies d'avís (7), estats, responsables generals i configuració de cada parc (`per_parc`) |
+| `variables.json` | Prioritats (i si demanen data límit), dies d'avís (7), estats, rols, canvis d'estat permesos per rol (`transicions`), responsables generals i configuració de cada parc (`per_parc`: direcció, responsable de manteniment i responsables) |
 | `caps_brigada.json` | Caps de brigada de cada parc (pendents d'omplir) |
 
 ### 4.5. Pendents
 
-- Omplir el correu de la direcció i els caps de brigada de cada parc (Configuració dels parcs).
+- Omplir els correus de la direcció, del responsable de manteniment i dels caps de brigada de cada parc (Configuració dels parcs). Mentre no hi siguin, qualsevol persona pot fer les accions de cada rol.
 - **Integració a SINATCAT:** el sol·licitant s'agafarà de l'usuari autenticat, i els avisos per correu es podran enviar automàticament en lloc de fer-ho amb mailto.
 
 ---
