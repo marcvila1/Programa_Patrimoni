@@ -182,6 +182,10 @@
   .zona-cap { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
   .zona-cap h4 { font-size: 14px; }
   .mini-mapa { height: 260px; border: 1px solid var(--color-border); margin-top: 12px; }
+  .mini-mapa.editable { height: 340px; cursor: crosshair; border: 2px solid var(--color-primary-teal); }
+  .mini-mapa.editable .leaflet-interactive { cursor: grab; }
+  .camp.acabat-omplir input { background: #e8f5f3; transition: background .3s; }
+  .requisits-fase { grid-column: 1 / -1; }
   .nota-mapa { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
   .fitxa-edicio .fitxa-cap { background: #fff8e1; }
   .peu-edicio { position: sticky; bottom: 0; background: #fff; border-top: 1px solid var(--color-border); padding: 12px 20px;
@@ -614,6 +618,8 @@ function estatResultant(estat, motius, motiuManual) {
 }
 function aplicaExecucio(el) {
   const ex = el.estat_execucio || (el.estat_execucio = { estat: 'operatiu', fase: null, motius_automatics: [], motiu: null });
+  if (!ex.avantprojecte) ex.avantprojecte = { url: null, data: null, import_estimat: null, durada_estimada_mesos: null };
+  if (!('data_inici_obres' in ex)) ex.data_inici_obres = null;
   ex.motius_automatics = motiusExecucio(dadesContracte(el));
   ex.estat = estatResultant(ex.estat ?? null, ex.motius_automatics, ex.motiu);
   if (ex.estat !== 'planificacio') ex.fase = null;
@@ -681,6 +687,12 @@ const GRUPS = [
   { id: 'exec', t: "Estat d'execució", obert: true, camps: [
     F('estat_execucio.estat', "Estat d'execució", 'enum', { c: 'estat_execucio', req: true }),
     F('estat_execucio.fase', 'Fase de planificació', 'enum', { c: 'fase_planificacio', nomesSi: 'planificacio' }),
+    F('estat_execucio._requisits', '', 'requisits'),
+    F('estat_execucio.avantprojecte.url', "Enllaç a l'avantprojecte", 'url', { nomesSi: 'planificacio', faseMin: 3, ample: true }),
+    F('estat_execucio.avantprojecte.data', "Data de l'avantprojecte", 'date', { nomesSi: 'planificacio', faseMin: 3 }),
+    F('estat_execucio.avantprojecte.import_estimat', "Import estimat de l'obra", 'num', { u: '€', min: 0, max: 1e9, nomesSi: 'planificacio', faseMin: 3 }),
+    F('estat_execucio.avantprojecte.durada_estimada_mesos', 'Durada estimada', 'int', { u: 'mesos', min: 0, max: 240, nomesSi: 'planificacio', faseMin: 3 }),
+    F('estat_execucio.data_inici_obres', "Data d'inici de les obres", 'date', { nomesSi: 'planificacio', faseMin: 5 }),
     F('estat_execucio.motius_automatics', 'Motius automàtics de revisió', 'motius', { ample: true }),
     F('estat_execucio.motiu', 'Motiu de la revisió (manual)', 'textarea', { ample: true, nomesSi: 'requereix_revisio',
       ajuda: "Obligatori quan es marca «Requereix revisió» per un motiu diferent dels automàtics." }),
@@ -785,7 +797,7 @@ const ZONA_CAMPS = [
   F('necessitat_permis_previ', 'Necessitat de permís previ', 'enum', { c: 'necessitat_permis_previ' }),
   F('inclos_pla_autoproteccio', "Inclosa al pla d'autoprotecció", 'bool'),
 ];
-const CAMPS_PLANS = GRUPS.flatMap(g => g.camps);
+const CAMPS_PLANS = GRUPS.flatMap(g => g.camps).filter(f => f.t !== 'requisits');
 const DEFS = new Map([...CAMPS_PLANS.map(f => [f.p, f]), ...ZONA_CAMPS.map(f => ['zones.*.' + f.p, { ...f, p: 'zones.*.' + f.p }])]);
 const defDe = cami => DEFS.get(cami.replace(/^zones\.\d+\./, 'zones.*.'));
 
@@ -1233,11 +1245,13 @@ function htmlPendents(el) {
 function pintaFitxa(el) {
   if (!el) return;
   const grups = GRUPS.map(g => {
-    const plens = g.camps.filter(f => !buit(get(el, f.p))).length;
-    const camps = g.camps.filter(f => !(f.t === 'ro' && buit(get(el, f.p))) && !(f.nomesSi && el.estat_execucio?.estat !== f.nomesSi && buit(get(el, f.p))))
+    const gc = g.camps.filter(f => f.t !== 'requisits');
+    const nf = numFase(el.estat_execucio?.fase);
+    const plens = gc.filter(f => !buit(get(el, f.p))).length;
+    const camps = gc.filter(f => !(f.t === 'ro' && buit(get(el, f.p))) && !(f.nomesSi && (el.estat_execucio?.estat !== f.nomesSi || (f.faseMin && nf < f.faseMin)) && buit(get(el, f.p))))
       .map(f => `<div class="camp ${f.ample ? 'ample' : ''}"><div class="et">${esc(f.l)}</div><div class="vl">${htmlValor(f, get(el, f.p))}</div></div>`).join('');
     const mapa = g.mapa ? `<div id="mini-mapa" class="mini-mapa"></div><div class="nota-mapa" id="nota-mini-mapa"></div>` : '';
-    return `<details class="grup" ${g.obert ? 'open' : ''}><summary>${esc(g.t)} <span class="compte">${plens}/${g.camps.length} camps amb dades</span></summary>
+    return `<details class="grup" ${g.obert ? 'open' : ''}><summary>${esc(g.t)} <span class="compte">${plens}/${gc.length} camps amb dades</span></summary>
       <div class="grup-cos"><div class="camps">${camps}</div>${mapa}</div></details>`;
   }).join('');
   const zones = (el.zones || []).map(z => `<div class="zona"><div class="zona-cap"><h4>Zona ${z.numero}: ${esc(z.nom || '')}</h4></div>
@@ -1297,18 +1311,29 @@ function pintaMiniMapa(el, editable) {
   let m = ll ? marcador(ll, el.construccio?.estat_conservacio, { radius: 9 }).addTo(miniMapa) : null;
   nota.textContent = ll ? `Lat. ${ll[0].toFixed(5)}, long. ${ll[1].toFixed(5)}` : 'Aquest immoble no té coordenades.';
   if (!editable) return;
-  nota.textContent = (ll ? nota.textContent + ' · ' : '') + 'Clica el mapa per situar l\'immoble i omplir les coordenades UTM.';
+  cont.classList.add('editable');
+  miniMapa.invalidateSize();
+  nota.innerHTML = '<strong>📍 Clica el mapa</strong> (o arrossega el punt) per situar l\'immoble: les coordenades UTM X i Y s\'omplen soles.' + (ll ? ` <span class="text-muted">Ara: lat. ${ll[0].toFixed(5)}, long. ${ll[1].toFixed(5)}</span>` : '');
+  const omple = (lat, lng) => {
+    const [x, y] = UTM.aUTM(lat, lng);
+    const ix = $('[data-cami="localitzacio.utm.x"]'), iy = $('[data-cami="localitzacio.utm.y"]');
+    for (const [inp, v] of [[ix, x], [iy, y]]) {
+      inp.value = v;
+      inp.dispatchEvent(new Event('change', { bubbles: true }));
+      const c = inp.closest('.camp'); c.classList.add('acabat-omplir'); setTimeout(() => c.classList.remove('acabat-omplir'), 1500);
+    }
+    toast(`Coordenades UTM: X ${x} · Y ${y}`, 'ok', 2500);
+    return [x, y];
+  };
   const posa = (x, y) => {
     const p = UTM.aLatLon(x, y);
-    if (m) m.setLatLng(p); else m = marcador(p, el.construccio?.estat_conservacio, { radius: 9 }).addTo(miniMapa);
+    if (!m) {
+      m = L.marker(p, { draggable: true, title: 'Arrossega per ajustar la posició' }).addTo(miniMapa);
+      m.on('dragend', () => { const q = m.getLatLng(); omple(q.lat, q.lng); });
+    } else m.setLatLng(p);
   };
-  miniMapa.on('click', ev => {
-    const [x, y] = UTM.aUTM(ev.latlng.lat, ev.latlng.lng);
-    const ix = $('[data-cami="localitzacio.utm.x"]'), iy = $('[data-cami="localitzacio.utm.y"]');
-    ix.value = x; iy.value = y;
-    ix.dispatchEvent(new Event('input', { bubbles: true }));
-    posa(x, y);
-  });
+  if (m) { m.remove(); m = null; if (ll) posa(...UTM.aUTM(ll[0], ll[1])); }
+  miniMapa.on('click', ev => { const [x, y] = omple(ev.latlng.lat, ev.latlng.lng); posa(x, y); });
   const sincronitza = () => {
     const x = parseInt($('[data-cami="localitzacio.utm.x"]').value, 10), y = parseInt($('[data-cami="localitzacio.utm.y"]').value, 10);
     if (x >= 250000 && x <= 540000 && y >= 4480000 && y <= 4760000) { posa(x, y); miniMapa.panTo(UTM.aLatLon(x, y)); }
@@ -1336,11 +1361,12 @@ function htmlInput(f, v, cami) {
     case 'open': inp = `<input type="text" ${attrs} list="${dlId(f.p)}" value="${esc(val)}" autocomplete="off">`; break;
     case 'int': case 'num': inp = `<input type="text" inputmode="${f.t === 'int' ? 'numeric' : 'decimal'}" ${attrs} value="${esc(val)}">`; break;
     case 'ro': return buit(v) ? '' : `<div class="camp"><label>${esc(f.l)}</label><div class="vl">${esc(val)}</div></div>`;
+    case 'requisits': return '<div id="requisits-fase" class="requisits-fase" hidden></div>';
     case 'motius': return `<div class="camp ample"><label>${esc(f.l)}</label><div id="motius-auto">${htmlMotius(v)}</div>
       <div class="ajuda">Es calculen sols a partir del règim jurídic i del document jurídic (apartat «Ús i règim»). No es poden editar.</div></div>`;
     default: inp = `<input type="text" ${attrs} value="${esc(val)}" ${f.t === 'url' ? 'placeholder="https://…"' : ''}>`;
   }
-  return `<div class="camp ${f.ample ? 'ample' : ''}" ${f.nomesSi ? `data-nomes-si="${esc(f.nomesSi)}"` : ''}><label for="${id}" class="${f.req || f.nomesSi === 'planificacio' ? 'required' : ''}">${esc(f.l)}${f.u ? ` <span class="unitat">(${esc(f.u)})</span>` : ''}</label>${inp}
+  return `<div class="camp ${f.ample ? 'ample' : ''}" ${f.nomesSi ? `data-nomes-si="${esc(f.nomesSi)}"` : ''} ${f.faseMin ? `data-fase-min="${f.faseMin}"` : ''}><label for="${id}" class="${f.req || f.nomesSi === 'planificacio' ? 'required' : ''}">${esc(f.l)}${f.u ? ` <span class="unitat">(${esc(f.u)})</span>` : ''}</label>${inp}
     ${f.ajuda ? `<div class="ajuda">${esc(f.ajuda)}</div>` : ''}<div class="nou-valor" hidden></div><div class="camp-error" hidden></div></div>`;
 }
 function htmlZonesEdicio() {
@@ -1372,7 +1398,8 @@ function plantillaElement(u, codi, nom, tipus) {
       document_juridic: { tipus: null, estat: null, data_fi_vigencia: null, fitxer: null, url: null }, zones_accessibles_public: null, presencia_personal_parc: null,
       presencia_personal_alie: null, tipus_presencia_personal: null, detall_presencia_personal: null,
       volum_anual_public: { estat: 'sense_dades', valor: null }, perfil_public: { estat: 'sense_dades', text: null }, pla_autoproteccio: { estat: 'no', fitxer: null } },
-    estat_execucio: { estat: null, fase: null, motius_automatics: [], motiu: null },
+    estat_execucio: { estat: null, fase: null, motius_automatics: [], motiu: null,
+      avantprojecte: { url: null, data: null, import_estimat: null, durada_estimada_mesos: null }, data_inici_obres: null },
     zones: [plantillaZona(1)], fotografies: { nombre: 0, fitxers: [] },
     notes: { identificacio: null, localitzacio: null, construccio: null, fotografies: null, us: null },
     meta: { origen: { fitxer: null, columna: null }, creat: null, creat_per: null, modificat: null, modificat_per: null, versio: 0, pendents: [] },
@@ -1423,6 +1450,56 @@ function pintaEdicio() {
   sincronitzaExecucio(false);
   p.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+// ---------- Requisits per fase de planificació (acumulatius: cada fase inclou els de les anteriors) ----------
+const numFase = f => (f ? +String(f).match(/^f(\d)/)?.[1] || 0 : 0);
+const esGeneralitat = t => /generalitat de catalunya/i.test(String(t || ''));
+function requisitsFase(el) {
+  const ex = el.estat_execucio || {};
+  if (ex.estat !== 'planificacio') return [];
+  const n = numFase(ex.fase), r = [];
+  const cal = (cami, l, msg) => r.push({ cami, l, msg, ok: !buit(get(el, cami)) });
+  if (n >= 1) {
+    cal('us_i_regim.propietari', 'Propietari');
+    cal('localitzacio.municipi', 'Municipi (ubicació)');
+    cal('localitzacio.utm.x', 'Coordenades UTM (ubicació)', 'Clica el mapa per situar l\'immoble.');
+  }
+  if (n >= 2) {
+    cal('identificacio.tipus_propietat', 'Tipus de propietat');
+    cal('identificacio.titular', 'Titular (propietat)');
+    const titular = el.identificacio?.titular, prop = el.us_i_regim?.propietari;
+    if (!esGeneralitat(titular) && !esGeneralitat(prop)) {
+      cal('us_i_regim.regim_juridic', "Règim jurídic d'ús");
+      cal('us_i_regim.document_juridic.tipus', 'Document jurídic');
+      cal('us_i_regim.document_juridic.data_fi_vigencia', 'Període fi vigència');
+    }
+  }
+  if (n >= 3) {
+    cal('estat_execucio.avantprojecte.url', "Enllaç a l'avantprojecte");
+    cal('estat_execucio.avantprojecte.data', "Data de l'avantprojecte");
+    cal('estat_execucio.avantprojecte.import_estimat', "Import estimat de l'obra");
+    cal('estat_execucio.avantprojecte.durada_estimada_mesos', 'Durada estimada');
+  }
+  if (n >= 5) cal('estat_execucio.data_inici_obres', "Data d'inici de les obres");
+  return r;
+}
+const CAMPS_REQUISITS = new Set(['us_i_regim.propietari', 'localitzacio.municipi', 'localitzacio.utm.x', 'localitzacio.utm.y', 'identificacio.tipus_propietat',
+  'identificacio.titular', 'us_i_regim.regim_juridic', 'us_i_regim.document_juridic.tipus', 'us_i_regim.document_juridic.data_fi_vigencia',
+  'estat_execucio.avantprojecte.url', 'estat_execucio.avantprojecte.data', 'estat_execucio.avantprojecte.import_estimat',
+  'estat_execucio.avantprojecte.durada_estimada_mesos', 'estat_execucio.data_inici_obres']);
+/** Llista visible dels camps que demana la fase, amb els que falten. */
+function pintaRequisitsFase() {
+  const box = $('#requisits-fase');
+  if (!box || !S.edicio) return;
+  const el = clone(S.edicio.original);
+  $$('#panell-fitxa [data-cami]').forEach(inp => { if (!inp.dataset.cami.startsWith('zones.')) set(el, inp.dataset.cami, llegeixInput(inp).v); });
+  const r = requisitsFase(el);
+  box.hidden = !r.length;
+  if (!r.length) return;
+  const falten = r.filter(x => !x.ok).length;
+  box.innerHTML = `<div class="${falten ? 'avis-box' : 'info-box'} text-small"><strong>${esc(etiq('fase_planificacio', el.estat_execucio.fase))}: camps obligatoris</strong>
+    ${falten ? `(en falten ${falten})` : '(tots omplerts)'}<ul style="margin:4px 0 0 18px">${r.map(x => `<li>${x.ok ? '✓' : '✗'} ${esc(x.l)}</li>`).join('')}</ul></div>`;
+}
+
 const CAMPS_CONTRACTE = ['us_i_regim.regim_juridic', 'us_i_regim.document_juridic.tipus', 'us_i_regim.document_juridic.estat', 'us_i_regim.document_juridic.data_fi_vigencia'];
 /** Recalcula els motius automàtics amb els valors del formulari i mostra/amaga fase i motiu manual. */
 function sincronitzaExecucio(avisa) {
@@ -1438,7 +1515,9 @@ function sincronitzaExecucio(avisa) {
     sel.value = 'operatiu';
     toast("El contracte ja no requereix revisió: estat d'execució canviat a «Operatiu».", 'ok', 5000);
   }
-  $$('#panell-fitxa [data-nomes-si]').forEach(c => { c.hidden = c.dataset.nomesSi !== sel.value; });
+  const nf = numFase(sel.value === 'planificacio' ? $('[data-cami="estat_execucio.fase"]')?.value : null);
+  $$('#panell-fitxa [data-nomes-si]').forEach(c => { c.hidden = c.dataset.nomesSi !== sel.value || (c.dataset.faseMin && nf < +c.dataset.faseMin); });
+  pintaRequisitsFase();
 }
 function tancaEdicio() { S.edicio = null; }
 $('#panell-fitxa').addEventListener('input', e => { if (S.edicio) ajudaEmplenament(e); });
@@ -1449,7 +1528,8 @@ function ajudaEmplenament(e) {
   const inp = e.target;
   if (!inp.dataset?.cami) return;
   const cami = inp.dataset.cami, f = defDe(cami);
-  if (e.type === 'change' && (cami === 'estat_execucio.estat' || CAMPS_CONTRACTE.includes(cami))) sincronitzaExecucio(cami !== 'estat_execucio.estat');
+  if (e.type === 'change' && (cami === 'estat_execucio.estat' || cami === 'estat_execucio.fase' || CAMPS_CONTRACTE.includes(cami))) sincronitzaExecucio(CAMPS_CONTRACTE.includes(cami));
+  else if (e.type === 'change' && S.edicio && CAMPS_REQUISITS.has(cami)) pintaRequisitsFase();
   if (cami === 'localitzacio.municipi' && e.type === 'change') {
     const cp = $('[data-cami="localitzacio.cp"]');
     const hab = cpHabitual(inp.value.trim());
@@ -1530,6 +1610,11 @@ function recullFormulari() {
   if (ex.estat === 'operatiu' && ex.motius_automatics.length) ex.estat = 'requereix_revisio';
   if (ex.estat !== 'planificacio') ex.fase = null;
   if (ex.estat !== 'requereix_revisio') ex.motiu = null;
+  if (ex.estat === 'planificacio' && ex.fase) requisitsFase(nou).filter(x => !x.ok).forEach(x => {
+    const inp = $(`[data-cami="${x.cami}"]`);
+    if (inp) { const c = inp.closest('.camp'); c.classList.add('te-error'); const b = c.querySelector('.camp-error'); if (b) { b.hidden = false; b.textContent = x.msg || `Obligatori a la ${etiq('fase_planificacio', ex.fase)}.`; } }
+    errors.push({ inp, f: { l: x.l } });
+  });
   if (ex.estat === 'planificacio' && !ex.fase) errors.push({ inp: $('[data-cami="estat_execucio.fase"]'), f: { l: 'Fase de planificació' }, msg: 'Cal indicar la fase.' });
   if (ex.estat === 'requereix_revisio' && !ex.motius_automatics.length && !ex.motiu) errors.push({ inp: $('[data-cami="estat_execucio.motiu"]'), f: { l: 'Motiu de la revisió' }, msg: 'Cal explicar el motiu.' });
   if ((u1.x == null) !== (u1.y == null)) errors.push({ inp: $('[data-cami="localitzacio.utm.x"]'), f: { l: 'Coordenades UTM' }, msg: 'Cal omplir la X i la Y.' });

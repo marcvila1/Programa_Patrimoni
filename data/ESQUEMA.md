@@ -51,6 +51,8 @@ estat_execucio  estat (planificacio | operatiu | requereix_revisio | suprimit),
                 fase (f1_concepte … f5_obres, només si estat = planificacio),
                 motius_automatics[{codi, text}] (contracte_no_vigent | contracte_en_tramit | contracte_paraula; calculats),
                 motiu (text manual, només si estat = requereix_revisio)
+                avantprojecte{url, data, import_estimat, durada_estimada_mesos} (des de la fase 3),
+                data_inici_obres (fase 5)
 zones[]         numero, nom, usos, usuaris, accessible_public, accessible_menors,
                 adaptat_discapacitats, presencia_personal_parc, presencia_personal_alie,
                 regim_personal_alie, tipus_presencia_personal, detall_presencia_personal,

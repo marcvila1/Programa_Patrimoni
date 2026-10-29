@@ -63,6 +63,18 @@ Cada immoble té un **estat d'execució** (`estat_execucio` a `elements.json`). 
 | **Requereix revisió** | Es posa **automàticament** quan el contracte ha deixat de ser vigent (document caducat o data de fi de vigència passada), quan el document és **en tràmit** o quan l'ús es basa en un **contracte de paraula** (acord verbal o compromís de mutu acord). També es pot marcar a mà, però llavors cal escriure el motiu. |
 | **Suprimit** | Immoble que ja no forma part del patrimoni gestionat. Es conserva per a l'historial. |
 
+**Camps obligatoris per fase de planificació.** Són acumulatius: cada fase demana també els camps de les anteriors. Mentre s'edita, el programa mostra la llista de camps que demana la fase i quins falten, i no deixa desar fins que estan omplerts.
+
+| Fase | Camps obligatoris |
+|---|---|
+| Fase 1: Concepte | Propietari i ubicació (municipi i coordenades UTM) |
+| Fase 2: Terrenys | Tipus de propietat i titular. Si ni el titular ni el propietari són la Generalitat de Catalunya, també el règim jurídic d'ús, el document jurídic i el període de fi de vigència |
+| Fase 3: Avantprojecte | Enllaç a l'avantprojecte, data de l'avantprojecte, import estimat de l'obra (€) i durada estimada (mesos) |
+| Fase 4: Projecte | Els mateixos camps que la fase 3 |
+| Fase 5: Obres | Data d'inici de les obres |
+
+Els camps nous són a `estat_execucio.avantprojecte{url, data, import_estimat, durada_estimada_mesos}` i a `estat_execucio.data_inici_obres`.
+
 La regla automàtica:
 - Calcula els **motius automàtics** a partir del règim jurídic i del document jurídic (tipus i estat), i els mostra a la fitxa.
 - Si l'immoble és operatiu i apareix un motiu, passa a «Requereix revisió». Si el motiu desapareix (contracte renovat o formalitzat) i no hi ha cap motiu manual, torna a «Operatiu».
@@ -83,7 +95,7 @@ En la càrrega inicial, tots els immobles inventariats són operatius o requerei
 El botó **＋ Nou immoble** crea un immoble a l'espai seleccionat:
 - Es demanen el nom, el tipus i el codi. El codi es proposa a partir del nom.
 - L'identificador serà `UNITAT/codi`, per exemple `RMM/caseta_nova`.
-- Després s'obre la fitxa en edició. Cal triar l'estat d'execució (normalment *Planificació* amb la fase corresponent).
+- Després s'obre la fitxa en edició. Per situar l'immoble, clica el mapa o arrossega'n el punt: les coordenades UTM X i Y s'omplen soles. Cal triar l'estat d'execució (normalment *Planificació* amb la fase corresponent).
 
 ### 2.5. Registre de canvis
 
