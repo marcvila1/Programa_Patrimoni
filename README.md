@@ -201,11 +201,12 @@ Camps de cada tasca:
 - Tasca, tipologia i **periodicitat**: setmanal, quinzenal, mensual, bimestral, trimestral, quadrimestral, semestral, anual o biennal.
 - Data de la primera execució i, si cal, data de finalització.
 - Hores estimades per execució, prioritat, responsable (i brigada o empresa).
+- **Avisa'm (dies abans):** quan es genera la incidència. En triar la periodicitat es proposa un valor (setmanal 2, quinzenal 4, mensual 7, bimestral 10, trimestral i quadrimestral 14, semestral 21, anual i biennal 30), que es pot canviar. Ha de ser menys que l'interval entre execucions.
 - **Observacions** i si està activa.
 
 Les creen i modifiquen el cap de manteniment i la direcció del parc.
 
-**Com funcionen.** Cada execució genera una **incidència** **14 dies abans** de la data (es configura a `variables.json`):
+**Com funcionen.** Cada execució genera una **incidència** els dies d'avís que té la tasca abans de la data. Les tasques antigues sense aquest camp fan servir els 14 dies generals de `variables.json`:
 - La data límit de la incidència és la data de l'execució.
 - La incidència hereta la prioritat, el responsable, la brigada i les hores estimades. Si ja té prioritat i responsable, surt directament com a «Assignada».
 - A partir d'aquí segueix el circuit normal: en curs, resolta, certificació d'hores i verificació.
@@ -238,7 +239,7 @@ Tots dos els poden modificar només el cap de manteniment i la direcció del par
 
 ### 4.7. Pendents
 
-- **Webapp mòbil per als caps de brigada.** Un HTML independent, pensat per al mòbil i molt senzill, per veure les feines assignades (imatges, descripció i ubicació), marcar-les com a «En curs» i «Resolta», pujar fotografies de seguiment i crear peticions noves. Necessitarà desar en un servidor (SINATCAT), perquè els navegadors dels mòbils no permeten triar una carpeta de treball. Mentrestant, els caps de brigada poden fer aquestes accions des d'aquest programa.
+- **Webapp mòbil per als caps de brigada.** L'encàrrec complet (funcions, dades, regles, opcions de desament i estil) és a `docs/ENCARREC_WEBAPP_BRIGADA.md`. En resum: un HTML independent, pensat per al mòbil i molt senzill, per veure les feines assignades (imatges, descripció i ubicació), marcar-les com a «En curs» i «Resolta», pujar fotografies de seguiment i crear peticions noves. Necessitarà desar en un servidor (SINATCAT), perquè els navegadors dels mòbils no permeten triar una carpeta de treball. Mentrestant, els caps de brigada poden fer aquestes accions des d'aquest programa.
 - Omplir la direcció i el cap de manteniment de cada parc (Configuració dels parcs) i les brigades (Brigades).
 - **Integració a SINATCAT:** usuaris únics amb perfil, fotografies a la base de dades, i avisos per correu automàtics en lloc de mailto.
 

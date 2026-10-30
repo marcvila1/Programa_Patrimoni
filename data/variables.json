@@ -1,5 +1,5 @@
 {
-  "versio": "1.3",
+  "versio": "1.4",
   "data_actualitzacio": "2026-10-30",
   "descripcio": "Variables del mòdul de Manteniment. Els valors generals s'apliquen a tots els parcs; a per_parc cada parc pot definir els seus responsables (i afegir-ne de propis) i el contacte de la direcció, que rep l'avís de cada incidència nova.",
   "perfils": {
@@ -159,51 +159,60 @@
     {
       "codi": "setmanal",
       "nom": "Setmanal",
-      "dies": 7
+      "dies": 7,
+      "antelacio": 2
     },
     {
       "codi": "quinzenal",
       "nom": "Quinzenal",
-      "dies": 14
+      "dies": 14,
+      "antelacio": 4
     },
     {
       "codi": "mensual",
       "nom": "Mensual",
-      "mesos": 1
+      "mesos": 1,
+      "antelacio": 7
     },
     {
       "codi": "bimestral",
       "nom": "Bimestral",
-      "mesos": 2
+      "mesos": 2,
+      "antelacio": 10
     },
     {
       "codi": "trimestral",
       "nom": "Trimestral",
-      "mesos": 3
+      "mesos": 3,
+      "antelacio": 14
     },
     {
       "codi": "quadrimestral",
       "nom": "Quadrimestral",
-      "mesos": 4
+      "mesos": 4,
+      "antelacio": 14
     },
     {
       "codi": "semestral",
       "nom": "Semestral",
-      "mesos": 6
+      "mesos": 6,
+      "antelacio": 21
     },
     {
       "codi": "anual",
       "nom": "Anual",
-      "mesos": 12
+      "mesos": 12,
+      "antelacio": 30
     },
     {
       "codi": "biennal",
       "nom": "Biennal",
-      "mesos": 24
+      "mesos": 24,
+      "antelacio": 30
     }
   ],
   "dies_antelacio_periodiques": 14,
-  "tasques_periodiques": "Cada execució d'una tasca periòdica genera una incidència uns dies abans de la data (dies_antelacio_periodiques), amb la data límit igual a la data d'execució. Les crea i modifica el cap de manteniment o la direcció del parc.",
+  "tasques_periodiques": "Cada execució d'una tasca periòdica genera una incidència els dies indicats al camp «Avisa'm (dies abans)» de la tasca (dies_antelacio), amb la data límit igual a la data d'execució. En crear-la es proposa l'antelació de la periodicitat (periodicitats[].antelacio); ha de ser menor que l'interval entre execucions. dies_antelacio_periodiques només s'aplica a tasques antigues sense el camp. Les crea i modifica el cap de manteniment o la direcció del parc.",
   "responsables": [
     {
       "codi": "brigada_parc",

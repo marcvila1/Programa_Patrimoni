@@ -3118,14 +3118,20 @@ const Manteniment = (() => {
   //   Cada tasca periòdica genera una incidència per a cada execució, uns dies abans de la data
   //   (variables.json → dies_antelacio_periodiques). La generació es fa en obrir el programa amb la carpeta connectada.
   const PERIODICITATS_DEFECTE = [
-    { codi: 'setmanal', nom: 'Setmanal', dies: 7 }, { codi: 'quinzenal', nom: 'Quinzenal', dies: 14 },
-    { codi: 'mensual', nom: 'Mensual', mesos: 1 }, { codi: 'bimestral', nom: 'Bimestral', mesos: 2 },
-    { codi: 'trimestral', nom: 'Trimestral', mesos: 3 }, { codi: 'quadrimestral', nom: 'Quadrimestral', mesos: 4 },
-    { codi: 'semestral', nom: 'Semestral', mesos: 6 }, { codi: 'anual', nom: 'Anual', mesos: 12 }, { codi: 'biennal', nom: 'Biennal', mesos: 24 },
+    { codi: 'setmanal', nom: 'Setmanal', dies: 7, antelacio: 2 }, { codi: 'quinzenal', nom: 'Quinzenal', dies: 14, antelacio: 4 },
+    { codi: 'mensual', nom: 'Mensual', mesos: 1, antelacio: 7 }, { codi: 'bimestral', nom: 'Bimestral', mesos: 2, antelacio: 10 },
+    { codi: 'trimestral', nom: 'Trimestral', mesos: 3, antelacio: 14 }, { codi: 'quadrimestral', nom: 'Quadrimestral', mesos: 4, antelacio: 14 },
+    { codi: 'semestral', nom: 'Semestral', mesos: 6, antelacio: 21 }, { codi: 'anual', nom: 'Anual', mesos: 12, antelacio: 30 }, { codi: 'biennal', nom: 'Biennal', mesos: 24, antelacio: 30 },
   ];
   const periodicitats = () => V().periodicitats || PERIODICITATS_DEFECTE;
   const nomPeriodicitat = c => periodicitats().find(p => p.codi === c)?.nom || c || '—';
-  const antelacio = () => V().dies_antelacio_periodiques ?? 14;
+  const antelacio = () => V().dies_antelacio_periodiques ?? 14;   // només per a tasques sense antelació pròpia
+  const periodicitat = c => periodicitats().find(p => p.codi === c);
+  /** Dies entre execucions (mínim, per als períodes en mesos) i antelació proposada per a cada periodicitat. */
+  const diesInterval = c => { const q = periodicitat(c); return q?.dies || (q?.mesos ? q.mesos * 28 : null); };
+  const antelacioProposada = c => periodicitat(c)?.antelacio ?? Math.min(antelacio(), Math.max(1, (diesInterval(c) || 15) - 1));
+  /** Dies d'antelació d'una tasca: els seus, o els generals si és una tasca antiga sense el camp. */
+  const antelacioDe = pl => pl.dies_antelacio ?? antelacio();
   const isoDe = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const sumaDies = (iso, n) => { const d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + n); return isoDe(d); };
   /** Data de l'execució n (0 = la primera), sempre calculada des de la data inicial per no acumular desfasaments. */
@@ -3145,9 +3151,10 @@ const Manteniment = (() => {
    * Funció pura sobre les llistes que rep: la fa servir la carpeta dins d'una lectura-escriptura.
    */
   function generaExecucions(plans, mant) {
-    const limit = sumaDies(avui(), antelacio()), creades = [], moment = ara();
+    const creades = [], moment = ara();
     for (const pl of plans) {
       if (pl.activa === false) continue;
+      const limit = sumaDies(avui(), antelacioDe(pl));
       let n = pl.seguent || 0, guarda = 0;
       for (let d = dataExecucio(pl, n); d && d <= limit && (!pl.data_fi || d <= pl.data_fi) && guarda < 24; d = dataExecucio(pl, ++n), guarda++) {
         if (mant.some(t => t.periodica?.id === pl.id && t.periodica.data === d)) continue;
@@ -3186,13 +3193,13 @@ const Manteniment = (() => {
     const p = obreEditor('periodiques');
     const parc = parcInicial ?? ($('#mf-parc').value || '');
     const ll = plansParc(parc).sort((a, b) => (a.activa === false) - (b.activa === false) || ordCa(a.propera_data || '9', b.propera_data || '9'));
-    p.innerHTML = `<div class="fitxa-cap"><div><h2>🔁 Tasques periòdiques</h2><div class="id">tasques_periodiques.json · es generen ${antelacio()} dies abans de cada execució</div></div>
+    p.innerHTML = `<div class="fitxa-cap"><div><h2>🔁 Tasques periòdiques</h2><div class="id">tasques_periodiques.json · cada execució genera una incidència els dies d'avís abans</div></div>
         <div class="botons"><button type="button" class="btn btn-primary" data-m="nova-per">＋ Nova tasca periòdica</button></div></div>
       ${Carpeta.activa() ? '' : '<div class="avis-box text-small" style="margin:12px 20px 0">Sense carpeta connectada les tasques periòdiques no generen incidències. Connecta la carpeta de treball.</div>'}
       <div class="fitxa-cos"><div class="mant-seccio"><div class="camps">${h('pe-parc', 'Parc natural', `<select id="pe-parc"><option value="">Tots els espais</option>${espaisOrdenats().map(u => `<option value="${esc(u)}" ${u === parc ? 'selected' : ''}>${esc(nomUnitat(u))}</option>`).join('')}</select>`, { ample: true })}</div></div>
-      <div class="mant-seccio">${ll.length ? `<div class="taula-wrap"><table class="canvis-llista"><thead><tr><th>Codi</th><th>Tasca</th><th>Parc</th><th>Immoble</th><th>Periodicitat</th><th>Propera</th><th>Generades</th></tr></thead><tbody>
+      <div class="mant-seccio">${ll.length ? `<div class="taula-wrap"><table class="canvis-llista"><thead><tr><th>Codi</th><th>Tasca</th><th>Parc</th><th>Immoble</th><th>Periodicitat</th><th class="num">Avís</th><th>Propera</th><th>Generades</th></tr></thead><tbody>
         ${ll.map(pl => `<tr style="${pl.activa === false ? 'opacity:.55' : ''}"><td><button type="button" class="btn-link" data-per="${esc(pl.id)}">${esc(pl.id)}</button></td><td>${esc(pl.titol)}${pl.activa === false ? ' <span class="marca">inactiva</span>' : ''}</td><td>${esc(pl.unitat)}</td>
-          <td>${pl.element ? esc(nomElement(pl.element)) : '<span class="buit">—</span>'}</td><td>${esc(nomPeriodicitat(pl.periodicitat))}</td><td>${pl.activa === false ? '—' : esc(fmtData(pl.propera_data || dataExecucio(pl, pl.seguent || 0)))}</td>
+          <td>${pl.element ? esc(nomElement(pl.element)) : '<span class="buit">—</span>'}</td><td>${esc(nomPeriodicitat(pl.periodicitat))}</td><td class="num">${esc(antelacioDe(pl))} d</td><td>${pl.activa === false ? '—' : esc(fmtData(pl.propera_data || dataExecucio(pl, pl.seguent || 0)))}</td>
           <td class="num">${(S.mant || []).filter(t => t.periodica?.id === pl.id).length}</td></tr>`).join('')}</tbody></table></div>` : '<p class="buit">Encara no hi ha tasques periòdiques' + (parc ? ' en aquest parc' : '') + '.</p>'}</div></div>
       <div class="peu-edicio"><button type="button" class="btn btn-secondary" data-m="cancela">Tanca</button></div>`;
     $('#pe-parc').addEventListener('change', e => periodiques(e.target.value));
@@ -3208,7 +3215,7 @@ const Manteniment = (() => {
     if (!S.usuari?.perfil && !(await demanaUsuari('Abans de crear tasques periòdiques, indica qui ets i el teu perfil.'))?.perfil) return;
     const p = obreEditor('periodica');
     const esAlta = !pl, x = pl || { unitat: preset.unitat || '', element: preset.element || null, titol: '', tipologia: 'manteniment', periodicitat: 'anual',
-      data_inici: avui(), data_fi: null, hores_estimades: null, prioritat: 'moderada', responsable: null, brigada: null, empresa: null, observacions: null, activa: true, utm: { x: null, y: null } };
+      data_inici: avui(), data_fi: null, dies_antelacio: antelacioProposada('anual'), hores_estimades: null, prioritat: 'moderada', responsable: null, brigada: null, empresa: null, observacions: null, activa: true, utm: { x: null, y: null } };
     if (preset.element && !x.unitat) x.unitat = S.perId.get(preset.element)?.unitat || '';
     const pinta = () => {
       const u = $('#pf-parc')?.value ?? x.unitat, pot = !u || gestorDelParc(u), dis = pot ? '' : 'disabled';
@@ -3223,6 +3230,7 @@ const Manteniment = (() => {
         ${h('pf-tipologia', 'Tipologia', `<select id="pf-tipologia" ${dis}>${tipologies().filter(t => t.activa !== false).map(t => `<option value="${esc(t.codi)}" ${t.codi === x.tipologia ? 'selected' : ''}>${esc(t.nom)}</option>`).join('')}</select>`, { req: true })}
         ${h('pf-periodicitat', 'Periodicitat', `<select id="pf-periodicitat" ${dis}>${periodicitats().map(q => `<option value="${esc(q.codi)}" ${q.codi === x.periodicitat ? 'selected' : ''}>${esc(q.nom)}</option>`).join('')}</select>`, { req: true })}
         ${h('pf-inici', esAlta ? 'Data de la primera execució' : 'Data de referència (primera execució)', `<input type="date" id="pf-inici" value="${esc(x.data_inici || '')}" ${dis}>`, { req: true, ajuda: 'Les execucions següents es calculen a partir d\'aquesta data.' })}
+        ${h('pf-antelacio', "Avisa'm (dies abans)", `<input type="text" inputmode="numeric" id="pf-antelacio" value="${esc(x.dies_antelacio ?? antelacioDe(x))}" ${dis}>`, { req: true, ajuda: 'Dies abans de cada execució en què es genera la incidència. Ha de ser menys que l\'interval entre execucions.' })}
         ${h('pf-fi', 'Data de finalització (opcional)', `<input type="date" id="pf-fi" value="${esc(x.data_fi || '')}" ${dis}>`)}
         ${h('pf-hores', 'Hores estimades per execució', `<input type="text" inputmode="decimal" id="pf-hores" value="${esc(x.hores_estimades ?? '')}" ${dis}>`, { req: true })}
         ${h('pf-prioritat', 'Prioritat', `<select id="pf-prioritat" ${dis}>${(V().prioritats || []).filter(q => q.requereix_data_limit).map(q => `<option value="${esc(q.codi)}" ${q.codi === x.prioritat ? 'selected' : ''}>${esc(q.nom)}</option>`).join('')}</select>`, { req: true, ajuda: 'La data límit de cada incidència és la data de l\'execució.' })}
@@ -3245,9 +3253,13 @@ const Manteniment = (() => {
         const prov = { ...x, periodicitat: $('#pf-periodicitat').value, data_inici: $('#pf-inici').value, data_fi: $('#pf-fi').value || null };
         const dates = [];
         for (let n = 0, d; dates.length < 5 && n < 500; n++) { d = dataExecucio(prov, n); if (!d || (prov.data_fi && d > prov.data_fi)) break; if (d >= avui() || n >= (pl?.seguent || 0)) dates.push(d); }
-        $('#pf-properes').innerHTML = dates.length ? dates.map(d => `${esc(fmtData(d))}${d <= sumaDies(avui(), antelacio()) ? ' <span class="marca">es genera en desar</span>' : ''}`).join(' · ') : '<span class="buit">Cap execució</span>';
+        const ant = Number($('#pf-antelacio').value);
+        $('#pf-properes').innerHTML = dates.length ? dates.map(d => `${esc(fmtData(d))}${Number.isInteger(ant) && d <= sumaDies(avui(), ant) ? ' <span class="marca">es genera en desar</span>' : ''}`).join(' · ') : '<span class="buit">Cap execució</span>';
       };
-      ['#pf-resp', '#pf-element', '#pf-periodicitat', '#pf-inici', '#pf-fi'].forEach(s => $(s).addEventListener('change', sincr));
+      ['#pf-resp', '#pf-element', '#pf-periodicitat', '#pf-inici', '#pf-fi', '#pf-antelacio'].forEach(s => $(s).addEventListener('change', sincr));
+      // En canviar la periodicitat, es proposa l'antelació que li correspon (si no s'ha escrit a mà)
+      $('#pf-antelacio').addEventListener('input', e => { e.target.dataset.manual = '1'; });
+      $('#pf-periodicitat').addEventListener('change', e => { const a = $('#pf-antelacio'); if (!a.dataset.manual) { a.value = antelacioProposada(e.target.value); sincr(); } });
       sincr();
       $('#pf-parc').addEventListener('change', e => { x.unitat = e.target.value; x.element = null; pinta(); });
       p.querySelector('[data-m="cancela"]').addEventListener('click', () => { st.form = null; periodiques(); });
@@ -3266,6 +3278,9 @@ const Manteniment = (() => {
     if (!v('#pf-titol') || v('#pf-titol').length < 4) err.push(marcaError('#pf-titol', 'Descriu la tasca.') && 'Tasca');
     if (!v('#pf-inici')) err.push(marcaError('#pf-inici', 'Indica la data de la primera execució.') && 'Data');
     if (v('#pf-fi') && v('#pf-inici') && v('#pf-fi') < v('#pf-inici')) err.push(marcaError('#pf-fi', 'Ha de ser posterior a la primera execució.') && 'Data de finalització');
+    const ant = Number(v('#pf-antelacio')), interval = diesInterval(v('#pf-periodicitat'));
+    if (!Number.isInteger(ant) || ant < 0) err.push(marcaError('#pf-antelacio', 'Escriu un nombre de dies (0 o més).') && "Avisa'm");
+    else if (interval && ant >= interval) err.push(marcaError('#pf-antelacio', `Amb periodicitat ${nomPeriodicitat(v('#pf-periodicitat')).toLowerCase()}, ha de ser menys de ${interval} dies.`) && "Avisa'm");
     const hores = Number(String(v('#pf-hores') || '').replace(',', '.'));
     if (!(hores > 0)) err.push(marcaError('#pf-hores', 'Escriu les hores estimades.') && 'Hores');
     const el = v('#pf-element'), px = v('#pf-x') ? Number(v('#pf-x')) : null, py = v('#pf-y') ? Number(v('#pf-y')) : null;
@@ -3274,7 +3289,7 @@ const Manteniment = (() => {
     const moment = ara(), resp = v('#pf-resp');
     const nou = { ...(pl ? clone(pl) : { id: null, versio: 0, creat: moment, creat_per: S.usuari.nom, seguent: 0, historial: [] }),
       unitat: u, element: el, titol: v('#pf-titol'), tipologia: v('#pf-tipologia'), periodicitat: v('#pf-periodicitat'),
-      data_inici: v('#pf-inici'), data_fi: v('#pf-fi'), hores_estimades: hores, prioritat: v('#pf-prioritat'), responsable: resp,
+      data_inici: v('#pf-inici'), data_fi: v('#pf-fi'), dies_antelacio: ant, hores_estimades: hores, prioritat: v('#pf-prioritat'), responsable: resp,
       brigada: resp === 'brigada_parc' ? v('#pf-brigada') : null, empresa: resp === 'empresa_externa' ? v('#pf-empresa') : null,
       utm: el ? { x: null, y: null } : { x: px, y: py }, observacions: v('#pf-obs'), activa: pl ? $('#pf-activa').checked : true };
     // Si canvien la periodicitat o la data de referència, les execucions es tornen a comptar a partir d'avui
@@ -3285,7 +3300,7 @@ const Manteniment = (() => {
       nou.seguent = n;
     }
     nou.propera_data = dataExecucio(nou, nou.seguent || 0);
-    const canvis = pl ? ['titol', 'element', 'tipologia', 'periodicitat', 'data_inici', 'data_fi', 'hores_estimades', 'prioritat', 'responsable', 'brigada', 'empresa', 'observacions', 'activa']
+    const canvis = pl ? ['titol', 'element', 'tipologia', 'periodicitat', 'data_inici', 'data_fi', 'dies_antelacio', 'hores_estimades', 'prioritat', 'responsable', 'brigada', 'empresa', 'observacions', 'activa']
       .filter(k => normal(pl[k]) !== normal(nou[k])).map(k => ({ camp: k, abans: pl[k] ?? null, despres: nou[k] ?? null })) : [];
     if (pl && !canvis.length) { toast('No hi ha cap canvi per desar.', 'avis'); return; }
     nou.versio = (pl?.versio || 0) + 1; nou.modificat = moment; nou.modificat_per = S.usuari.nom;
