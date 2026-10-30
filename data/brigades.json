@@ -1,0 +1,63 @@
+{
+  "versio": "1.0",
+  "data_actualitzacio": "2026-10-30",
+  "descripcio": "Brigades de treball de cada parc natural: nom, cap (nom, correu, telèfon), àmbit i membres. Es gestionen des del mòdul de Manteniment (botó «Brigades») pel cap d'Infraestructures i Manteniment o la direcció del parc. Una brigada amb incidències assignades no s'esborra: es desactiva (activa: false).",
+  "per_parc": {
+    "PNAE": {
+      "nom_parc": "Parc Natural dels Aiguamolls de l'Empordà",
+      "brigades": []
+    },
+    "PNAESM": {
+      "nom_parc": "Parc Nacional d'Aigüestortes i Estany de Sant Maurici",
+      "brigades": []
+    },
+    "PNINA": {
+      "nom_parc": "Paratge Natural d'Interès Nacional de l'Albera",
+      "brigades": []
+    },
+    "PNAP": {
+      "nom_parc": "Parc Natural de l'Alt Pirineu",
+      "brigades": []
+    },
+    "PNMMBT": {
+      "nom_parc": "Parc Natural del Montgrí les Illes Medes i el Baix Ter",
+      "brigades": []
+    },
+    "PNCM": {
+      "nom_parc": "Parc Natural del Cadí-Moixeró",
+      "brigades": []
+    },
+    "PCTF": {
+      "nom_parc": "Parc Natural de les Capçaleres del Ter i del Freser",
+      "brigades": []
+    },
+    "PNCC": {
+      "nom_parc": "Parc Natural de Cap de Creus",
+      "brigades": []
+    },
+    "PNDE": {
+      "nom_parc": "Parc Natural del Delta de l'Ebre",
+      "brigades": []
+    },
+    "PNZVG": {
+      "nom_parc": "Parc Natural de la Zona Volcànica de la Garrotxa",
+      "brigades": []
+    },
+    "PNMS": {
+      "nom_parc": "Parc Natural del Montsant",
+      "brigades": []
+    },
+    "PNINP": {
+      "nom_parc": "Paratge Natural d'Interès Nacional de Poblet",
+      "brigades": []
+    },
+    "PNP": {
+      "nom_parc": "Parc Natural de Ports",
+      "brigades": []
+    },
+    "RMM": {
+      "nom_parc": "Reserva Natural Parcial de Mas de Melons",
+      "brigades": []
+    }
+  }
+}

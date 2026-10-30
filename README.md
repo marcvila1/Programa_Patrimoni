@@ -131,77 +131,92 @@ Permet analitzar tot el conjunt de dades:
 
 Recull les peticions i incidències de manteniment dels espais naturals.
 
-### 4.1. Entrada d'una incidència
+### 4.1. Perfils d'usuari
+
+Hi ha tres tipus d'usuaris:
+
+| Perfil | Què fa |
+|---|---|
+| **Tècnic/a** | Entra peticions i incidències i les consulta |
+| **Cap d'Infraestructures i Manteniment** i **director/a de parc** | Valoren, classifiquen i assignen (prioritat, data límit, responsable i brigada), certifiquen hores, verifiquen o descarten, i gestionen les brigades i la configuració del parc |
+| **Cap de brigada** | Marca la feina com a «En curs» i «Resolta» i hi afegeix fotografies de seguiment |
+
+Fins a la integració a SINATCAT, cada persona indica el seu **perfil** i la seva **unitat** en identificar-se (botó de la capçalera):
+- El director/a i el cap de brigada només actuen al seu parc.
+- El cap de manteniment actua al seu parc o, si la seva unitat és central, a tots els parcs.
+
+Amb SINATCAT, el perfil vindrà de l'usuari autenticat. Fins llavors és un control d'organització, no de seguretat.
+
+### 4.2. Entrada d'una incidència
 
 Qualsevol persona pot entrar-ne una amb el botó **＋ Nova incidència**. També es pot fer des de la fitxa d'un immoble, i llavors el formulari surt amb el parc, l'immoble i la ubicació ja omplerts. El formulari demana:
 - **Parc natural** (obligatori).
 - **Tipologia** (obligatòria): seguretat, senyalització, gestió ramadera, gestió cinegètica, desperfectes, manteniment, petició de feina tècnica o altres. Les tipologies són a `data/manteniment_tipologies.json`.
 - **Descripció** (obligatòria).
 - **Ubicació** (obligatòria): es pot clicar el mapa, arrossegar-ne el punt o escriure les coordenades UTM.
-- **Fotografies** (almenys una): es redueixen a 1.600 píxels i es desen a `patrimoni/manteniment_fotos/<codi>_NN.jpg` de la carpeta de treball. Des del mòbil es poden fer directament amb la càmera.
-- **Hores de dedicació estimades** (obligatòries). El responsable de manteniment o la direcció les poden revisar.
+- **Fotografies** (almenys una): es redueixen a 1.600 píxels i es desen amb les dades (`patrimoni/manteniment_fotos/<codi>_NN.jpg`). Des del mòbil es poden fer directament amb la càmera.
+- **Hores de dedicació estimades** (obligatòries). El cap de manteniment o la direcció les poden revisar.
 - **Immoble relacionat** del mòdul de patrimoni (opcional). En marcar la ubicació, el programa proposa l'immoble més proper si n'hi ha un a menys de 500 m.
 - **Data proposada de realització** (opcional).
 - **Nom i correu del sol·licitant**.
 
-En registrar-la, es crea un codi `MANT-AAAA-NNNN` i un botó obre un **correu ja redactat** (mailto) adreçat al sol·licitant i a la direcció del parc. El correu inclou el codi, la tipologia, l'immoble, les coordenades, un enllaç al mapa i la descripció.
+En registrar-la, es crea un codi `MANT-AAAA-NNNN` i un botó obre un **correu ja redactat** (mailto) per al sol·licitant, la direcció del parc i el cap de manteniment. El correu descriu la tasca (codi, tipologia, immoble, coordenades, enllaç al mapa i descripció) i **no esmenta les fotografies**, que són a la base de dades.
 
-### 4.2. Estats i rols
-
-Una incidència passa per aquests estats:
+### 4.3. Estats
 
 | Estat | Qui hi fa passar | Què cal |
 |---|---|---|
 | **Nova** | Qualsevol persona, en entrar-la | — |
-| **Assignada** | Responsable de manteniment o direcció del parc | Prioritat, data límit (si no és «En espera») i responsable. Es posa sola en assignar-los |
+| **Assignada** | Cap de manteniment o direcció | Prioritat, data límit (si no és «En espera»), responsable i, si és la Brigada Parc, la brigada. Es posa sola en assignar-los |
 | **En curs** | Cap de brigada | — |
 | **Resolta** | Cap de brigada | — (deixa d'avisar per la data límit) |
-| **Verificada** | Responsable de manteniment o direcció del parc | Estat final |
-| **Descartada** | Responsable de manteniment o direcció del parc | Motiu a les observacions. Estat final |
+| **Verificada** | Cap de manteniment o direcció | Certificació final d'hores. Estat final |
+| **Descartada** | Cap de manteniment o direcció | Motiu a les observacions. Estat final |
 
 Una feina resolta que no es verifica es pot tornar a **En curs**, explicant-ne el motiu.
 
-**Hores.** En marcar la feina com a **Resolta**, el cap de brigada **certifica les hores dedicades** (total de totes les persones). La fitxa mostra les hores estimades, les certificades i la desviació. Si la feina torna a «En curs», la certificació s'anul·la i s'ha de tornar a fer en resoldre-la.
-
-**Fotografies de seguiment.** Mentre la feina està assignada o en curs, el cap de brigada (o el responsable de manteniment) pot afegir fotografies de com evoluciona, amb una nota. La fitxa les mostra separades de les de la petició.
-
-**Tancament.** En verificar o descartar una incidència, el programa ofereix el correu de tancament per al sol·licitant i la direcció. El correu inclou les hores i on és la documentació gràfica.
-
-- La **prioritat** (Baixa, Moderada, Alta, Urgent o En espera), la **data límit** i el **responsable** només els poden canviar el responsable de manteniment i la direcció del parc.
 - La **data límit** és obligatòria excepte amb «En espera». **Una setmana abans** apareix un avís, i també quan ja ha passat. L'avís es veu al mòdul, a la llista, a la fitxa, en un comptador a la pestanya i als indicadors.
-- El **responsable** pot ser qualsevol dels que tingui configurats el parc (Brigada Parc, Forestal Catalana, Empresa externa o responsables propis). Si la feina no la fa la Brigada Parc, el responsable de manteniment també pot marcar-la com a «En curs» i «Resolta».
+- El **responsable** pot ser qualsevol dels que tingui configurats el parc (Brigada Parc, Forestal Catalana, Empresa externa o responsables propis). Si la feina no la fa la Brigada Parc, el cap de manteniment també la pot marcar com a «En curs» i «Resolta».
 
-**Com es reconeix el rol.** Es fa pel **correu electrònic** de la persona identificada (botó de la capçalera):
-- Direcció i responsable de manteniment: el correu configurat per al parc.
-- Caps de brigada: els correus de `caps_brigada.json`.
+**Hores.** Les certifiquen el cap de manteniment o la direcció:
+- **Certificacions parcials:** mentre la feina és en curs o resolta. Serveixen per a les feines llargues, que no es poden certificar de cop.
+- **Certificació final:** obligatòria en verificar. Pot ser 0 si ja s'han certificat totes les hores.
 
-Mentre un parc no tingui configurat qui té un rol, qualsevol persona pot fer aquelles accions, amb un avís. Quan s'integri a SINATCAT, el rol vindrà de l'usuari autenticat. Fins llavors és un control d'organització, no de seguretat.
+La fitxa mostra les hores estimades, el total certificat, la desviació i el detall de cada certificació.
 
-Cada canvi queda a l'historial de la incidència, amb la persona, el correu, el rol i la data. També es desa qui va començar la feina, qui la va resoldre i qui la va verificar.
+**Fotografies de seguiment.** Mentre la feina està assignada o en curs, el cap de brigada (o el cap de manteniment) pot afegir fotografies de com evoluciona, amb una nota. La fitxa les mostra separades de les de la petició.
 
-### 4.3. Configuració per parc
+**Tancament.** En verificar o descartar una incidència, el programa ofereix el correu de tancament per al sol·licitant i la direcció.
+
+Cada canvi queda a l'historial de la incidència, amb la persona, el rol i la data. També es desa qui va començar la feina, qui la va resoldre, qui la va verificar i qui va fer cada certificació d'hores.
+
+### 4.4. Configuració per parc i brigades
 
 El botó **⚙ Configuració dels parcs** permet definir, per a cada parc:
-- La **direcció**: nom, càrrec, correu i telèfon. La direcció rep l'avís de les incidències noves.
-- El **responsable de manteniment**: nom, correu i telèfon. També rep l'avís.
+- La **direcció**: nom, càrrec, correu i telèfon.
+- El **cap d'Infraestructures i Manteniment**: nom, correu i telèfon.
 - Els **responsables** disponibles: quins dels generals fa servir el parc i, si cal, responsables propis.
-- Els **caps de brigada**: nom, correu, telèfon i àmbit.
 
-Es desa a `variables.json` i `caps_brigada.json` de la carpeta de treball.
+Es desa a `variables.json`.
 
-### 4.4. Fitxers
+El botó **👷 Brigades** permet crear i mantenir les brigades de treball de cada parc. Cada brigada té nom, cap (nom, correu i telèfon), àmbit, membres (un per línia, «Nom — funció») i si està activa. Una brigada amb incidències assignades no es pot esborrar, només desactivar. Es desa a `brigades.json`.
+
+Tots dos els poden modificar només el cap de manteniment i la direcció del parc. La resta de perfils els poden consultar.
+
+### 4.5. Fitxers
 
 | Fitxer | Contingut |
 |---|---|
-| `manteniment.json` | Incidències. Cada una té les dades d'entrada, `hores_estimades`, `fotografies[]` (`fase`: petició o seguiment), la gestió (`gestio{prioritat, data_limit, responsable, cap_brigada, empresa, observacions}`), l'estat, `certificacio_hores{hores, data, per}`, la versió i l'historial |
+| `manteniment.json` | Incidències. Cada una té les dades d'entrada, `hores_estimades`, `fotografies[]` (`fase`: petició o seguiment), la gestió (`gestio{prioritat, data_limit, responsable, brigada, empresa, observacions}`), l'estat, `certificacions_hores[{hores, tipus, data, per}]`, la versió i l'historial |
 | `manteniment_tipologies.json` | Tipologies de petició o incidència |
-| `variables.json` | Prioritats (i si demanen data límit), dies d'avís (7), estats, rols, canvis d'estat permesos per rol (`transicions`), responsables generals i configuració de cada parc (`per_parc`: direcció, responsable de manteniment i responsables) |
-| `caps_brigada.json` | Caps de brigada de cada parc (pendents d'omplir) |
+| `variables.json` | Perfils, prioritats (i si demanen data límit), dies d'avís (7), estats, rols, canvis d'estat permesos per rol (`transicions`), responsables generals i configuració de cada parc (`per_parc`: direcció, cap de manteniment i responsables) |
+| `brigades.json` | Brigades de treball de cada parc |
 
-### 4.5. Pendents
+### 4.6. Pendents
 
-- Omplir els correus de la direcció, del responsable de manteniment i dels caps de brigada de cada parc (Configuració dels parcs). Mentre no hi siguin, qualsevol persona pot fer les accions de cada rol.
-- **Integració a SINATCAT:** el sol·licitant s'agafarà de l'usuari autenticat, i els avisos per correu es podran enviar automàticament en lloc de fer-ho amb mailto.
+- **Webapp mòbil per als caps de brigada.** Un HTML independent, pensat per al mòbil i molt senzill, per veure les feines assignades (imatges, descripció i ubicació), marcar-les com a «En curs» i «Resolta», pujar fotografies de seguiment i crear peticions noves. Necessitarà desar en un servidor (SINATCAT), perquè els navegadors dels mòbils no permeten triar una carpeta de treball. Mentrestant, els caps de brigada poden fer aquestes accions des d'aquest programa.
+- Omplir la direcció i el cap de manteniment de cada parc (Configuració dels parcs) i les brigades (Brigades).
+- **Integració a SINATCAT:** usuaris únics amb perfil, fotografies a la base de dades, i avisos per correu automàtics en lloc de mailto.
 
 ---
 
@@ -394,6 +409,7 @@ El Mòdul 2 d'aquest programa (filtres, mapa, indicadors i exportació) és la b
 - Coordenada UTM de `PNDE/magatzem_deltebre` (l'original de l'Excel és truncada).
 - Enllaços (`url`) dels documents PDF referenciats (`documents.json`).
 - Revisar si la base de dades Access conté camps o taules addicionals respecte dels Excel.
+- **Webapp mòbil per als caps de brigada** (vegeu l'apartat 4.6).
 
 ## 10. Aspectes tècnics
 

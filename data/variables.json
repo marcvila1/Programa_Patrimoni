@@ -1,7 +1,13 @@
 {
-  "versio": "1.1",
-  "data_actualitzacio": "2026-10-29",
+  "versio": "1.2",
+  "data_actualitzacio": "2026-10-30",
   "descripcio": "Variables del mòdul de Manteniment. Els valors generals s'apliquen a tots els parcs; a per_parc cada parc pot definir els seus responsables (i afegir-ne de propis) i el contacte de la direcció, que rep l'avís de cada incidència nova.",
+  "perfils": {
+    "tecnic": "Tècnic/a: entra peticions i incidències.",
+    "cap_manteniment": "Cap d'Infraestructures i Manteniment: valora, classifica, assigna prioritat, data límit, responsable i brigada; certifica hores; verifica o descarta; gestiona les brigades i la configuració. Si la seva unitat és un parc, només en aquell parc; si és una unitat central, a tots.",
+    "direccio": "Director/a de parc: les mateixes funcions que el cap de manteniment, al seu parc.",
+    "brigada": "Cap de brigada: marca les feines com a En curs i Resolta i hi afegeix fotografies de seguiment. Pendent: accés per una webapp mòbil pròpia."
+  },
   "prioritats": [
     {
       "codi": "baixa",
@@ -77,10 +83,10 @@
     "descartada"
   ],
   "rols": {
-    "manteniment": "Responsable de manteniment del parc (per_parc.<unitat>.responsable_manteniment)",
-    "direccio": "Direcció del parc (per_parc.<unitat>.direccio)",
-    "brigada": "Caps de brigada del parc (caps_brigada.json). Si el responsable de la feina no és la Brigada Parc, el responsable de manteniment també té aquest rol per a aquella incidència.",
-    "reconeixement": "Pel correu electrònic de la persona identificada; amb SINATCAT, per l'usuari autenticat. Mentre un parc no tingui configurat un rol, qualsevol persona el pot exercir."
+    "manteniment": "Cap d'Infraestructures i Manteniment (perfil cap_manteniment)",
+    "direccio": "Direcció del parc (perfil direccio)",
+    "brigada": "Cap de brigada (perfil brigada). Si el responsable de la feina no és la Brigada Parc, el cap de manteniment també té aquest rol per a aquella incidència.",
+    "reconeixement": "Pel perfil i la unitat que declara la persona en identificar-se; amb SINATCAT, per l'usuari autenticat."
   },
   "transicions": [
     {
@@ -148,6 +154,7 @@
       "nota": "Cal indicar-ne el motiu."
     }
   ],
+  "certificacio_hores": "Certificacions parcials durant la feina (feines llargues) i una de final, obligatòria en verificar. Les fa el cap de manteniment o la direcció.",
   "responsables": [
     {
       "codi": "brigada_parc",
