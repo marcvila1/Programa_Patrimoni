@@ -138,7 +138,8 @@ Qualsevol persona pot entrar-ne una amb el botó **＋ Nova incidència**. Tamb�
 - **Tipologia** (obligatòria): seguretat, senyalització, gestió ramadera, gestió cinegètica, desperfectes, manteniment, petició de feina tècnica o altres. Les tipologies són a `data/manteniment_tipologies.json`.
 - **Descripció** (obligatòria).
 - **Ubicació** (obligatòria): es pot clicar el mapa, arrossegar-ne el punt o escriure les coordenades UTM.
-- **Fotografia** (obligatòria): es redueix a 1.600 píxels i es desa a `patrimoni/manteniment_fotos/` de la carpeta de treball. Des del mòbil es pot fer directament amb la càmera.
+- **Fotografies** (almenys una): es redueixen a 1.600 píxels i es desen a `patrimoni/manteniment_fotos/<codi>_NN.jpg` de la carpeta de treball. Des del mòbil es poden fer directament amb la càmera.
+- **Hores de dedicació estimades** (obligatòries). El responsable de manteniment o la direcció les poden revisar.
 - **Immoble relacionat** del mòdul de patrimoni (opcional). En marcar la ubicació, el programa proposa l'immoble més proper si n'hi ha un a menys de 500 m.
 - **Data proposada de realització** (opcional).
 - **Nom i correu del sol·licitant**.
@@ -159,6 +160,12 @@ Una incidència passa per aquests estats:
 | **Descartada** | Responsable de manteniment o direcció del parc | Motiu a les observacions. Estat final |
 
 Una feina resolta que no es verifica es pot tornar a **En curs**, explicant-ne el motiu.
+
+**Hores.** En marcar la feina com a **Resolta**, el cap de brigada **certifica les hores dedicades** (total de totes les persones). La fitxa mostra les hores estimades, les certificades i la desviació. Si la feina torna a «En curs», la certificació s'anul·la i s'ha de tornar a fer en resoldre-la.
+
+**Fotografies de seguiment.** Mentre la feina està assignada o en curs, el cap de brigada (o el responsable de manteniment) pot afegir fotografies de com evoluciona, amb una nota. La fitxa les mostra separades de les de la petició.
+
+**Tancament.** En verificar o descartar una incidència, el programa ofereix el correu de tancament per al sol·licitant i la direcció. El correu inclou les hores i on és la documentació gràfica.
 
 - La **prioritat** (Baixa, Moderada, Alta, Urgent o En espera), la **data límit** i el **responsable** només els poden canviar el responsable de manteniment i la direcció del parc.
 - La **data límit** és obligatòria excepte amb «En espera». **Una setmana abans** apareix un avís, i també quan ja ha passat. L'avís es veu al mòdul, a la llista, a la fitxa, en un comptador a la pestanya i als indicadors.
@@ -186,7 +193,7 @@ Es desa a `variables.json` i `caps_brigada.json` de la carpeta de treball.
 
 | Fitxer | Contingut |
 |---|---|
-| `manteniment.json` | Incidències. Cada una té les dades d'entrada, la gestió (`gestio{prioritat, data_limit, responsable, cap_brigada, empresa, observacions}`), l'estat, la versió i l'historial |
+| `manteniment.json` | Incidències. Cada una té les dades d'entrada, `hores_estimades`, `fotografies[]` (`fase`: petició o seguiment), la gestió (`gestio{prioritat, data_limit, responsable, cap_brigada, empresa, observacions}`), l'estat, `certificacio_hores{hores, data, per}`, la versió i l'historial |
 | `manteniment_tipologies.json` | Tipologies de petició o incidència |
 | `variables.json` | Prioritats (i si demanen data límit), dies d'avís (7), estats, rols, canvis d'estat permesos per rol (`transicions`), responsables generals i configuració de cada parc (`per_parc`: direcció, responsable de manteniment i responsables) |
 | `caps_brigada.json` | Caps de brigada de cada parc (pendents d'omplir) |
