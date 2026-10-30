@@ -190,7 +190,30 @@ La fitxa mostra les hores estimades, el total certificat, la desviació i el det
 
 Cada canvi queda a l'historial de la incidència, amb la persona, el rol i la data. També es desa qui va començar la feina, qui la va resoldre, qui la va verificar i qui va fer cada certificació d'hores.
 
-### 4.4. Configuració per parc i brigades
+### 4.4. Tasques periòdiques
+
+Hi ha feines que es repeteixen (revisions, neteges, manteniment preventiu). Es donen d'alta com a **tasques periòdiques** de dues maneres:
+- **Vinculades a un element patrimonial:** des de la fitxa de l'immoble (grup «Manteniment», botó «＋ Tasca periòdica en aquest immoble»).
+- **Sense vincle:** des del mòdul de Manteniment, botó «🔁 Tasques periòdiques». En aquest cas es poden indicar unes coordenades UTM.
+
+Camps de cada tasca:
+- Parc i element (opcional).
+- Tasca, tipologia i **periodicitat**: setmanal, quinzenal, mensual, bimestral, trimestral, quadrimestral, semestral, anual o biennal.
+- Data de la primera execució i, si cal, data de finalització.
+- Hores estimades per execució, prioritat, responsable (i brigada o empresa).
+- **Observacions** i si està activa.
+
+Les creen i modifiquen el cap de manteniment i la direcció del parc.
+
+**Com funcionen.** Cada execució genera una **incidència** **14 dies abans** de la data (es configura a `variables.json`):
+- La data límit de la incidència és la data de l'execució.
+- La incidència hereta la prioritat, el responsable, la brigada i les hores estimades. Si ja té prioritat i responsable, surt directament com a «Assignada».
+- A partir d'aquí segueix el circuit normal: en curs, resolta, certificació d'hores i verificació.
+- Les incidències generades porten la marca 🔁 i l'enllaç a la tasca periòdica.
+
+**Quan es generen.** En obrir el programa amb la carpeta connectada, i en desar una tasca periòdica. No es dupliquen. Les execucions es calculen sempre des de la data inicial: una tasca mensual del dia 31 passa al darrer dia dels mesos més curts.
+
+### 4.5. Configuració per parc i brigades
 
 El botó **⚙ Configuració dels parcs** permet definir, per a cada parc:
 - La **direcció**: nom, càrrec, correu i telèfon.
@@ -203,16 +226,17 @@ El botó **👷 Brigades** permet crear i mantenir les brigades de treball de ca
 
 Tots dos els poden modificar només el cap de manteniment i la direcció del parc. La resta de perfils els poden consultar.
 
-### 4.5. Fitxers
+### 4.6. Fitxers
 
 | Fitxer | Contingut |
 |---|---|
 | `manteniment.json` | Incidències. Cada una té les dades d'entrada, `hores_estimades`, `fotografies[]` (`fase`: petició o seguiment), la gestió (`gestio{prioritat, data_limit, responsable, brigada, empresa, observacions}`), l'estat, `certificacions_hores[{hores, tipus, data, per}]`, la versió i l'historial |
 | `manteniment_tipologies.json` | Tipologies de petició o incidència |
-| `variables.json` | Perfils, prioritats (i si demanen data límit), dies d'avís (7), estats, rols, canvis d'estat permesos per rol (`transicions`), responsables generals i configuració de cada parc (`per_parc`: direcció, cap de manteniment i responsables) |
+| `variables.json` | Perfils, prioritats (i si demanen data límit), dies d'avís (7), periodicitats i dies d'antelació de les tasques periòdiques (14), estats, rols, canvis d'estat permesos per rol (`transicions`), responsables generals i configuració de cada parc (`per_parc`: direcció, cap de manteniment i responsables) |
 | `brigades.json` | Brigades de treball de cada parc |
+| `tasques_periodiques.json` | Tasques periòdiques: parc, element, tasca, periodicitat, data inicial i final, hores, prioritat, responsable, observacions, activa, propera execució i historial |
 
-### 4.6. Pendents
+### 4.7. Pendents
 
 - **Webapp mòbil per als caps de brigada.** Un HTML independent, pensat per al mòbil i molt senzill, per veure les feines assignades (imatges, descripció i ubicació), marcar-les com a «En curs» i «Resolta», pujar fotografies de seguiment i crear peticions noves. Necessitarà desar en un servidor (SINATCAT), perquè els navegadors dels mòbils no permeten triar una carpeta de treball. Mentrestant, els caps de brigada poden fer aquestes accions des d'aquest programa.
 - Omplir la direcció i el cap de manteniment de cada parc (Configuració dels parcs) i les brigades (Brigades).
@@ -409,7 +433,7 @@ El Mòdul 2 d'aquest programa (filtres, mapa, indicadors i exportació) és la b
 - Coordenada UTM de `PNDE/magatzem_deltebre` (l'original de l'Excel és truncada).
 - Enllaços (`url`) dels documents PDF referenciats (`documents.json`).
 - Revisar si la base de dades Access conté camps o taules addicionals respecte dels Excel.
-- **Webapp mòbil per als caps de brigada** (vegeu l'apartat 4.6).
+- **Webapp mòbil per als caps de brigada** (vegeu l'apartat 4.7).
 
 ## 10. Aspectes tècnics
 

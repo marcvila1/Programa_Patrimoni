@@ -456,6 +456,7 @@
       <div class="accions-modul">
         <button type="button" class="btn btn-secondary" id="mant-config">⚙ Configuració dels parcs</button>
         <button type="button" class="btn btn-secondary" id="mant-brigades">👷 Brigades</button>
+        <button type="button" class="btn btn-secondary" id="mant-periodiques">🔁 Tasques periòdiques</button>
         <button type="button" class="btn btn-secondary" id="mant-csv">Exporta a CSV</button>
         <button type="button" class="btn btn-primary" id="mant-nova">＋ Nova incidència</button>
       </div>
@@ -509,10 +510,10 @@ const CONFIG = {
   UNITATS_URL: QS.get('unitats') || 'https://raw.githubusercontent.com/marcvila1/Motor-Contractacio-DGPA/main/unitats_promotores.json',
   SUBCARPETA: 'patrimoni',
   FITXERS: ['elements.json', 'historial_canvis.json', 'espais.json', 'catalegs.json', 'documents.json', 'metadata.json', 'unitats_promotores.json',
-    'manteniment.json', 'manteniment_tipologies.json', 'variables.json', 'brigades.json'],
+    'manteniment.json', 'manteniment_tipologies.json', 'variables.json', 'brigades.json', 'tasques_periodiques.json'],
   // Valor si el fitxer no és ni a la carpeta ni al GitHub (undefined = obligatori)
   DEFECTES: { 'historial_canvis.json': [], 'documents.json': [], 'metadata.json': {}, 'manteniment.json': [],
-    'manteniment_tipologies.json': { tipologies: [] }, 'variables.json': {}, 'brigades.json': { per_parc: {} } },
+    'manteniment_tipologies.json': { tipologies: [] }, 'variables.json': {}, 'brigades.json': { per_parc: {} }, 'tasques_periodiques.json': [] },
   CARPETA_FOTOS: 'manteniment_fotos',
   VERSIO: '1.0',
 };
@@ -1089,6 +1090,32 @@ const Carpeta = (() => {
       tasca.fotografies.push({ fitxer: `${CONFIG.CARPETA_FOTOS}/${nom}`, dades: null, ...f.meta });
     }
   }
+  /** Desa un registre amb identificador PREFIX-NNNN i control de versió (p. ex. tasques periòdiques). */
+  async function desaRegistre(nom, prefix, obj, versioEsperada, esAlta) {
+    const dir = await subcarpeta();
+    const llista = (await llegeix(nom, dir)) || [];
+    if (esAlta) {
+      const n = Math.max(0, ...llista.filter(x => x.id?.startsWith(prefix)).map(x => +x.id.slice(prefix.length) || 0));
+      obj.id = prefix + String(n + 1).padStart(4, '0');
+      llista.push(obj);
+    } else {
+      const i = llista.findIndex(x => x.id === obj.id);
+      if (i < 0) throw Object.assign(new Error(`${obj.id} ja no existeix a la carpeta.`), { conflicte: true });
+      if ((llista[i].versio || 0) !== versioEsperada) throw Object.assign(new Error(`${llista[i].modificat_per || 'Una altra persona'} ha modificat ${obj.id} (${fmtData(llista[i].modificat)}).`), { conflicte: true });
+      llista[i] = obj;
+    }
+    await escriu(nom, llista, dir);
+    return { llista, obj };
+  }
+  /** Genera les incidències de les tasques periòdiques dins d'una sola lectura-escriptura dels dos fitxers. */
+  async function generaPeriodiques(fn) {
+    const dir = await subcarpeta();
+    const plans = (await llegeix('tasques_periodiques.json', dir)) || [], mant = (await llegeix('manteniment.json', dir)) || [];
+    const abans = JSON.stringify(plans), creades = fn(plans, mant);
+    if (creades.length) await escriu('manteniment.json', mant, dir);
+    if (JSON.stringify(plans) !== abans) await escriu('tasques_periodiques.json', plans, dir);
+    return { plans, mant, creades };
+  }
   async function llegeixBlob(cami) {
     try {
       let dir = await subcarpeta();
@@ -1185,7 +1212,7 @@ const Carpeta = (() => {
     else if (a === 'recarrega') recarregaDades().then(() => { repinta(); toast('Dades recarregades de la carpeta.'); });
     else if (a === 'descarrega') descarregaPendents();
   });
-  return { disponible, inicia, finestraInicial, connectar, llegeixTot, desa, desaManteniment, llegeixBlob, escriuFitxer, pinta, repinta, activa: () => !!arrel, nom: () => arrel?.name, estat: null };
+  return { disponible, inicia, finestraInicial, connectar, llegeixTot, desa, desaManteniment, desaRegistre, generaPeriodiques, llegeixBlob, escriuFitxer, pinta, repinta, activa: () => !!arrel, nom: () => arrel?.name, estat: null };
 })();
 
 function dadesActuals() {
@@ -1193,11 +1220,11 @@ function dadesActuals() {
     'elements.json': S.elements, 'historial_canvis.json': S.historial, 'espais.json': S.espais,
     'catalegs.json': S.cat, 'documents.json': S.docs, 'metadata.json': S.meta,
     'unitats_promotores.json': S.unitatsRaw ?? undefined,
-    'manteniment.json': S.mant, 'manteniment_tipologies.json': S.tipologies, 'variables.json': S.variables, 'brigades.json': S.brigades,
+    'manteniment.json': S.mant, 'manteniment_tipologies.json': S.tipologies, 'variables.json': S.variables, 'brigades.json': S.brigades, 'tasques_periodiques.json': S.periodiques,
   };
 }
 function descarregaPendents() {
-  const noms = ['elements.json', 'historial_canvis.json', 'manteniment.json', ...(S.configCanviada ? ['variables.json', 'brigades.json'] : [])];
+  const noms = ['elements.json', 'historial_canvis.json', 'manteniment.json', 'tasques_periodiques.json', ...(S.configCanviada ? ['variables.json', 'brigades.json'] : [])];
   const d = dadesActuals();
   noms.forEach((n, i) => setTimeout(() => descarrega(n, JSON.stringify(d[n], null, 2) + '\n'), i * 400));
   toast(`S’han descarregat ${noms.join(', ')}. Substitueix-los a la carpeta de dades. Les fotografies de les incidències van dins de manteniment.json.`, 'ok', 9000);
@@ -1238,6 +1265,7 @@ async function carregaDades() {
   S.tipologies = d['manteniment_tipologies.json'] || { tipologies: [] };
   S.variables = d['variables.json'] || {};
   S.brigades = d['brigades.json'] || { per_parc: {} };
+  S.periodiques = Array.isArray(d['tasques_periodiques.json']) ? d['tasques_periodiques.json'] : [];
   S.unitatsRaw = unitats;
   S.unitats = Object.fromEntries((unitats?.unitats || []).map(u => [u.codi, u]));
   if (!Array.isArray(S.elements)) throw new Error('elements.json no té el format esperat.');
@@ -1245,6 +1273,7 @@ async function carregaDades() {
 }
 async function recarregaDades() {
   await carregaDades();
+  await Manteniment.generaPeriodiques();
   refrescaTot();
 }
 
@@ -1412,6 +1441,8 @@ function pintaFitxa(el) {
   $('#panell-fitxa [data-accio="editar"]').addEventListener('click', () => iniciaEdicio(el));
   $$('#panell-fitxa [data-obre-mant]').forEach(b => b.addEventListener('click', () => Manteniment.obre(b.dataset.obreMant)));
   $('#panell-fitxa [data-nova-mant]')?.addEventListener('click', () => Manteniment.nova({ unitat: S.parc || el.unitat, element: el.id }));
+  $$('#panell-fitxa [data-obre-per]').forEach(b => b.addEventListener('click', () => Manteniment.obrePeriodica(b.dataset.obrePer)));
+  $('#panell-fitxa [data-nova-per]')?.addEventListener('click', () => Manteniment.novaPeriodica(el.id));
   pintaMiniMapa(el, false);
 }
 function documentsDe(el) {
@@ -2497,7 +2528,7 @@ const Manteniment = (() => {
     $('#mant-llista').innerHTML = ll.map(t => {
       const a = avisLimit(t);
       return `<li><button type="button" data-mant="${esc(t.id)}" class="${t.id === st.sel ? 'sel' : ''}">
-        <span class="nom">${esc(t.id)} · ${esc(nomTipologia(t.tipologia))}</span>
+        <span class="nom">${t.periodica ? '<span title="Tasca periòdica">🔁</span> ' : ''}${esc(t.id)} · ${esc(nomTipologia(t.tipologia))}</span>
         <span class="sub">${esc([t.unitat, nomElement(t.element), fmtData(t.creat)].filter(Boolean).join(' · '))}</span>
         <span class="sub">${esc((t.descripcio || '').slice(0, 90))}${(t.descripcio || '').length > 90 ? '…' : ''}</span>
         <span class="linia">${htmlPrio(t.gestio?.prioritat)} <span class="marca comp">${esc(nomEstat(t.estat))}</span>
@@ -2526,6 +2557,7 @@ const Manteniment = (() => {
       $('#mant-nova').addEventListener('click', () => nova());
       $('#mant-config').addEventListener('click', () => configuracio());
       $('#mant-brigades').addEventListener('click', () => brigades());
+      $('#mant-periodiques').addEventListener('click', () => periodiques());
       $('#mant-csv').addEventListener('click', exportaCSV);
     }
     iniciaMapa();
@@ -2567,6 +2599,7 @@ const Manteniment = (() => {
         ${camp('Coordenades UTM', t.utm?.x != null ? `X ${esc(t.utm.x)} · Y ${esc(t.utm.y)}` : '<span class="buit">—</span>')}
         ${camp('Sol·licitant', `${txt(t.sollicitant?.nom)}${t.sollicitant?.email ? ` · <a href="mailto:${esc(t.sollicitant.email)}">${esc(t.sollicitant.email)}</a>` : ''}`)}
         ${camp('Data d\'entrada', esc(fmtData(t.creat)))}
+        ${t.periodica ? camp('Tasca periòdica', `<button type="button" class="btn-link" data-obre-per="${esc(t.periodica.id)}">${esc(t.periodica.id)}</button> · execució ${esc(t.periodica.execucio || '')} del ${esc(fmtData(t.periodica.data))}`) : ''}
       </div></div>
       <div class="mant-seccio"><h3>Hores de dedicació</h3><div class="camps">
         ${camp('Estimades', t.hores_estimades != null ? esc(fmtNum(t.hores_estimades)) + ' h' : '<span class="buit">—</span>')}
@@ -2593,6 +2626,7 @@ const Manteniment = (() => {
       <div class="mant-seccio"><h3>Historial</h3>${(t.historial || []).slice().reverse().map(h => `<div class="mant-hist"><strong>${esc(fmtData(h.data))}</strong> · ${esc(h.usuari?.nom || '')} · ${esc({ alta: 'Alta', seguiment: 'Seguiment' }[h.accio] || 'Gestió')}${h.nota ? ' · ' + esc(h.nota) : ''}
         ${(h.canvis || []).length ? `<ul style="margin:2px 0 0 18px">${h.canvis.map(c => `<li>${esc(c.etiqueta)}: ${esc(c.abans ?? '—')} → ${esc(c.despres ?? '—')}</li>`).join('')}</ul>` : ''}</div>`).join('') || '<p class="buit">—</p>'}</div>`;
     $('#mant-panell [data-m="gestio"]')?.addEventListener('click', () => gestio(t));
+    $('#mant-panell [data-obre-per]')?.addEventListener('click', e => formPeriodica(S.periodiques.find(q => q.id === e.target.dataset.obrePer)));
     $('#mant-panell').querySelector('[data-ves]')?.addEventListener('click', e => vesAElement(e.target.dataset.ves));
     $('#mant-seguiment')?.addEventListener('change', e => afegeixSeguiment(t, [...e.target.files]));
     const fotos = fotosDe(t), box = $('#mant-fotos');
@@ -3080,16 +3114,212 @@ const Manteniment = (() => {
     descarrega(`manteniment_${avui()}.csv`, aCSV(files), 'text/csv;charset=utf-8');
   }
 
+  // ---------- Tasques periòdiques (tasques_periodiques.json) ----------
+  //   Cada tasca periòdica genera una incidència per a cada execució, uns dies abans de la data
+  //   (variables.json → dies_antelacio_periodiques). La generació es fa en obrir el programa amb la carpeta connectada.
+  const PERIODICITATS_DEFECTE = [
+    { codi: 'setmanal', nom: 'Setmanal', dies: 7 }, { codi: 'quinzenal', nom: 'Quinzenal', dies: 14 },
+    { codi: 'mensual', nom: 'Mensual', mesos: 1 }, { codi: 'bimestral', nom: 'Bimestral', mesos: 2 },
+    { codi: 'trimestral', nom: 'Trimestral', mesos: 3 }, { codi: 'quadrimestral', nom: 'Quadrimestral', mesos: 4 },
+    { codi: 'semestral', nom: 'Semestral', mesos: 6 }, { codi: 'anual', nom: 'Anual', mesos: 12 }, { codi: 'biennal', nom: 'Biennal', mesos: 24 },
+  ];
+  const periodicitats = () => V().periodicitats || PERIODICITATS_DEFECTE;
+  const nomPeriodicitat = c => periodicitats().find(p => p.codi === c)?.nom || c || '—';
+  const antelacio = () => V().dies_antelacio_periodiques ?? 14;
+  const isoDe = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const sumaDies = (iso, n) => { const d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + n); return isoDe(d); };
+  /** Data de l'execució n (0 = la primera), sempre calculada des de la data inicial per no acumular desfasaments. */
+  function dataExecucio(pl, n) {
+    const per = periodicitats().find(p => p.codi === pl.periodicitat);
+    if (!per || !pl.data_inici) return null;
+    if (per.dies) return sumaDies(pl.data_inici, per.dies * n);
+    const d0 = new Date(pl.data_inici + 'T00:00:00'), dia = d0.getDate();
+    const d = new Date(d0.getFullYear(), d0.getMonth() + per.mesos * n, 1);
+    d.setDate(Math.min(dia, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()));   // 31 de gener + 1 mes = 28/29 de febrer
+    return isoDe(d);
+  }
+  const plansParc = u => (S.periodiques || []).filter(p => !u || p.unitat === u);
+  const plansElement = id => (S.periodiques || []).filter(p => p.element === id);
+  /**
+   * Genera les incidències de les execucions que ja toquen (data ≤ avui + antelació).
+   * Funció pura sobre les llistes que rep: la fa servir la carpeta dins d'una lectura-escriptura.
+   */
+  function generaExecucions(plans, mant) {
+    const limit = sumaDies(avui(), antelacio()), creades = [], moment = ara();
+    for (const pl of plans) {
+      if (pl.activa === false) continue;
+      let n = pl.seguent || 0, guarda = 0;
+      for (let d = dataExecucio(pl, n); d && d <= limit && (!pl.data_fi || d <= pl.data_fi) && guarda < 24; d = dataExecucio(pl, ++n), guarda++) {
+        if (mant.some(t => t.periodica?.id === pl.id && t.periodica.data === d)) continue;
+        const el = pl.element ? S.perId?.get(pl.element) : null;
+        const t = {
+          id: nouId(mant), versio: 1, creat: moment, modificat: moment, modificat_per: 'Generació automàtica',
+          sollicitant: { nom: `Tasca periòdica ${pl.id}`, email: null, unitat: pl.unitat, font: 'periodica' },
+          unitat: pl.unitat, utm: pl.utm?.x != null ? { ...pl.utm } : el?.localitzacio?.utm?.x != null ? { x: el.localitzacio.utm.x, y: el.localitzacio.utm.y } : { x: null, y: null },
+          element: pl.element || null, tipologia: pl.tipologia || 'manteniment',
+          descripcio: `${pl.titol} (tasca periòdica ${nomPeriodicitat(pl.periodicitat).toLowerCase()}, execució del ${fmtData(d)})${pl.observacions ? '. ' + pl.observacions : ''}`,
+          data_proposada: d, hores_estimades: pl.hores_estimades ?? null, fotografies: [], certificacions_hores: [],
+          periodica: { id: pl.id, data: d, execucio: n + 1 },
+          estat: pl.prioritat && pl.responsable ? 'assignada' : 'nova', data_resolucio: null,
+          gestio: { prioritat: pl.prioritat || null, data_limit: pl.prioritat ? d : null, responsable: pl.responsable || null, brigada: pl.brigada || null,
+            empresa: pl.empresa || null, observacions: null, assignat_per: pl.prioritat ? `Tasca periòdica ${pl.id}` : null, data_assignacio: pl.prioritat ? moment : null },
+          historial: [{ data: moment, usuari: { nom: 'Generació automàtica', font: 'periodica', obert_per: S.usuari?.nom || null }, accio: 'alta', canvis: [], nota: `Generada per la tasca periòdica ${pl.id}` }],
+        };
+        mant.push(t); creades.push(t);
+      }
+      if ((pl.seguent || 0) !== n) { pl.seguent = n; pl.propera_data = dataExecucio(pl, n); }
+    }
+    return creades;
+  }
+  async function generaPeriodiques(silenci) {
+    if (!Carpeta.activa() || !(S.periodiques || []).some(p => p.activa !== false)) return [];
+    try {
+      const r = await Carpeta.generaPeriodiques(generaExecucions);
+      S.periodiques = r.plans; S.mant = r.mant;
+      if (r.creades.length && !silenci) toast(`S'han generat ${r.creades.length} ${r.creades.length === 1 ? 'incidència' : 'incidències'} de tasques periòdiques.`, 'ok', 6000);
+      return r.creades;
+    } catch (e) { toast('No s\'han pogut generar les tasques periòdiques: ' + e.message, 'error', 8000); return []; }
+  }
+
+  async function periodiques(parcInicial) {
+    if (!(await potSortir())) return;
+    const p = obreEditor('periodiques');
+    const parc = parcInicial ?? ($('#mf-parc').value || '');
+    const ll = plansParc(parc).sort((a, b) => (a.activa === false) - (b.activa === false) || ordCa(a.propera_data || '9', b.propera_data || '9'));
+    p.innerHTML = `<div class="fitxa-cap"><div><h2>🔁 Tasques periòdiques</h2><div class="id">tasques_periodiques.json · es generen ${antelacio()} dies abans de cada execució</div></div>
+        <div class="botons"><button type="button" class="btn btn-primary" data-m="nova-per">＋ Nova tasca periòdica</button></div></div>
+      ${Carpeta.activa() ? '' : '<div class="avis-box text-small" style="margin:12px 20px 0">Sense carpeta connectada les tasques periòdiques no generen incidències. Connecta la carpeta de treball.</div>'}
+      <div class="fitxa-cos"><div class="mant-seccio"><div class="camps">${h('pe-parc', 'Parc natural', `<select id="pe-parc"><option value="">Tots els espais</option>${espaisOrdenats().map(u => `<option value="${esc(u)}" ${u === parc ? 'selected' : ''}>${esc(nomUnitat(u))}</option>`).join('')}</select>`, { ample: true })}</div></div>
+      <div class="mant-seccio">${ll.length ? `<div class="taula-wrap"><table class="canvis-llista"><thead><tr><th>Codi</th><th>Tasca</th><th>Parc</th><th>Immoble</th><th>Periodicitat</th><th>Propera</th><th>Generades</th></tr></thead><tbody>
+        ${ll.map(pl => `<tr style="${pl.activa === false ? 'opacity:.55' : ''}"><td><button type="button" class="btn-link" data-per="${esc(pl.id)}">${esc(pl.id)}</button></td><td>${esc(pl.titol)}${pl.activa === false ? ' <span class="marca">inactiva</span>' : ''}</td><td>${esc(pl.unitat)}</td>
+          <td>${pl.element ? esc(nomElement(pl.element)) : '<span class="buit">—</span>'}</td><td>${esc(nomPeriodicitat(pl.periodicitat))}</td><td>${pl.activa === false ? '—' : esc(fmtData(pl.propera_data || dataExecucio(pl, pl.seguent || 0)))}</td>
+          <td class="num">${(S.mant || []).filter(t => t.periodica?.id === pl.id).length}</td></tr>`).join('')}</tbody></table></div>` : '<p class="buit">Encara no hi ha tasques periòdiques' + (parc ? ' en aquest parc' : '') + '.</p>'}</div></div>
+      <div class="peu-edicio"><button type="button" class="btn btn-secondary" data-m="cancela">Tanca</button></div>`;
+    $('#pe-parc').addEventListener('change', e => periodiques(e.target.value));
+    p.querySelector('[data-m="nova-per"]').addEventListener('click', () => formPeriodica(null, { unitat: $('#pe-parc').value || S.parc || '' }));
+    p.querySelector('[data-m="cancela"]').addEventListener('click', () => tancaEditor(p));
+    $$('#mant-panell [data-per]').forEach(b => b.addEventListener('click', () => formPeriodica(S.periodiques.find(x => x.id === b.dataset.per))));
+  }
+
+  /** Alta o edició d'una tasca periòdica (cap de manteniment o direcció del parc). */
+  async function formPeriodica(pl, preset = {}) {
+    if (modulActual !== 'manteniment') { await mostraModul('manteniment'); if (modulActual !== 'manteniment') return; }
+    if (!(await potSortir())) return;
+    if (!S.usuari?.perfil && !(await demanaUsuari('Abans de crear tasques periòdiques, indica qui ets i el teu perfil.'))?.perfil) return;
+    const p = obreEditor('periodica');
+    const esAlta = !pl, x = pl || { unitat: preset.unitat || '', element: preset.element || null, titol: '', tipologia: 'manteniment', periodicitat: 'anual',
+      data_inici: avui(), data_fi: null, hores_estimades: null, prioritat: 'moderada', responsable: null, brigada: null, empresa: null, observacions: null, activa: true, utm: { x: null, y: null } };
+    if (preset.element && !x.unitat) x.unitat = S.perId.get(preset.element)?.unitat || '';
+    const pinta = () => {
+      const u = $('#pf-parc')?.value ?? x.unitat, pot = !u || gestorDelParc(u), dis = pot ? '' : 'disabled';
+      const resp = u ? responsablesParc(u) : [], brs = u ? brigadesParc(u) : [];
+      const generades = pl ? (S.mant || []).filter(t => t.periodica?.id === pl.id).sort((a, b) => ordCa(b.periodica.data, a.periodica.data)) : [];
+      p.innerHTML = `<div class="fitxa-cap"><div><h2>${esAlta ? 'Nova tasca periòdica' : esc(pl.id) + ' · ' + esc(pl.titol)}</h2><div class="id">${x.element ? 'Vinculada a ' + esc(nomElement(x.element)) : 'Sense vincle amb cap immoble'}</div></div></div>
+        ${u && !pot ? avisNoGestor(u) : ''}
+        <div class="fitxa-cos"><div id="mant-errors"></div><div class="mant-seccio"><div class="camps">
+        ${h('pf-parc', 'Parc natural', `<select id="pf-parc" ${!esAlta || preset.element ? 'disabled' : ''}><option value="">—</option>${espaisOrdenats().map(c => `<option value="${esc(c)}" ${c === u ? 'selected' : ''}>${esc(nomUnitat(c))}</option>`).join('')}</select>`, { req: true, ample: true })}
+        ${h('pf-element', 'Element patrimonial', `<select id="pf-element" ${dis} ${preset.element ? 'disabled' : ''}><option value="">— Cap (tasca sense vincle) —</option>${u ? ordenElements(u).map(e => `<option value="${esc(e.id)}" ${e.id === x.element ? 'selected' : ''}>${esc(e.identificacio?.nom || e.codi)}</option>`).join('') : ''}</select>`, { ample: true })}
+        ${h('pf-titol', 'Tasca', `<input type="text" id="pf-titol" value="${esc(x.titol || '')}" placeholder="p. ex. Revisió de la coberta i canals" ${dis}>`, { req: true, ample: true })}
+        ${h('pf-tipologia', 'Tipologia', `<select id="pf-tipologia" ${dis}>${tipologies().filter(t => t.activa !== false).map(t => `<option value="${esc(t.codi)}" ${t.codi === x.tipologia ? 'selected' : ''}>${esc(t.nom)}</option>`).join('')}</select>`, { req: true })}
+        ${h('pf-periodicitat', 'Periodicitat', `<select id="pf-periodicitat" ${dis}>${periodicitats().map(q => `<option value="${esc(q.codi)}" ${q.codi === x.periodicitat ? 'selected' : ''}>${esc(q.nom)}</option>`).join('')}</select>`, { req: true })}
+        ${h('pf-inici', esAlta ? 'Data de la primera execució' : 'Data de referència (primera execució)', `<input type="date" id="pf-inici" value="${esc(x.data_inici || '')}" ${dis}>`, { req: true, ajuda: 'Les execucions següents es calculen a partir d\'aquesta data.' })}
+        ${h('pf-fi', 'Data de finalització (opcional)', `<input type="date" id="pf-fi" value="${esc(x.data_fi || '')}" ${dis}>`)}
+        ${h('pf-hores', 'Hores estimades per execució', `<input type="text" inputmode="decimal" id="pf-hores" value="${esc(x.hores_estimades ?? '')}" ${dis}>`, { req: true })}
+        ${h('pf-prioritat', 'Prioritat', `<select id="pf-prioritat" ${dis}>${(V().prioritats || []).filter(q => q.requereix_data_limit).map(q => `<option value="${esc(q.codi)}" ${q.codi === x.prioritat ? 'selected' : ''}>${esc(q.nom)}</option>`).join('')}</select>`, { req: true, ajuda: 'La data límit de cada incidència és la data de l\'execució.' })}
+        ${h('pf-resp', 'Responsable', `<select id="pf-resp" ${dis}><option value="">— S'assignarà en cada execució —</option>${resp.map(r => `<option value="${esc(r.codi)}" ${r.codi === x.responsable ? 'selected' : ''}>${esc(r.nom)}</option>`).join('')}</select>`)}
+        ${h('pf-brigada', 'Brigada', `<select id="pf-brigada" ${dis}><option value="">—</option>${brs.map(b => `<option value="${esc(b.codi)}" ${b.codi === x.brigada ? 'selected' : ''}>${esc(b.nom)}</option>`).join('')}</select>`)}
+        ${h('pf-empresa', 'Empresa', `<input type="text" id="pf-empresa" value="${esc(x.empresa || '')}" ${dis}>`)}
+        ${h('pf-x', 'UTM X (si no hi ha immoble)', `<input type="text" inputmode="numeric" id="pf-x" value="${esc(x.utm?.x ?? '')}" ${dis}>`)}
+        ${h('pf-y', 'UTM Y (si no hi ha immoble)', `<input type="text" inputmode="numeric" id="pf-y" value="${esc(x.utm?.y ?? '')}" ${dis}>`)}
+        ${h('pf-obs', 'Observacions', `<textarea id="pf-obs" rows="3" ${dis}>${esc(x.observacions || '')}</textarea>`, { ample: true })}
+        ${esAlta ? '' : `<div class="camp"><label><input type="checkbox" id="pf-activa" ${x.activa !== false ? 'checked' : ''} ${dis}> Activa (genera incidències)</label></div>`}
+        </div></div>
+        <div class="mant-seccio"><h3>Properes execucions</h3><div id="pf-properes" class="text-small"></div></div>
+        ${generades.length ? `<div class="mant-seccio"><h3>Incidències generades (${generades.length})</h3>${generades.map(t => `<div class="text-small"><button type="button" class="btn-link" data-obre-gen="${esc(t.id)}">${esc(t.id)}</button> · execució del ${esc(fmtData(t.periodica.data))} · ${esc(nomEstat(t.estat))}</div>`).join('')}</div>` : ''}</div>
+        <div class="peu-edicio"><button type="button" class="btn btn-secondary" data-m="cancela">Torna</button>${pot ? `<button type="button" class="btn btn-primary" data-m="desa">${esAlta ? 'Crea la tasca periòdica' : 'Desa els canvis'}</button>` : ''}</div>`;
+      const sincr = () => {
+        const r = $('#pf-resp').value, el = $('#pf-element').value;
+        $('#pf-brigada').closest('.camp').hidden = r !== 'brigada_parc';
+        $('#pf-empresa').closest('.camp').hidden = r !== 'empresa_externa';
+        [$('#pf-x'), $('#pf-y')].forEach(i => { i.closest('.camp').hidden = !!el; });
+        const prov = { ...x, periodicitat: $('#pf-periodicitat').value, data_inici: $('#pf-inici').value, data_fi: $('#pf-fi').value || null };
+        const dates = [];
+        for (let n = 0, d; dates.length < 5 && n < 500; n++) { d = dataExecucio(prov, n); if (!d || (prov.data_fi && d > prov.data_fi)) break; if (d >= avui() || n >= (pl?.seguent || 0)) dates.push(d); }
+        $('#pf-properes').innerHTML = dates.length ? dates.map(d => `${esc(fmtData(d))}${d <= sumaDies(avui(), antelacio()) ? ' <span class="marca">es genera en desar</span>' : ''}`).join(' · ') : '<span class="buit">Cap execució</span>';
+      };
+      ['#pf-resp', '#pf-element', '#pf-periodicitat', '#pf-inici', '#pf-fi'].forEach(s => $(s).addEventListener('change', sincr));
+      sincr();
+      $('#pf-parc').addEventListener('change', e => { x.unitat = e.target.value; x.element = null; pinta(); });
+      p.querySelector('[data-m="cancela"]').addEventListener('click', () => { st.form = null; periodiques(); });
+      p.querySelector('[data-m="desa"]')?.addEventListener('click', () => desaPeriodica(pl, x));
+      $$('#mant-panell [data-obre-gen]').forEach(b => b.addEventListener('click', () => { st.form = null; obreDesDe(b.dataset.obreGen); }));
+    };
+    st.form = { periodica: true };
+    pinta();
+  }
+  async function desaPeriodica(pl, x) {
+    $$('#mant-panell .camp.te-error').forEach(c => { c.classList.remove('te-error'); c.querySelector('.camp-error').hidden = true; });
+    const v = s => $(s)?.value.trim() || null, err = [];
+    const u = v('#pf-parc');
+    if (!u) err.push(marcaError('#pf-parc', 'Tria el parc.') && 'Parc');
+    else if (!gestorDelParc(u)) err.push('només el cap de manteniment o la direcció del parc poden crear-ne');
+    if (!v('#pf-titol') || v('#pf-titol').length < 4) err.push(marcaError('#pf-titol', 'Descriu la tasca.') && 'Tasca');
+    if (!v('#pf-inici')) err.push(marcaError('#pf-inici', 'Indica la data de la primera execució.') && 'Data');
+    if (v('#pf-fi') && v('#pf-inici') && v('#pf-fi') < v('#pf-inici')) err.push(marcaError('#pf-fi', 'Ha de ser posterior a la primera execució.') && 'Data de finalització');
+    const hores = Number(String(v('#pf-hores') || '').replace(',', '.'));
+    if (!(hores > 0)) err.push(marcaError('#pf-hores', 'Escriu les hores estimades.') && 'Hores');
+    const el = v('#pf-element'), px = v('#pf-x') ? Number(v('#pf-x')) : null, py = v('#pf-y') ? Number(v('#pf-y')) : null;
+    if (!el && (px == null) !== (py == null)) err.push(marcaError('#pf-x', 'Cal la X i la Y.') && 'UTM');
+    if (err.length) { $('#mant-errors').innerHTML = `<div class="error-box" style="margin:12px 20px 0"><strong>Cal revisar:</strong> ${esc(err.join(', '))}.</div>`; return; }
+    const moment = ara(), resp = v('#pf-resp');
+    const nou = { ...(pl ? clone(pl) : { id: null, versio: 0, creat: moment, creat_per: S.usuari.nom, seguent: 0, historial: [] }),
+      unitat: u, element: el, titol: v('#pf-titol'), tipologia: v('#pf-tipologia'), periodicitat: v('#pf-periodicitat'),
+      data_inici: v('#pf-inici'), data_fi: v('#pf-fi'), hores_estimades: hores, prioritat: v('#pf-prioritat'), responsable: resp,
+      brigada: resp === 'brigada_parc' ? v('#pf-brigada') : null, empresa: resp === 'empresa_externa' ? v('#pf-empresa') : null,
+      utm: el ? { x: null, y: null } : { x: px, y: py }, observacions: v('#pf-obs'), activa: pl ? $('#pf-activa').checked : true };
+    // Si canvien la periodicitat o la data de referència, les execucions es tornen a comptar a partir d'avui
+    if (pl && (pl.periodicitat !== nou.periodicitat || pl.data_inici !== nou.data_inici)) {
+      let n = 0; while (dataExecucio(nou, n) && dataExecucio(nou, n) < avui() && n < 2000) n++;
+      const ultimaGenerada = (S.mant || []).filter(t => t.periodica?.id === pl.id).map(t => t.periodica.data).sort().pop();
+      while (ultimaGenerada && dataExecucio(nou, n) && dataExecucio(nou, n) <= ultimaGenerada && n < 2000) n++;
+      nou.seguent = n;
+    }
+    nou.propera_data = dataExecucio(nou, nou.seguent || 0);
+    const canvis = pl ? ['titol', 'element', 'tipologia', 'periodicitat', 'data_inici', 'data_fi', 'hores_estimades', 'prioritat', 'responsable', 'brigada', 'empresa', 'observacions', 'activa']
+      .filter(k => normal(pl[k]) !== normal(nou[k])).map(k => ({ camp: k, abans: pl[k] ?? null, despres: nou[k] ?? null })) : [];
+    if (pl && !canvis.length) { toast('No hi ha cap canvi per desar.', 'avis'); return; }
+    nou.versio = (pl?.versio || 0) + 1; nou.modificat = moment; nou.modificat_per = S.usuari.nom;
+    nou.historial = [...(nou.historial || []), { data: moment, usuari: { nom: S.usuari.nom, perfil: S.usuari.perfil, unitat: S.usuari.unitat || null }, accio: pl ? 'modificacio' : 'alta', canvis }];
+    try {
+      if (Carpeta.activa()) S.periodiques = (await Carpeta.desaRegistre('tasques_periodiques.json', 'PER-', nou, pl?.versio || 0, !pl)).llista;
+      else {
+        if (!pl) { const n = Math.max(0, ...(S.periodiques || []).map(q => +String(q.id).slice(4) || 0)); nou.id = 'PER-' + String(n + 1).padStart(4, '0'); S.periodiques.push(nou); }
+        else S.periodiques[S.periodiques.findIndex(q => q.id === pl.id)] = nou;
+        S.pendents++; Carpeta.repinta();
+      }
+    } catch (e) { toast((e.conflicte ? e.message + ' Recarrega les dades.' : 'Error en desar: ' + e.message), 'error', 10000); return; }
+    st.form = null;
+    const creades = await generaPeriodiques(true);
+    refrescaTot(); pintaLlista();
+    toast(`Tasca periòdica ${nou.id} ${pl ? 'desada' : 'creada'}${creades.length ? ` · ${creades.length} ${creades.length === 1 ? 'incidència generada' : 'incidències generades'}` : ''}.`, 'ok', 6000);
+    formPeriodica(S.periodiques.find(q => q.id === nou.id));
+  }
+
   /** Bloc per a la fitxa d'un immoble al mòdul de patrimoni. */
   function htmlGrupFitxa(el) {
     const ll = incidenciesDe(el.id).sort((a, b) => ordCa(b.creat, a.creat)), obertes = ll.filter(t => !esTancada(t)).length;
-    return `<details class="grup" ${obertes ? 'open' : ''}><summary>Manteniment <span class="compte">${ll.length}${obertes ? ` (${obertes} ${obertes === 1 ? 'oberta' : 'obertes'})` : ''}</span></summary><div class="grup-cos">
+    return `<details class="grup" ${obertes || plansElement(el.id).length ? 'open' : ''}><summary>Manteniment <span class="compte">${ll.length}${obertes ? ` (${obertes} ${obertes === 1 ? 'oberta' : 'obertes'})` : ''}</span></summary><div class="grup-cos">
       ${ll.length ? `<table class="canvis-llista"><thead><tr><th>Codi</th><th>Tipologia</th><th>Prioritat</th><th>Estat</th><th>Data límit</th></tr></thead><tbody>${ll.map(t => `<tr><td><button type="button" class="btn-link" data-obre-mant="${esc(t.id)}">${esc(t.id)}</button></td><td>${esc(nomTipologia(t.tipologia))}</td><td>${htmlPrio(t.gestio?.prioritat)}</td><td>${esc(nomEstat(t.estat))}</td><td>${t.gestio?.data_limit ? esc(fmtData(t.gestio.data_limit)) : '—'}${avisLimit(t) ? ' ⏰' : ''}</td></tr>`).join('')}</tbody></table>` : '<p class="buit">Cap incidència de manteniment.</p>'}
-      <p style="margin-top:8px"><button type="button" class="btn btn-secondary btn-petit" data-nova-mant="${esc(el.id)}">＋ Nova incidència en aquest immoble</button></p></div></details>`;
+      <p style="margin-top:8px"><button type="button" class="btn btn-secondary btn-petit" data-nova-mant="${esc(el.id)}">＋ Nova incidència en aquest immoble</button></p>
+      <p class="text-small" style="margin-top:12px"><strong>🔁 Tasques periòdiques</strong> (${plansElement(el.id).length})</p>
+      ${plansElement(el.id).map(pl => `<div class="text-small"><button type="button" class="btn-link" data-obre-per="${esc(pl.id)}">${esc(pl.id)}</button> · ${esc(pl.titol)} · ${esc(nomPeriodicitat(pl.periodicitat))}${pl.activa === false ? ' · <span class="marca">inactiva</span>' : ` · propera: ${esc(fmtData(pl.propera_data || dataExecucio(pl, pl.seguent || 0)))}`}</div>`).join('') || '<p class="buit text-small">Cap.</p>'}
+      <p style="margin-top:8px"><button type="button" class="btn btn-secondary btn-petit" data-nova-per="${esc(el.id)}">＋ Tasca periòdica en aquest immoble</button></p></div></details>`;
   }
   async function obreDesDe(id) { await mostraModul('manteniment'); if (modulActual === 'manteniment') { $('#mf-tancades').checked = true; pintaLlista(); obre(id); } }
 
-  return { mostra, refresca, nova, obre: obreDesDe, htmlGrupFitxa, potSortir, avisLimit };
+  const obrePeriodica = async id => formPeriodica(S.periodiques.find(q => q.id === id));
+  const novaPeriodica = async (element) => formPeriodica(null, { element, unitat: S.perId.get(element)?.unitat });
+  return { mostra, refresca, nova, obre: obreDesDe, htmlGrupFitxa, potSortir, avisLimit, generaPeriodiques, obrePeriodica, novaPeriodica };
 })();
 
 function refrescaTot() {
@@ -3107,6 +3337,7 @@ function refrescaTot() {
   try {
     await Carpeta.inicia();
     await carregaDades();
+    await Manteniment.generaPeriodiques();
     if (Carpeta.estat === 'connectada') Carpeta.pinta('connectada', Carpeta.nom());
     let parc = null;
     try { parc = localStorage.getItem(CLAU_PARC); } catch (e) { /* opcional */ }

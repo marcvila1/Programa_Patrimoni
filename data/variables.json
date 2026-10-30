@@ -1,5 +1,5 @@
 {
-  "versio": "1.2",
+  "versio": "1.3",
   "data_actualitzacio": "2026-10-30",
   "descripcio": "Variables del mòdul de Manteniment. Els valors generals s'apliquen a tots els parcs; a per_parc cada parc pot definir els seus responsables (i afegir-ne de propis) i el contacte de la direcció, que rep l'avís de cada incidència nova.",
   "perfils": {
@@ -155,6 +155,55 @@
     }
   ],
   "certificacio_hores": "Certificacions parcials durant la feina (feines llargues) i una de final, obligatòria en verificar. Les fa el cap de manteniment o la direcció.",
+  "periodicitats": [
+    {
+      "codi": "setmanal",
+      "nom": "Setmanal",
+      "dies": 7
+    },
+    {
+      "codi": "quinzenal",
+      "nom": "Quinzenal",
+      "dies": 14
+    },
+    {
+      "codi": "mensual",
+      "nom": "Mensual",
+      "mesos": 1
+    },
+    {
+      "codi": "bimestral",
+      "nom": "Bimestral",
+      "mesos": 2
+    },
+    {
+      "codi": "trimestral",
+      "nom": "Trimestral",
+      "mesos": 3
+    },
+    {
+      "codi": "quadrimestral",
+      "nom": "Quadrimestral",
+      "mesos": 4
+    },
+    {
+      "codi": "semestral",
+      "nom": "Semestral",
+      "mesos": 6
+    },
+    {
+      "codi": "anual",
+      "nom": "Anual",
+      "mesos": 12
+    },
+    {
+      "codi": "biennal",
+      "nom": "Biennal",
+      "mesos": 24
+    }
+  ],
+  "dies_antelacio_periodiques": 14,
+  "tasques_periodiques": "Cada execució d'una tasca periòdica genera una incidència uns dies abans de la data (dies_antelacio_periodiques), amb la data límit igual a la data d'execució. Les crea i modifica el cap de manteniment o la direcció del parc.",
   "responsables": [
     {
       "codi": "brigada_parc",
