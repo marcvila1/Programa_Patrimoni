@@ -211,7 +211,7 @@ Camps de cada tasca:
 - Parc i element (opcional).
 - Tasca, tipologia i **periodicitat**: setmanal, quinzenal, mensual, bimestral, trimestral, quadrimestral, semestral, anual o biennal.
 - Data de la primera execució i, si cal, data de finalització.
-- Hores estimades per execució, prioritat, responsable (i equip de treball o empresa) i, opcionalment, persona assignada.
+- Hores estimades per execució, prioritat, «Assignada a» (equip de treball o altre responsable) i, opcionalment, persona assignada.
 - **Avisa'm (dies abans):** quan es genera la tasca. En triar la periodicitat es proposa un valor (setmanal 2, quinzenal 4, mensual 7, bimestral 10, trimestral i quadrimestral 14, semestral 21, anual i biennal 30), que es pot canviar. Ha de ser menys que l'interval entre execucions.
 - **Observacions** i si està activa.
 
@@ -219,7 +219,7 @@ Les creen i modifiquen el Responsable de les Brigades del PN i la direcció del 
 
 **Com funcionen.** Cada execució genera una **tasca** els dies d'avís que té la tasca abans de la data. Les tasques antigues sense aquest camp fan servir els 14 dies generals de `variables.json`:
 - La data límit de la tasca és la data de l'execució.
-- La tasca hereta la prioritat, el responsable, l'equip de treball, la persona assignada i les hores estimades. Si ja té prioritat i responsable, surt directament com a «Assignada».
+- La tasca hereta la tipologia, la prioritat, l'assignació, la persona assignada i les hores estimades, i surt directament com a «Acceptada».
 - A partir d'aquí segueix el circuit normal: en curs, resolta, certificació d'hores i verificació.
 - Les tasques generades porten la marca 🔁 i l'enllaç a la tasca periòdica.
 
