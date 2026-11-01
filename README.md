@@ -253,11 +253,30 @@ Tots dos els poden modificar només el Responsable de les Brigades del PN i la d
 | `brigades.json` | Equips de treball de cada parc |
 | `tasques_periodiques.json` | Tasques periòdiques: parc, element, tasca, periodicitat, data inicial i final, hores, prioritat, responsable, observacions, activa, propera execució i historial |
 
-### 4.7. Pendents
+### 4.7. Webapp dels equips de treball (`brigada.html`)
 
-- **Webapp mòbil per als equips de treball** (caps de brigada/equip i persones de manteniment). L'encàrrec complet (funcions, dades, regles, opcions de desament i estil) és a `docs/ENCARREC_WEBAPP_BRIGADA.md`. En resum: un HTML independent, pensat per al mòbil i molt senzill, per veure les feines assignades (imatges, descripció i ubicació), posar-les en pausa, reprendre-les i marcar-les com a acabades, pujar fotografies de seguiment i crear peticions noves. Necessitarà desar en un servidor (SINATCAT), perquè els navegadors dels mòbils no permeten triar una carpeta de treball. Mentrestant, els equips poden fer aquestes accions des d'aquest programa.
-- Omplir la direcció i el Responsable de les Brigades del PN de cada parc (Configuració dels parcs) i els equips de treball (Equips de treball).
-- **Integració a SINATCAT:** usuaris únics amb perfil, fotografies a la base de dades, i avisos per correu automàtics en lloc de mailto.
+Aplicació per al mòbil dels **caps de brigada/equip** i les **persones de manteniment**. S'obre amb `brigada.html` (en proves: `brigada.html?prova=1`). Llegeix les dades publicades (`data/`) i desa al mòbil el que fa l'equip, també sense cobertura.
+
+- **Identificació:** parc, equip de treball, perfil i nom. Es recorda al dispositiu.
+- **Registrar** feina d'una tasca de l'equip («Assignada» o «En pausa»):
+  - Data, hores, persones i fotografies.
+  - Com queda la tasca: **✔ Feina acabada** (passarà a «Pendent de verificar»), **○ Continua** (si estava en pausa, **▶ Reprèn**) o **⏸ En pausa** (amb motiu).
+  - Les tasques assignades a la persona identificada surten primer, amb la marca «👤 Assignada a tu».
+  - Un registre es pot modificar fins que el Responsable de les Brigades del PN el valida.
+- **📝 Nova tasca:** només són obligatoris el parc i la descripció. Opcionals: tipologia, ubicació (GPS del mòbil o toc al mapa), immoble relacionat (es proposa el més proper a menys de 500 m), fotografies, hores estimades i data proposada (no anterior a avui).
+- **Registres:** llista dels registres i de les tasques entrades, amb l'estat d'enviament, i botó **⬇ Exporta els pendents**, que genera un fitxer `equip_<equip>_<data>.json` per enviar (correu o compartir).
+
+**Al programa principal**, el Responsable de les Brigades del PN o la direcció importen el fitxer amb el botó **📥 Importa de l'equip**:
+- Les tasques noves entren com a **Nova** (`origen.peticio`), amb les fotografies.
+- Els registres s'afegeixen a la tasca (`registres_brigada[]`), amb les fotografies com a fotografies de seguiment, i en canvien l'estat: «Feina acabada» → Pendent de verificar; «En pausa» → En pausa; «Continua» d'una tasca en pausa → Assignada.
+- Tornar a importar el mateix fitxer no duplica res. Un registre modificat a l'equip s'actualitza si encara no s'ha validat.
+- A la fitxa de la tasca, la secció **Registres de l'equip** mostra els registres, el total d'hores i un botó **Valida** per a cadascun (o tots alhora). Un cop validat, l'equip ja no el pot modificar.
+- Quan les dades es publiquen, la webapp marca com a «rebut» el que ja s'ha importat i hi mostra les validacions.
+
+### 4.8. Pendents
+
+- **Integració a SINATCAT:** usuaris únics amb perfil, desament directe de la webapp dels equips (sense fitxer), fotografies a la base de dades i avisos per correu automàtics en lloc de mailto.
+- Omplir la direcció i el Responsable de les Brigades del PN de cada parc (Configuració dels parcs) i els equips de treball, amb els membres (Equips de treball).
 
 ---
 
@@ -450,11 +469,10 @@ El Mòdul 2 d'aquest programa (filtres, mapa, indicadors i exportació) és la b
 - Coordenada UTM de `PNDE/magatzem_deltebre` (l'original de l'Excel és truncada).
 - Enllaços (`url`) dels documents PDF referenciats (`documents.json`).
 - Revisar si la base de dades Access conté camps o taules addicionals respecte dels Excel.
-- **Webapp mòbil per als equips de treball** (vegeu l'apartat 4.7).
 
 ## 10. Aspectes tècnics
 
-- Un sol fitxer HTML, sense instal·lació. Llibreria externa: Leaflet 1.9.4 (cdnjs) per als mapes.
+- Dos fitxers HTML, sense instal·lació: `index.html` (programa principal) i `brigada.html` (webapp dels equips). Llibreria externa: Leaflet 1.9.4 (cdnjs) per als mapes.
 - Mapes base: ICGC (topogràfic i ortofoto, © ICGC, CC BY) i OpenStreetMap.
 - Les coordenades es transformen de UTM 31N a latitud i longitud amb fórmules pròpies, verificades amb `pyproj` sobre els 388 punts del patrimoni (error inferior a 1 mm).
 - Paràmetres opcionals a l'URL, per a proves o per a un altre allotjament de les dades: `index.html?dades=<url de la carpeta data/>&unitats=<url de unitats_promotores.json>`.

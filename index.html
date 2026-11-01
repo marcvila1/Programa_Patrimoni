@@ -488,6 +488,7 @@
         <button type="button" class="btn btn-secondary" id="mant-config">⚙ Configuració dels parcs</button>
         <button type="button" class="btn btn-secondary" id="mant-brigades">👷 Equips de treball</button>
         <button type="button" class="btn btn-secondary" id="mant-periodiques">🔁 Tasques periòdiques</button>
+        <button type="button" class="btn btn-secondary" id="mant-importa" title="Registres de feina i tasques noves de la webapp dels equips (brigada.html)">📥 Importa de l'equip</button>
         <button type="button" class="btn btn-secondary" id="mant-csv">Exporta a CSV</button>
         <button type="button" class="btn btn-primary" id="mant-nova">＋ Nova tasca</button>
       </div>
@@ -2725,6 +2726,7 @@ const Manteniment = (() => {
       $('#mant-brigades').addEventListener('click', () => brigades());
       $('#mant-periodiques').addEventListener('click', () => periodiques());
       $('#mant-csv').addEventListener('click', exportaCSV);
+      $('#mant-importa').addEventListener('click', importaEquip);
     }
     iniciaMapa();
     setTimeout(() => { mapa?.invalidateSize(); pintaLlista(); }, 50);
@@ -2771,6 +2773,7 @@ const Manteniment = (() => {
         ${camp('Data proposada de realització', t.data_proposada ? esc(fmtData(t.data_proposada)) : '<span class="buit">—</span>')}
         ${camp('Coordenades UTM', t.utm?.x != null ? `X ${esc(t.utm.x)} · Y ${esc(t.utm.y)}` : '<span class="buit">—</span>')}
         ${camp('Sol·licitant', `${txt(t.sollicitant?.nom)}${t.sollicitant?.email ? ` · <a href="mailto:${esc(t.sollicitant.email)}">${esc(t.sollicitant.email)}</a>` : ''}`)}
+        ${t.origen?.peticio ? camp('Origen', `Webapp de l'equip ${esc(t.origen.nom_equip || t.origen.equip || '')} · importada el ${esc(fmtData(t.origen.importat))} per ${esc(t.origen.importat_per || '')}`) : ''}
         ${(t.notificar || []).length ? camp('Altres persones notificades', esc(t.notificar.join(', ')), true) : ''}
         ${camp('Data d\'entrada', esc(fmtData(t.creat)))}
         ${t.periodica ? camp('Tasca periòdica', `<button type="button" class="btn-link" data-obre-per="${esc(t.periodica.id)}">${esc(t.periodica.id)}</button> · execució ${esc(t.periodica.execucio || '')} del ${esc(fmtData(t.periodica.data))}`) : ''}
@@ -2781,6 +2784,7 @@ const Manteniment = (() => {
         ${certificacionsDe(t).length && t.hores_estimades ? camp('Desviació', (() => { const d = horesCertificades(t) - t.hores_estimades, pc = Math.round(100 * d / t.hores_estimades); return `<span class="${d > 0 ? 'hores-desv-pos' : 'hores-desv-neg'}">${d > 0 ? '+' : ''}${esc(fmtNum(d))} h (${d > 0 ? '+' : ''}${pc} %)</span>`; })()) : ''}
       </div></div>
       ${certificacionsDe(t).length ? `<div class="mant-seccio" style="padding-top:0;border-top:0"><table class="canvis-llista"><thead><tr><th>Data</th><th class="num">Hores</th><th>Tipus</th><th>Certifica</th></tr></thead><tbody>${certificacionsDe(t).map(c => `<tr><td>${esc(fmtData(c.data))}</td><td class="num">${esc(fmtNum(c.hores))}</td><td>${c.tipus === 'final' ? 'Final' : 'Parcial'}</td><td>${esc(c.per?.nom || '')}</td></tr>`).join('')}</tbody></table></div>` : ''}
+      ${htmlRegistresEquip(t)}
       <div class="mant-seccio"><h3>Fotografies</h3><div id="mant-fotos">${fotosDe(t).length ? '<div class="mant-foto-buida">Carregant les fotografies…</div>' : '<div class="mant-foto-buida">Sense fotografies.</div>'}</div>
         ${['assignada', 'en_pausa'].includes(t.estat) ? `<p style="margin-top:8px"><label class="btn btn-secondary btn-petit" style="cursor:pointer">＋ Afegeix fotografies de seguiment<input type="file" id="mant-seguiment" accept="image/*" capture="environment" multiple hidden></label>
           <span class="text-small text-muted">Com evoluciona la feina (equip de treball).</span></p>` : ''}</div>
@@ -2805,6 +2809,8 @@ const Manteniment = (() => {
     $('#mant-panell [data-m="gestio"]')?.addEventListener('click', () => gestio(t));
     $$('#mant-panell [data-equip]').forEach(b => b.addEventListener('click', () => accioEquip(t, b.dataset.equip)));
     $('#mant-panell [data-m="assigna"]')?.addEventListener('click', () => assignaRapid(t));
+    $$('#mant-panell [data-valida-reg]').forEach(b => b.addEventListener('click', () => validaRegistres(t, [b.dataset.validaReg])));
+    $('#mant-panell [data-valida-tots]')?.addEventListener('click', () => validaRegistres(t, (t.registres_brigada || []).filter(x => !x.validacio).map(x => x.id)));
     $('#mant-panell [data-obre-per]')?.addEventListener('click', e => formPeriodica(S.periodiques.find(q => q.id === e.target.dataset.obrePer)));
     $('#mant-panell').querySelector('[data-ves]')?.addEventListener('click', e => vesAElement(e.target.dataset.ves));
     $('#mant-seguiment')?.addEventListener('change', e => afegeixSeguiment(t, [...e.target.files]));
@@ -3334,6 +3340,148 @@ const Manteniment = (() => {
       await finestra({ titol: `✓ Tasca ${esc(nou.id)} ${nou.estat === 'assignada' ? 'acceptada i assignada' : 'acceptada'}`, cos: `<p>Pots avisar el sol·licitant${nomAssignacio(nou) ? ' i l\'equip assignat' : ''}:</p><p>${htmlBotoCorreu(nou, 'actualitzacio', 'Envia l\'avís per correu')}</p>`,
         botons: [{ text: 'Tanca', accio: 'ok', principal: true }] });
     }
+  }
+
+  // ---------- Importació dels fitxers de la webapp dels equips (brigada.html) ----------
+  //   El fitxer porta registres de feina (hores, persones, fotografies i com queda la tasca) i tasques noves.
+  //   Els registres s'afegeixen a la tasca (registres_brigada[]) i en canvien l'estat: «Feina acabada» → Pendent de verificar,
+  //   «En pausa» → En pausa, «Continua» d'una tasca en pausa → Assignada. Les tasques noves entren com a «Nova».
+  //   Tornar a importar el mateix fitxer no duplica res; un registre modificat a l'equip s'actualitza si encara no s'ha validat.
+  const dataURLaBlob = async d => (await fetch(d)).blob();
+  const textResultat = r => ({ acabada: '✔ Feina acabada', pausa: '⏸ En pausa', continua: '○ Continua' }[r.resultat] || r.resultat || '—');
+  async function importaEquip() {
+    if (!S.usuari?.perfil && !(await demanaUsuari('Abans d\'importar, indica qui ets i el teu perfil.'))?.perfil) return;
+    if (!(await potSortir())) return;
+    const input = Object.assign(document.createElement('input'), { type: 'file', accept: '.json,application/json', multiple: true });
+    const fitxers = await new Promise(ok => { input.onchange = () => ok([...input.files]); input.click(); });
+    if (!fitxers.length) return;
+    const resum = { tasques: [], nous: 0, actualitzats: 0, repetits: 0, validats: 0, estats: [], sensetasca: new Set(), errors: [] };
+    for (const f of fitxers) {
+      let pac;
+      try { pac = JSON.parse(await f.text()); } catch { resum.errors.push(`${f.name}: no és un fitxer JSON vàlid.`); continue; }
+      if (pac?.format !== 'motor-patrimoni.registres-brigada') { resum.errors.push(`${f.name}: no és un fitxer de la webapp dels equips.`); continue; }
+      if (pac.prova) { resum.errors.push(`${f.name}: és del mode prova (dades d'exemple) i no s'importa.`); continue; }
+      if (!potGestionar(rolsUsuari({ unitat: pac.unitat }))) { resum.errors.push(`${f.name}: només el Responsable de les Brigades del PN o la direcció del ${pac.unitat} el poden importar.`); continue; }
+      try { await importaPeticions(pac, resum); await importaRegistres(pac, resum); }
+      catch (e) { resum.errors.push(`${f.name}: ${e.conflicte ? e.message + ' Recarrega les dades i torna-ho a provar.' : e.message}`); }
+    }
+    refrescaTot(); pintaLlista();
+    if (st.mode === 'fitxa' && st.sel) await pintaFitxa(st.sel);
+    const li = (c, t) => (c ? `<li>${t}</li>` : '');
+    await finestra({ titol: '📥 Importació de l\'equip', cos: `<ul style="margin-left:18px">
+        ${li(resum.tasques.length, `<strong>${resum.tasques.length}</strong> ${resum.tasques.length === 1 ? 'tasca nova' : 'tasques noves'} (estat «Nova»): ${esc(resum.tasques.join(', '))}`)}
+        ${li(resum.nous, `<strong>${resum.nous}</strong> ${resum.nous === 1 ? 'registre de feina nou' : 'registres de feina nous'}`)}
+        ${li(resum.actualitzats, `${resum.actualitzats} ${resum.actualitzats === 1 ? 'registre actualitzat' : 'registres actualitzats'} (modificats a l'equip)`)}
+        ${li(resum.estats.length, `Canvis d'estat: ${resum.estats.map(esc).join('; ')}`)}
+        ${li(resum.repetits, `${resum.repetits} ja s'havien importat abans (no es dupliquen)`)}
+        ${li(resum.validats, `${resum.validats} ${resum.validats === 1 ? 'registre ja validat no s\'ha modificat' : 'registres ja validats no s\'han modificat'}`)}
+        ${li(resum.sensetasca.size, `Registres de tasques que no existeixen: ${esc([...resum.sensetasca].join(', '))}`)}
+        ${li(!resum.tasques.length && !resum.nous && !resum.actualitzats && !resum.repetits && !resum.validats && !resum.errors.length, 'El fitxer no tenia res per importar.')}
+      </ul>${resum.errors.length ? `<div class="error-box" style="margin-top:10px">${resum.errors.map(esc).join('<br>')}</div>` : ''}
+      ${Carpeta.activa() ? '' : '<p class="text-small" style="margin-top:10px">Sense carpeta connectada: recorda descarregar els fitxers.</p>'}`,
+      botons: [{ text: 'Tanca', accio: 'ok', principal: true }] });
+  }
+  async function importaPeticions(pac, resum) {
+    for (const p of pac.peticions || []) {
+      if ((S.mant || []).some(t => t.origen?.peticio === p.id)) { resum.repetits++; continue; }
+      if (!p.unitat || !p.descripcio) { resum.errors.push(`Tasca nova ${p.id}: falta el parc o la descripció.`); continue; }
+      const moment = ara(), qui = p.sollicitant?.nom || pac.usuari?.nom || '';
+      const t = {
+        id: null, versio: 1, model_estats: 2, creat: p.creat || moment, modificat: moment, modificat_per: S.usuari.nom,
+        sollicitant: { nom: qui, email: null, unitat: p.sollicitant?.unitat || pac.unitat, font: 'brigada', equip: p.sollicitant?.brigada || pac.brigada },
+        unitat: p.unitat, utm: p.utm?.x != null ? { x: p.utm.x, y: p.utm.y } : { x: null, y: null }, element: p.element || null, tipologia: p.tipologia || null, notificar: [],
+        descripcio: p.descripcio, data_proposada: p.data_proposada || null, hores_estimades: p.hores_estimades ?? null, fotografies: [], certificacions_hores: [],
+        estat: 'nova', data_resolucio: null,
+        origen: { peticio: p.id, equip: pac.brigada, nom_equip: pac.nom_brigada || null, importat: moment, importat_per: S.usuari.nom },
+        gestio: { prioritat: null, data_limit: null, responsable: null, brigada: null, persona: null, empresa: null, observacions: null, assignat_per: null, data_assignacio: null },
+        historial: [{ data: moment, usuari: { nom: qui, unitat: pac.unitat, font: 'brigada' }, accio: 'alta', canvis: [],
+          nota: `Entrada des de la webapp de l'equip ${pac.nom_brigada || pac.brigada}; importada per ${S.usuari.nom}` }],
+      };
+      const meta = { fase: 'peticio', data: p.creat || moment, per: { nom: qui, email: null }, nota: null };
+      const fotos = await Promise.all((p.fotos || []).map(async d => ({ blob: await dataURLaBlob(d), dataURL: d, meta })));
+      const desada = await desaTasca(t, 0, true, fotos);
+      resum.tasques.push(desada.id);
+    }
+  }
+  async function importaRegistres(pac, resum) {
+    const perTasca = new Map();
+    (pac.registres || []).forEach(r => { if (!perTasca.has(r.tasca)) perTasca.set(r.tasca, []); perTasca.get(r.tasca).push(r); });
+    for (const [id, regs] of perTasca) {
+      const t = (S.mant || []).find(x => x.id === id);
+      if (!t) { resum.sensetasca.add(id); continue; }
+      const nou = clone(t), moment = ara(), fotos = [], canvis = [], llista = [...(t.registres_brigada || [])], n0 = llista.length;
+      let nous = 0, actualitzats = 0;
+      for (const r of regs.slice().sort((a, b) => (a.data + a.creat).localeCompare(b.data + b.creat))) {
+        const versio_local = r.modificat || r.creat, i = llista.findIndex(x => x.id === r.id);
+        const qui = { nom: r.usuari?.nom || pac.usuari?.nom || '', perfil: r.usuari?.perfil || null, equip: pac.brigada };
+        const entrada = { id: r.id, data: r.data, hores: r.hores, persones: r.persones, resultat: r.resultat || (r.finalitzada ? 'acabada' : 'continua'),
+          motiu_pausa: r.motiu_pausa || null, per: qui, fotos: (r.fotos || []).length, creat: r.creat, modificat: r.modificat || null, versio_local,
+          importat: moment, importat_per: S.usuari.nom, validacio: null };
+        if (i >= 0) {
+          if (llista[i].validacio) { resum.validats++; continue; }
+          if (llista[i].versio_local === versio_local) { resum.repetits++; continue; }
+          llista[i] = { ...entrada, fotos: llista[i].fotos }; actualitzats++; continue;   // les fotografies ja es van importar la primera vegada
+        }
+        llista.push(entrada); nous++;
+        const meta = { fase: 'seguiment', data: r.creat || moment, per: { nom: qui.nom, email: null }, nota: `Registre del ${fmtData(r.data)}` };
+        for (const d of r.fotos || []) fotos.push({ blob: await dataURLaBlob(d), dataURL: d, meta });
+        // Canvi d'estat segons com ha quedat la tasca
+        const abans = nou.estat;
+        if (entrada.resultat === 'acabada' && ['assignada', 'en_pausa'].includes(nou.estat)) {
+          if (nou.estat === 'en_pausa') nou.pauses = tancaPausa(nou, moment, qui);
+          nou.estat = 'pendent_verificacio'; nou.feina_acabada = { data: r.data, per: qui };
+        } else if (entrada.resultat === 'pausa' && nou.estat === 'assignada') {
+          nou.estat = 'en_pausa'; nou.pauses = [...(nou.pauses || []), { inici: r.data, per: qui, motiu: entrada.motiu_pausa, fi: null }];
+        } else if (entrada.resultat === 'continua' && nou.estat === 'en_pausa') {
+          nou.pauses = tancaPausa(nou, moment, qui); nou.estat = 'assignada';
+        }
+        if (nou.estat !== abans) { canvis.push({ camp: 'estat', etiqueta: 'Estat', abans: nomEstat(abans), despres: nomEstat(nou.estat) }); resum.estats.push(`${t.id}: ${nomEstat(abans)} → ${nomEstat(nou.estat)}`); }
+      }
+      if (!nous && !actualitzats) continue;
+      nou.registres_brigada = llista; nou.model_estats = 2;
+      if (fotos.length && !nou.fotografies) nou.fotografies = fotosDe(t);
+      delete nou.fotografia;
+      canvis.unshift({ camp: 'registres_brigada', etiqueta: 'Registres de l\'equip', abans: n0, despres: llista.length });
+      nou.versio = (t.versio || 1) + 1; nou.modificat = moment; nou.modificat_per = S.usuari.nom;
+      nou.historial = [...(t.historial || []), { data: moment, usuari: { nom: S.usuari.nom, email: S.usuari.email || null, unitat: S.usuari.unitat || null, font: 'manual' }, accio: 'seguiment', canvis,
+        nota: `Importat de l'equip ${pac.nom_brigada || pac.brigada}: ${nous} ${nous === 1 ? 'registre nou' : 'registres nous'}${actualitzats ? `, ${actualitzats} actualitzats` : ''}` }];
+      await desaTasca(nou, t.versio || 1, false, fotos);
+      resum.nous += nous; resum.actualitzats += actualitzats;
+    }
+  }
+  /** Validació dels registres de l'equip: un cop validats, l'equip ja no els pot modificar. */
+  async function validaRegistres(t, ids) {
+    if (!S.usuari?.perfil && !(await demanaUsuari('Indica qui ets i el teu perfil.'))?.perfil) return;
+    const r = rolsUsuari(t);
+    if (!potGestionar(r)) { toast('Només el Responsable de les Brigades del PN i la direcció del parc poden validar els registres.', 'error', 7000); return; }
+    const moment = ara(), per = { nom: S.usuari.nom, email: S.usuari.email || null };
+    const nou = clone(t);
+    let n = 0;
+    nou.registres_brigada = (t.registres_brigada || []).map(x => (ids.includes(x.id) && !x.validacio ? (n++, { ...x, validacio: { data: moment, per } }) : x));
+    if (!n) return;
+    const hores = nou.registres_brigada.filter(x => ids.includes(x.id)).reduce((a, x) => a + (+x.hores || 0), 0);
+    nou.versio = (t.versio || 1) + 1; nou.modificat = moment; nou.modificat_per = S.usuari.nom;
+    nou.historial = [...(t.historial || []), { data: moment, usuari: { nom: S.usuari.nom, email: S.usuari.email || null, unitat: S.usuari.unitat || null, rols: [...r.rols], font: 'manual' }, accio: 'gestio',
+      canvis: [{ camp: 'registres_brigada.validacio', etiqueta: 'Registres de l\'equip validats', abans: null, despres: `${n} (${fmtNum(hores)} h)` }] }];
+    try { await desaTasca(nou, t.versio || 1, false); }
+    catch (e) { toast((e.conflicte ? e.message + ' Recarrega les dades.' : 'Error en desar: ' + e.message), 'error', 10000); return; }
+    refrescaTot(); pintaLlista(); await pintaFitxa(t.id);
+    toast(`${n} ${n === 1 ? 'registre validat' : 'registres validats'}.`);
+  }
+  function htmlRegistresEquip(t) {
+    const ll = (t.registres_brigada || []).slice().sort((a, b) => (b.data + b.creat).localeCompare(a.data + a.creat));
+    if (!ll.length) return '';
+    const gestor = potGestionar(rolsUsuari(t)), pend = ll.filter(x => !x.validacio);
+    const h = ll.reduce((a, x) => a + (+x.hores || 0), 0), hp = ll.reduce((a, x) => a + (+x.hores || 0) * (+x.persones || 1), 0);
+    return `<div class="mant-seccio"><h3>Registres de l'equip (${ll.length})</h3>
+      <p class="text-small" style="margin-bottom:6px">Total: <strong>${esc(fmtNum(h))} h</strong> registrades (${esc(fmtNum(hp))} h × persona)${pend.length ? ` · ${pend.length} pendents de validar` : ' · tots validats'}.</p>
+      <div class="taula-wrap"><table class="canvis-llista"><thead><tr><th>Data</th><th class="num">Hores</th><th class="num">Pers.</th><th>Com queda</th><th>Qui</th><th>Validació</th></tr></thead><tbody>
+      ${ll.map(x => `<tr><td>${esc(fmtData(x.data))}</td><td class="num">${esc(fmtNum(x.hores))}</td><td class="num">${esc(x.persones ?? '')}</td>
+        <td>${esc(textResultat(x))}${x.motiu_pausa ? ': ' + esc(x.motiu_pausa) : ''}${x.fotos ? ` · 📷 ${x.fotos}` : ''}</td><td>${esc(x.per?.nom || '')}</td>
+        <td>${x.validacio ? `🔒 ${esc(fmtData(x.validacio.data))} · ${esc(x.validacio.per?.nom || '')}` : gestor ? `<button type="button" class="btn btn-secondary btn-petit" data-valida-reg="${esc(x.id)}">Valida</button>` : '<span class="buit">Pendent</span>'}</td></tr>`).join('')}
+      </tbody></table></div>
+      ${gestor && pend.length > 1 ? `<p style="margin-top:8px"><button type="button" class="btn btn-secondary btn-petit" data-valida-tots>Valida'ls tots (${pend.length})</button></p>` : ''}
+      <p class="text-small text-muted" style="margin-top:6px">Un cop validat, l'equip ja no pot modificar el registre. Les hores es certifiquen igualment a «Gestiona».</p></div>`;
   }
 
   // ---------- Configuració per parc (variables.json) ----------
