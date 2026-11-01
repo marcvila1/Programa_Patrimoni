@@ -1,7 +1,7 @@
 {
   "versio": "1.0",
   "data_actualitzacio": "2026-10-30",
-  "descripcio": "Brigades de treball de cada parc natural: nom, cap (nom, correu, telèfon), àmbit i membres. Es gestionen des del mòdul de Manteniment (botó «Brigades») pel cap d'Infraestructures i Manteniment o la direcció del parc. Una brigada amb incidències assignades no s'esborra: es desactiva (activa: false).",
+  "descripcio": "Equips de treball (abans, brigades) de cada parc natural: nom, cap de brigada/equip (nom, correu, telèfon), àmbit i membres. Es gestionen des del mòdul de Gestió de brigades (botó «Equips de treball») pel cap de brigada o la direcció del parc. Els caps i els membres són les persones que es poden assignar a una tasca. Un equip amb tasques assignades no s'esborra: es desactiva (activa: false).",
   "per_parc": {
     "PNAE": {
       "nom_parc": "Parc Natural dels Aiguamolls de l'Empordà",

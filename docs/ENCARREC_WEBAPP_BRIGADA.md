@@ -2,6 +2,8 @@
 
 Document de traspàs per construir, en una conversa nova, l'HTML independent per als caps de brigada del mòdul de Manteniment del Motor de Patrimoni. Estat a 30/10/2026.
 
+> **Actualització 01/11/2026: canvis de nomenclatura i perfils.** El mòdul de Manteniment ara es diu **Gestió de brigades**. A la interfície, el *cap d'Infraestructures i Manteniment* passa a dir-se **cap de brigada**; l'antic *cap de brigada* passa a ser **cap de brigada/equip**; les *brigades* són **equips de treball** i les *incidències* són **tasques**. S'ha afegit el perfil **persona de manteniment** (`persona_manteniment`), amb els mateixos permisos que el cap de brigada/equip (rol `brigada`), i cada tasca pot tenir una **persona assignada** opcional (`gestio.persona`, nom). Els codis interns (`cap_manteniment`, `brigada`, `brigada_parc`, `brigades.json`, `manteniment.json`) **no canvien**. La webapp l'han de poder fer servir els dos perfils d'equip, i la llista «Les meves feines» ha d'incloure les tasques assignades a l'equip i, per a la persona de manteniment, destacar les que té assignades personalment.
+
 ## 1. Context
 
 - **Repositori:** `marcvila1/Programa_Patrimoni` (branca `main`). Dades a `data/`, programa principal a `index.html`, documentació general a `README.md`.
