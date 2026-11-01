@@ -335,6 +335,34 @@
   .mant-llista .buida { padding: 20px; color: var(--color-text-secondary); font-size: 13px; }
   .mant-targeta-mapa .targeta-cap h2 { font-size: 14px; }
   @media (max-width: 980px) { .mant-layout { grid-template-columns: 1fr; } .mant-llista { max-height: 480px; } }
+  /* Tauler (dipòsits) */
+  .mant-vista { display: inline-flex; border: 1px solid var(--color-primary-teal); }
+  .mant-vista button { border: none; background: #fff; color: var(--color-primary-teal); padding: 4px 10px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .mant-vista button[aria-pressed=true] { background: var(--color-primary-teal); color: #fff; }
+  .mant-layout.mode-tauler { grid-template-columns: minmax(300px, 4fr) minmax(0, 7fr); }
+  .mant-layout.mode-tauler .mant-col-llista { display: contents; }
+  .mant-layout.mode-tauler .mant-panell-llista { grid-column: 1 / -1; }
+  .mant-layout.mode-tauler .mant-llista { max-height: none; min-height: 0; overflow: visible; }
+  .mant-tauler { display: flex; gap: 12px; overflow-x: auto; padding: 12px; align-items: flex-start; background: #f3f2f1; }
+  .mant-col { flex: 0 0 268px; background: #eae9e7; display: flex; flex-direction: column; max-height: calc(100vh - 230px); border: 2px solid transparent; }
+  .mant-col.drop-ok { border-color: var(--color-primary-teal); background: #dff1ee; }
+  .mant-col-cap { display: flex; align-items: center; gap: 6px; padding: 8px 10px; font-weight: 600; font-size: 13px; border-top: 4px solid var(--color-primary-teal); background: #e2e1df; }
+  .mant-col-cap .compte { margin-left: auto; font-size: 12px; color: var(--color-text-secondary); background: #fff; padding: 0 7px; border-radius: 9px; }
+  .mant-col-cap .alerta { color: var(--color-danger, #d32f2f); font-size: 12px; }
+  .mant-col-nota { font-size: 11px; color: var(--color-text-secondary); padding: 4px 10px 0; }
+  .mant-col-cos { padding: 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; min-height: 70px; }
+  .mant-col-buida { color: var(--color-text-secondary); font-size: 12px; text-align: center; padding: 14px 4px; border: 1px dashed #c8c6c4; }
+  .mant-carta { background: #fff; border: 1px solid var(--color-border); border-left: 4px solid #c8c6c4; padding: 8px 10px; cursor: pointer; font-size: 13px; display: flex; flex-direction: column; gap: 3px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  .mant-carta[draggable=true] { cursor: grab; }
+  .mant-carta:hover { box-shadow: 0 2px 6px rgba(0,0,0,.14); }
+  .mant-carta.sel { outline: 2px solid var(--color-primary-teal); }
+  .mant-carta.arrossegant { opacity: .4; }
+  .mant-carta .nom { font-weight: 600; color: var(--color-text-strong, #242424); }
+  .mant-carta .desc { color: var(--color-text-primary, #242424); }
+  .mant-carta .sub { font-size: 12px; color: var(--color-text-secondary); }
+  .mant-carta .linia { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 2px; }
+  .mant-carta-assigna { align-self: flex-start; margin-top: 4px; }
+  @media (max-width: 980px) { .mant-layout.mode-tauler { grid-template-columns: 1fr; } .mant-layout.mode-tauler .mant-panell-llista { grid-column: auto; } }
   .llista-cap { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--color-border); gap: 8px; }
   .llista-cap select { font: inherit; font-size: 12px; padding: 3px 4px; }
   .prio { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 10px; border: 1px solid; white-space: nowrap; }
@@ -510,6 +538,7 @@
         <div class="panell-llista mant-panell-llista">
           <div class="llista-cap"><span id="mant-recompte" class="text-small text-muted"></span>
             <span class="mant-cap-controls">
+              <span class="mant-vista" id="mant-vista" role="group" aria-label="Vista"><button type="button" data-vista="tauler" aria-pressed="false">▦ Tauler</button><button type="button" data-vista="llista" aria-pressed="false">☰ Llista</button></span>
               <label class="text-small">Agrupa per <select id="mf-agrupa" aria-label="Agrupa per"><option value="estat">Estat</option><option value="prioritat">Prioritat</option><option value="parc">Parc</option><option value="equip">Equip</option><option value="persona">Persona</option><option value="tipologia">Tipologia</option><option value="">Sense agrupar</option></select></label>
               <select id="mf-ordre" aria-label="Ordena"><option value="limit">Per data límit</option><option value="prioritat">Per prioritat</option><option value="recent">Més recents</option></select>
               <button type="button" class="btn-link text-small" id="mant-plega" title="Plega o desplega tots els grups">Plega-ho tot</button>
@@ -2581,9 +2610,9 @@ const Manteniment = (() => {
     const persones = [...new Set((S.mant || []).filter(t => (!parcF || t.unitat === parcF) && t.gestio?.persona).map(t => t.gestio.persona))].sort(ordCa);
     opcions('#mf-persona', 'Totes les persones', [['_', 'Sense persona assignada'], ...persones.map(n => [n, n])], v('#mf-persona'));
   }
-  function filtrades() {
+  function filtrades(ambTancades) {
     const f = { parc: $('#mf-parc').value, estat: $('#mf-estat').value, prio: $('#mf-prioritat').value, tip: $('#mf-tipologia').value,
-      resp: $('#mf-responsable').value, pers: $('#mf-persona').value, q: $('#mf-cerca').value.trim().toLowerCase(), tancades: $('#mf-tancades').checked };
+      resp: $('#mf-responsable').value, pers: $('#mf-persona').value, q: $('#mf-cerca').value.trim().toLowerCase(), tancades: $('#mf-tancades').checked || !!ambTancades };
     const okResp = t => { if (!f.resp) return true; if (!f.resp.startsWith('eq:')) return t.gestio?.responsable === f.resp;
       const [, u, c] = f.resp.split(':'); return t.unitat === u && t.gestio?.responsable === 'brigada_parc' && t.gestio?.brigada === c; };
     return (S.mant || []).filter(t => (!f.parc || t.unitat === f.parc) && (!f.estat || t.estat === f.estat)
@@ -2675,10 +2704,162 @@ const Manteniment = (() => {
         ${a ? `<span class="marca" title="${esc(a.text)}">⏰ ${a.tipus === 'vencuda' ? 'vençuda' : a.dies + ' d'}</span>` : ''}</span></button>
       ${rapid ? `<button type="button" class="mant-assigna-rapid" data-assigna="${esc(t.id)}" title="Assigna la tasca a un equip de treball">👷 Assigna</button>` : ''}</li>`;
   }
+  // ---------- Tauler (dipòsits com al Planner) ----------
+  //   Columnes segons «Agrupa per». Per estat i per equip, les targetes es poden arrossegar: el canvi segueix les mateixes
+  //   regles i permisos que la gestió (si cal una dada, s'obre la gestió o l'assignació ràpida amb el canvi ja triat).
+  const CLAU_VISTA = 'motor-patrimoni.mant.vista';
+  const vistaActual = () => { try { return localStorage.getItem(CLAU_VISTA) || 'tauler'; } catch { return 'tauler'; } };
+  const desaVista = v => { try { localStorage.setItem(CLAU_VISTA, v); } catch { /* sense emmagatzematge */ } };
+  const COLOR_ESTAT = { nova: '#2a7fd4', acceptada: '#7a5bc4', assignada: '#088074', en_pausa: '#b26a00', pendent_verificacio: '#e3b341', resolta: '#317439', descartada: '#8a8a85' };
+  const DIES_TANCADES = 30;
+  function htmlCarta(t, arrossegable) {
+    const a = avisLimit(t), g = t.gestio || {};
+    const equip = g.responsable ? (g.responsable === 'brigada_parc' && brigada(t.unitat, g.brigada)?.nom) || nomResponsable(t.unitat, g.responsable) : null;
+    const rapid = t.estat === 'acceptada' && potGestionar(rolsUsuari(t));
+    return `<div class="mant-carta ${t.id === st.sel ? 'sel' : ''}" data-mant="${esc(t.id)}" ${arrossegable ? 'draggable="true"' : ''} style="border-left-color:${PRIO_HEX[g.prioritat] || '#c8c6c4'}" tabindex="0">
+      <div class="nom">${t.periodica ? '🔁 ' : ''}${esc(t.id)} · ${esc(nomTipologia(t.tipologia))}</div>
+      <div class="desc">${esc((t.descripcio || '').slice(0, 95))}${(t.descripcio || '').length > 95 ? '…' : ''}</div>
+      <div class="sub">${esc([t.unitat, nomElement(t.element)].filter(Boolean).join(' · '))}</div>
+      ${equip || g.persona ? `<div class="sub">👷 ${esc([equip, g.persona ? '👤 ' + g.persona : null].filter(Boolean).join(' · '))}</div>` : ''}
+      <div class="linia">${htmlPrio(g.prioritat)}${g.data_limit ? `<span class="text-small text-muted">${esc(fmtData(g.data_limit))}</span>` : ''}
+        ${a ? `<span class="marca" title="${esc(a.text)}">⏰ ${a.tipus === 'vencuda' ? 'vençuda' : a.dies + ' d'}</span>` : ''}</div>
+      ${rapid ? `<button type="button" class="btn btn-primary btn-petit mant-carta-assigna" data-assigna="${esc(t.id)}">👷 Assigna</button>` : ''}
+    </div>`;
+  }
+  /** Columnes del tauler: [{clau, nom, color, tasques, drop, nota}] */
+  function columnesTauler(per) {
+    const tancadesVisibles = $('#mf-tancades').checked || !!$('#mf-estat').value;
+    if (per === 'estat' || !per) {
+      const ll = ordena(filtrades(true)), limit = sumaDies(avui(), -DIES_TANCADES);
+      return (V().estats || []).map(e => {
+        let tasques = ll.filter(t => t.estat === e.codi), nota = null;
+        if ((V().estats_tancats || []).includes(e.codi) && !tancadesVisibles) { tasques = tasques.filter(t => (t.modificat || t.creat || '').slice(0, 10) >= limit); nota = `Últims ${DIES_TANCADES} dies`; }
+        return { clau: e.codi, nom: e.nom, color: COLOR_ESTAT[e.codi], tasques, drop: 'estat', nota };
+      });
+    }
+    const ll = ordena(filtrades());
+    if (per === 'equip') {
+      const parcF = $('#mf-parc').value, cols = new Map();
+      const parcs = parcF ? [parcF] : [...new Set([...Object.keys(S.brigades?.per_parc || {}).filter(u => brigadesParc(u).length), ...ll.map(t => t.unitat)])].sort(ordCa);
+      const nomU = u => (parcs.length > 1 ? ' · ' + u : '');
+      for (const u of parcs) brigadesParc(u).forEach(b => cols.set(`eq:${u}:${b.codi}`, { clau: `eq:${u}:${b.codi}`, nom: b.nom + nomU(u), color: '#088074', tasques: [], drop: 'equip' }));
+      cols.set('_', { clau: '_', nom: 'Sense assignar', color: '#8a8a85', tasques: [], drop: 'equip', nota: 'Responsable de les Brigades del PN' });
+      for (const t of ll) {
+        const g = t.gestio || {};
+        const k = !g.responsable ? '_' : g.responsable === 'brigada_parc' ? `eq:${t.unitat}:${g.brigada}` : `r:${t.unitat}:${g.responsable}`;
+        if (!cols.has(k)) cols.set(k, { clau: k, nom: (k.startsWith('eq:') ? brigada(t.unitat, g.brigada)?.nom || g.brigada || 'Equip' : nomResponsable(t.unitat, g.responsable)) + nomU(t.unitat), color: k.startsWith('r:') ? '#605e5c' : '#088074', tasques: [], drop: 'equip' });
+        cols.get(k).tasques.push(t);
+      }
+      const sense = cols.get('_'); cols.delete('_');
+      return [sense, ...cols.values()];
+    }
+    const grups = new Map();
+    ll.forEach(t => { const g = grupDe(t, per); if (!grups.has(g.clau)) grups.set(g.clau, { clau: g.clau, nom: g.nom, prio: g.prio, ordre: g.ordre, tasques: [], drop: null }); grups.get(g.clau).tasques.push(t); });
+    return [...grups.values()].sort((a, b) => (typeof a.ordre === 'number' && typeof b.ordre === 'number') ? a.ordre - b.ordre : ordCa(String(a.ordre), String(b.ordre)))
+      .map(c => ({ ...c, color: c.prio ? PRIO_HEX[c.prio] : '#088074' }));
+  }
+  function htmlTauler(per) {
+    const cols = columnesTauler(per);
+    st.columnes = cols;
+    const n = cols.reduce((a, c) => a + c.tasques.length, 0);
+    return { n, html: `<div class="mant-tauler" role="list">${cols.map(c => {
+      const avisos = c.tasques.filter(t => avisLimit(t)).length;
+      return `<section class="mant-col" data-col="${esc(c.clau)}" data-drop="${c.drop || ''}" role="listitem" aria-label="${esc(c.nom)}">
+        <div class="mant-col-cap" style="border-top-color:${c.color}"><span class="nom-col">${c.prio ? htmlPrio(c.prio) : esc(c.nom)}</span>
+          ${avisos ? `<span class="alerta" title="Data límit propera o vençuda">⏰ ${avisos}</span>` : ''}<span class="compte">${c.tasques.length}</span></div>
+        ${c.nota ? `<div class="mant-col-nota">${esc(c.nota)}</div>` : ''}
+        <div class="mant-col-cos">${c.tasques.map(t => htmlCarta(t, !!c.drop && !esTancada(t))).join('') || '<div class="mant-col-buida">Cap tasca</div>'}</div></section>`;
+    }).join('')}</div>${per && !['estat', 'equip'].includes(per) ? '<p class="text-small text-muted" style="padding:6px 12px">Per moure targetes entre columnes, agrupa per estat o per equip.</p>' : ''}` };
+  }
+  /** Què passa en deixar una targeta en una altra columna. */
+  async function deixaCarta(id, col) {
+    const t = (S.mant || []).find(x => x.id === id), c = (st.columnes || []).find(x => x.clau === col);
+    if (!t || !c?.drop) return;
+    if (!S.usuari?.perfil && !(await demanaUsuari('Indica qui ets i el teu perfil.'))?.perfil) return;
+    const r = rolsUsuari(t), gestor = potGestionar(r), equip = r.rols.has('brigada');
+    const no = msg => toast(msg, 'avis', 6000);
+    if (c.drop === 'equip') {
+      if (!gestor) return no('Només el Responsable de les Brigades del PN i la direcció del parc poden assignar tasques.');
+      if (t.estat === 'nova') return no(`${t.id} és nova: primer cal acceptar-la (botó «Accepta o descarta»).`);
+      if (!['acceptada', 'assignada', 'en_pausa'].includes(t.estat)) return no(`Una tasca «${nomEstat(t.estat)}» no es pot reassignar.`);
+      const [tipus, u, codi] = col === '_' ? ['_'] : col.split(':');
+      if (col !== '_' && u !== t.unitat) return no(`Aquest equip és d'un altre parc (${u}); la tasca és del ${t.unitat}.`);
+      return reassigna(t, col === '_' ? '' : `${tipus}:${codi}`);
+    }
+    const a = col;
+    if (a === t.estat) return;
+    if (!(await potSortir())) return;
+    if (t.estat === 'nova' && ['acceptada', 'assignada', 'descartada'].includes(a)) {
+      if (!gestor) return no('Només el Responsable de les Brigades del PN i la direcció poden acceptar o descartar tasques.');
+      return gestio(t, { estat: a === 'descartada' ? 'descartada' : 'acceptada', missatge: a === 'assignada' ? 'Accepta la tasca i tria l\'equip a «Assignada a».' : a === 'acceptada' ? 'Completa la tipologia, la prioritat i la data límit.' : 'Indica el motiu a les observacions.' });
+    }
+    if (t.estat === 'acceptada' && a === 'assignada') return gestor ? assignaRapid(t) : no('Només el Responsable de les Brigades del PN i la direcció poden assignar tasques.');
+    if (['assignada', 'en_pausa'].includes(t.estat) && a === 'acceptada') return gestor ? reassigna(t, '') : no('Només el Responsable de les Brigades del PN i la direcció poden treure l\'equip.');
+    const permesos = estatsPermesos(t, r);
+    if (!permesos.includes(a)) return no(`No es pot passar de «${nomEstat(t.estat)}» a «${nomEstat(a)}»${rolsQuePoden(t.estat, a) ? `: ho poden fer ${rolsQuePoden(t.estat, a)}` : ''}.`);
+    const perEquip = transicions().some(x => x.de.includes(t.estat) && x.a === a && x.rols.includes('brigada'));
+    if (equip && perEquip && (!gestor || a === 'pendent_verificacio')) return accioEquip(t, a);
+    if (gestor) return gestio(t, { estat: t.estat === 'en_pausa' && a === 'assignada' ? 'repren' : a });
+    return no('Amb el teu perfil no pots fer aquest canvi.');
+  }
+  /** Assigna (o treu) l'equip d'una tasca acceptada, assignada o en pausa, sense obrir la gestió. */
+  async function reassigna(t, valor) {
+    const r = rolsUsuari(t), ass = llegeixAssignacio(valor), moment = ara(), qui = { nom: S.usuari.nom, email: S.usuari.email || null, rols: [...r.rols] };
+    if (valorAssignacio(t.gestio) === valorAssignacio(ass)) return;
+    if (ass.responsable === 'empresa_externa' || !valor) {
+      const ok = await finestra({ titol: valor ? 'Empresa externa' : `Treure l'equip de ${esc(t.id)}`,
+        cos: valor ? '<div class="camp"><label for="re-empresa">Empresa (opcional)</label><input type="text" id="re-empresa"></div>' : `<p>La tasca tornarà a «Acceptada», sense equip${t.estat === 'en_pausa' ? ', i es tancarà la pausa' : ''}.</p>`,
+        botons: [{ text: 'Cancel·la', accio: 'no' }, { text: 'Confirma', accio: 'si', principal: true, recull: f => $('#re-empresa', f)?.value.trim() || null }] });
+      if (ok?.accio !== 'si') return;
+      ass.empresa = ok.dades;
+    }
+    const nou = clone(t), abansAss = nomAssignacio(t), abansEst = t.estat;
+    const membre = valor && t.gestio?.persona && personesParc(t.unitat, ass.brigada).some(p => p.equip === ass.brigada && normal(p.nom) === normal(t.gestio.persona));
+    nou.gestio = { ...(t.gestio || {}), responsable: ass.responsable, brigada: ass.brigada, empresa: ass.responsable === 'empresa_externa' ? ass.empresa || null : null,
+      persona: membre ? t.gestio.persona : null, assignat_per: valor ? S.usuari.nom : null, data_assignacio: valor ? moment : null };
+    if (!valor) { if (t.estat === 'en_pausa') nou.pauses = tancaPausa(t, moment, qui); nou.estat = 'acceptada'; }
+    else if (t.estat === 'acceptada') nou.estat = 'assignada';
+    nou.model_estats = 2;
+    const canvis = [{ camp: 'gestio.assignada', etiqueta: 'Assignada a', abans: abansAss, despres: nomAssignacio(nou) }];
+    if (normal(t.gestio?.persona) !== normal(nou.gestio.persona)) canvis.push({ camp: 'gestio.persona', etiqueta: 'Persona assignada', abans: t.gestio?.persona || null, despres: nou.gestio.persona });
+    if (abansEst !== nou.estat) canvis.push({ camp: 'estat', etiqueta: 'Estat', abans: nomEstat(abansEst), despres: nomEstat(nou.estat) });
+    nou.versio = (t.versio || 1) + 1; nou.modificat = moment; nou.modificat_per = S.usuari.nom;
+    nou.historial = [...(t.historial || []), { data: moment, usuari: { nom: S.usuari.nom, email: S.usuari.email || null, unitat: S.usuari.unitat || null, rols: qui.rols, font: 'manual' }, accio: 'gestio', canvis }];
+    try { await desaTasca(nou, t.versio || 1, false); }
+    catch (e) { toast((e.conflicte ? e.message + ' Recarrega les dades.' : 'Error en desar: ' + e.message), 'error', 10000); return; }
+    refrescaTot(); pintaLlista();
+    if (st.mode === 'fitxa' && st.sel === t.id) await pintaFitxa(t.id);
+    toast(valor ? `${t.id} assignada a ${nomAssignacio(nou)}.` : `${t.id}: sense equip (Acceptada).`);
+  }
+  // Arrossegar targetes (ratolí). Al mòbil, les targetes s'obren i els canvis es fan des de la fitxa.
+  function iniciaArrossegar() {
+    const box = $('#mant-llista');
+    box.addEventListener('dragstart', e => { const c = e.target.closest?.('.mant-carta[draggable]'); if (!c) return; st.drag = c.dataset.mant; c.classList.add('arrossegant'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', st.drag); });
+    box.addEventListener('dragend', () => { st.drag = null; $$('#mant-llista .arrossegant, #mant-llista .drop-ok').forEach(x => x.classList.remove('arrossegant', 'drop-ok')); });
+    box.addEventListener('dragover', e => { const col = e.target.closest?.('.mant-col'); if (!st.drag || !col?.dataset.drop) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+      $$('#mant-llista .drop-ok').forEach(x => x !== col && x.classList.remove('drop-ok')); col.classList.add('drop-ok'); });
+    box.addEventListener('dragleave', e => { const col = e.target.closest?.('.mant-col'); if (col && !col.contains(e.relatedTarget)) col.classList.remove('drop-ok'); });
+    box.addEventListener('drop', e => { const col = e.target.closest?.('.mant-col'); if (!st.drag || !col?.dataset.drop) return; e.preventDefault(); const id = st.drag; st.drag = null;
+      $$('#mant-llista .arrossegant, #mant-llista .drop-ok').forEach(x => x.classList.remove('arrossegant', 'drop-ok')); deixaCarta(id, col.dataset.col); });
+    box.addEventListener('keydown', e => { const c = e.target.closest?.('.mant-carta'); if (c && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); obre(c.dataset.mant); } });
+  }
+  function pintaVista() {
+    const v = vistaActual();
+    $$('#mant-vista button').forEach(b => b.setAttribute('aria-pressed', b.dataset.vista === v ? 'true' : 'false'));
+    $('.mant-layout').classList.toggle('mode-tauler', v === 'tauler');
+  }
+
   function pintaLlista() {
     const ll = ordena(filtrades()), per = $('#mf-agrupa').value;
     $('#mant-recompte').textContent = `${ll.length} ${ll.length === 1 ? 'tasca' : 'tasques'}`;
     const box = $('#mant-llista');
+    pintaVista();
+    if (vistaActual() === 'tauler') {
+      box.innerHTML = htmlTauler(per).html;
+      $('#mant-plega').hidden = true;
+      pintaKPIs(ll); pintaMapa(ll);
+      return;
+    }
     if (!ll.length) box.innerHTML = '<div class="buida">Cap tasca amb aquests filtres.</div>';
     else if (!per) box.innerHTML = `<ul>${ll.map(htmlTasca).join('')}</ul>`;
     else {
@@ -2715,6 +2896,8 @@ const Manteniment = (() => {
       $('#mf-parc').addEventListener('change', () => { pintaFiltres(); pintaLlista(); });   // els equips i les persones depenen del parc
       $('#mant-llista').addEventListener('toggle', e => { const d = e.target; if (!d.dataset?.grup) return; d.open ? plegats.delete(d.dataset.grup) : plegats.add(d.dataset.grup);
         $('#mant-plega').textContent = $$('#mant-llista details.mant-grup[open]').length ? 'Plega-ho tot' : 'Desplega-ho tot'; }, true);
+      $$('#mant-vista button').forEach(b => b.addEventListener('click', () => { desaVista(b.dataset.vista); pintaLlista(); setTimeout(() => mapa?.invalidateSize(), 60); }));
+      iniciaArrossegar();
       $('#mant-plega').addEventListener('click', () => { const obre = !$$('#mant-llista details.mant-grup[open]').length; $$('#mant-llista details.mant-grup').forEach(d => { d.open = obre; }); });
       $('#mf-cerca').addEventListener('input', pintaLlista);
       $('#mant-llista').addEventListener('click', e => {
@@ -2741,7 +2924,7 @@ const Manteniment = (() => {
   async function obre(id) {
     if (!(await potSortir())) return;
     st.sel = id; st.mode = 'fitxa';
-    $$('#mant-llista button[data-mant]').forEach(b => b.classList.toggle('sel', b.dataset.mant === id));
+    $$('#mant-llista [data-mant]').forEach(b => b.classList.toggle('sel', b.dataset.mant === id));
     pintaFitxa(id);
     $('#mant-panell').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -3150,7 +3333,7 @@ const Manteniment = (() => {
   }
 
   // ---------- Gestió de la tasca (Responsable de les Brigades del PN i direcció del parc) ----------
-  async function gestio(t) {
+  async function gestio(t, opcions = {}) {
     if (!S.usuari?.perfil && !(await demanaUsuari('Abans de gestionar la tasca, indica qui ets i el teu perfil.'))?.perfil) return;
     const r = rolsUsuari(t);
     if (!potGestionar(r)) {
@@ -3219,7 +3402,10 @@ const Manteniment = (() => {
       $('#mg-obs').closest('.camp').querySelector('label').classList.toggle('required', ['descartada', 'en_pausa'].includes(e) && e !== t.estat);
     };
     ['#mg-estat', '#mg-prioritat', '#mg-assignada'].forEach(x => $(x).addEventListener('change', sincr));
+    if (opcions.estat && $(`#mg-estat option[value="${opcions.estat}"]`)) $('#mg-estat').value = opcions.estat;
     sincr();
+    if (opcions.missatge) $('#mant-errors').innerHTML = `<div class="info-box text-small" style="margin:12px 20px 0">${esc(opcions.missatge)}</div>`;
+    if (opcions.estat) p.scrollIntoView({ behavior: 'smooth', block: 'start' });
     $('#mg-persona').addEventListener('change', e => {
       const eq = equipDePersona(u, e.target.value);
       if (eq && !$('#mg-assignada').value && $(`#mg-assignada option[value="eq:${CSS.escape(eq)}"]`)) { $('#mg-assignada').value = 'eq:' + eq; sincr(); }

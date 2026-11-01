@@ -136,6 +136,21 @@ Recull les peticions i tasques de manteniment dels espais naturals. (Fins al nov
 - A dalt, els **filtres**: espai, estat, prioritat, tipologia, **equip** (els responsables generals i cada equip de treball del parc), **persona assignada** i una cerca lliure.
 - A sota, els indicadors (tasques obertes, noves per acceptar, urgents, per assignar, en pausa, pendents de verificar, data límit propera i vençudes) i, a l'esquerra, la **llista de tasques en gran**, **agrupada en desplegables** segons el criteri triat a «Agrupa per»: estat (per defecte), prioritat, parc, equip, persona o tipologia, o sense agrupar. Cada grup mostra quantes tasques té i quantes tenen la data límit propera o vençuda. Es poden plegar i desplegar tots alhora.
 - El **mapa** de les tasques filtrades és petit, a sota de la llista. La fitxa de la tasca seleccionada surt a la dreta.
+- **Vista Tauler o Llista** (botons «▦ Tauler» i «☰ Llista»; el programa recorda l'última triada, i per defecte obre el tauler):
+  - El **tauler** mostra les tasques en **dipòsits** (columnes), com al Microsoft Planner, segons «Agrupa per». Cada targeta porta el codi, la tipologia, la descripció, l'equip i la persona, la prioritat (color de la vora), la data límit i l'avís ⏰. Les tasques acceptades hi tenen el botó «👷 Assigna».
+  - **Per estat** hi ha una columna per a cada estat. Resolta i Descartada només mostren les dels últims 30 dies, si no es marca «Mostra les verificades i descartades».
+  - **Per equip** hi ha una columna per a cada equip de treball actiu, més «Sense assignar» i els altres responsables.
+  - **Arrossegar una targeta** (amb el ratolí) a una altra columna en canvia l'estat o l'equip, amb les mateixes regles i permisos que la gestió:
+    - Nova → Acceptada / Descartada: s'obre la gestió amb el canvi triat (cal la tipologia, la prioritat i la data límit, o el motiu).
+    - Acceptada → Assignada: s'obre l'assignació ràpida.
+    - Assignada o En pausa → Acceptada: treu l'equip.
+    - Assignada → En pausa, i Pendent de verificar → Resolta: s'obre la gestió amb el canvi triat (motiu de la pausa o certificació d'hores).
+    - Assignada → Pendent de verificar: «Feina acabada» de l'equip de treball.
+    - Al tauler per equip, moure la targeta la reassigna a l'equip de la columna (o la deixa sense equip).
+    - Si el perfil no té permís per a aquell canvi, la targeta no es mou i el programa diu qui el pot fer.
+  - Agrupat per prioritat, parc, persona o tipologia, el tauler és només de consulta.
+  - En clicar una targeta, se n'obre la fitxa a sota, al costat del mapa.
+  - La **llista** és la vista anterior, amb els grups plegables.
 
 ### 4.1. Perfils d'usuari
 
