@@ -1,5 +1,5 @@
 {
-  "versio": "1.6",
+  "versio": "1.7",
   "data_actualitzacio": "2026-11-01",
   "descripcio": "Variables del mòdul de Gestió de brigades (codi intern: manteniment). Els valors generals s'apliquen a tots els parcs; a per_parc cada parc pot definir els seus responsables (i afegir-ne de propis) i el contacte de la direcció, que rep l'avís de cada tasca nova.",
   "perfils": {
@@ -46,27 +46,32 @@
     {
       "codi": "nova",
       "nom": "Nova",
-      "descripcio": "Entrada pel sol·licitant (només calen el parc i la descripció), pendent que el Responsable de les Brigades del PN o la direcció l'acceptin o la descartin."
+      "descripcio": "Entrada pel sol·licitant, pendent que el Responsable de les Brigades del PN o la direcció l'acceptin o la descartin."
+    },
+    {
+      "codi": "acceptada",
+      "nom": "Acceptada",
+      "descripcio": "Gestionada: té tipologia, prioritat i data límit, però encara no té cap equip assignat."
     },
     {
       "codi": "assignada",
-      "nom": "Acceptada",
-      "descripcio": "Acceptada pel Responsable de les Brigades del PN o la direcció: té tipologia, prioritat i data límit, i pot estar assignada a un equip de treball (codi intern: assignada)."
+      "nom": "Assignada",
+      "descripcio": "Té un equip de treball (o un altre responsable) per fer-la."
     },
     {
-      "codi": "en_curs",
-      "nom": "En curs",
-      "descripcio": "L'equip de treball hi està treballant."
+      "codi": "en_pausa",
+      "nom": "En pausa",
+      "descripcio": "La feina s'ha aturat per algun motiu. Pot seguir assignada o tornar a Acceptada."
+    },
+    {
+      "codi": "pendent_verificacio",
+      "nom": "Pendent de verificar",
+      "descripcio": "L'equip ha acabat la feina; pendent que el Responsable de les Brigades del PN o la direcció la verifiquin."
     },
     {
       "codi": "resolta",
       "nom": "Resolta",
-      "descripcio": "L'equip de treball ha acabat la feina; pendent de verificar."
-    },
-    {
-      "codi": "verificada",
-      "nom": "Verificada",
-      "descripcio": "El Responsable de les Brigades del PN o la direcció del parc han comprovat la feina. Estat final."
+      "descripcio": "Verificada pel Responsable de les Brigades del PN o la direcció. Estat final."
     },
     {
       "codi": "descartada",
@@ -75,77 +80,128 @@
     }
   ],
   "estats_tancats": [
-    "verificada",
+    "resolta",
     "descartada"
   ],
   "estats_sense_avis": [
+    "pendent_verificacio",
     "resolta",
-    "verificada",
     "descartada"
   ],
   "rols": {
     "manteniment": "Responsable de les Brigades del PN (perfil cap_manteniment)",
     "direccio": "Direcció del parc (perfil direccio)",
-    "brigada": "Equip de treball: cap de brigada/equip (perfil brigada) i persona de manteniment (perfil persona_manteniment), amb els mateixos permisos: començar la feina (Acceptada → En curs) i acabar-la (En curs → Resolta). Si la tasca no està assignada a cap equip de treball del parc, el Responsable de les Brigades del PN també té aquest rol per a aquella tasca.",
+    "brigada": "Equip de treball: cap de brigada/equip (perfil brigada) i persona de manteniment (perfil persona_manteniment), amb els mateixos permisos: posar en pausa i reprendre la feina, i marcar-la com a acabada (Assignada → Pendent de verificar). Si la tasca no està assignada a cap equip de treball del parc, el Responsable de les Brigades del PN també té aquest rol per a aquella tasca.",
     "reconeixement": "Pel perfil i la unitat que declara la persona en identificar-se; amb SINATCAT, per l'usuari autenticat."
   },
   "transicions": [
     {
       "de": [
-        "nova",
-        "assignada"
+        "nova"
+      ],
+      "a": "acceptada",
+      "rols": [
+        "manteniment",
+        "direccio"
+      ],
+      "nota": "Acceptar (cal tipologia, prioritat i data límit). Si s'assigna un equip alhora, passa directament a Assignada."
+    },
+    {
+      "de": [
+        "nova"
+      ],
+      "a": "assignada",
+      "rols": [
+        "manteniment",
+        "direccio"
+      ]
+    },
+    {
+      "de": [
+        "acceptada",
+        "en_pausa"
       ],
       "a": "assignada",
       "rols": [
         "manteniment",
         "direccio"
       ],
-      "nota": "Acceptar una tasca nova (cal la tipologia, la prioritat i la data límit) o modificar-ne les dades. Des de Nova només es pot passar a Acceptada o Descartada."
+      "nota": "S'aplica sola en assignar un equip."
+    },
+    {
+      "de": [
+        "assignada",
+        "en_pausa"
+      ],
+      "a": "acceptada",
+      "rols": [
+        "manteniment",
+        "direccio"
+      ],
+      "nota": "S'aplica sola en treure l'equip."
     },
     {
       "de": [
         "assignada"
       ],
-      "a": "en_curs",
+      "a": "en_pausa",
       "rols": [
+        "manteniment",
+        "direccio",
         "brigada"
-      ]
+      ],
+      "nota": "Cal indicar-ne el motiu."
     },
     {
       "de": [
-        "en_curs"
+        "en_pausa"
+      ],
+      "a": "assignada",
+      "rols": [
+        "brigada",
+        "manteniment",
+        "direccio"
+      ],
+      "nota": "Reprendre la feina (l'equip continua assignat)."
+    },
+    {
+      "de": [
+        "assignada"
+      ],
+      "a": "pendent_verificacio",
+      "rols": [
+        "brigada"
+      ],
+      "nota": "Feina acabada."
+    },
+    {
+      "de": [
+        "pendent_verificacio"
       ],
       "a": "resolta",
       "rols": [
-        "brigada"
-      ]
-    },
-    {
-      "de": [
-        "resolta"
-      ],
-      "a": "verificada",
-      "rols": [
         "manteniment",
         "direccio"
-      ]
+      ],
+      "nota": "Verificar: cal la certificació final d'hores."
     },
     {
       "de": [
-        "resolta"
+        "pendent_verificacio"
       ],
-      "a": "en_curs",
+      "a": "assignada",
       "rols": [
         "manteniment",
         "direccio"
       ],
-      "nota": "No es verifica: torna a l'equip de treball (cal explicar-ne el motiu)."
+      "nota": "No es verifica: torna a l'equip (cal explicar-ne el motiu)."
     },
     {
       "de": [
         "nova",
+        "acceptada",
         "assignada",
-        "en_curs"
+        "en_pausa"
       ],
       "a": "descartada",
       "rols": [
@@ -519,5 +575,7 @@
   },
   "assignacio_persona": "Opcional. Una tasca (i una tasca periòdica) es pot assignar a una persona concreta (gestio.persona, nom). Es proposen els caps i membres dels equips de treball del parc (brigades.json); si es deixa en blanc, la tasca és de tot l'equip.",
   "hores_per_defecte": 7,
-  "gestio_tasques": "Només la poden fer el Responsable de les Brigades del PN i la direcció del parc. El responsable de cada tasca és sempre el Responsable de les Brigades del PN; el camp «Assignada a» inclou sempre tots els equips de treball actius del parc (brigades.json) i els altres responsables (Forestal Catalana, empresa externa, propis). Es poden modificar totes les dades: tipologia, descripció, data proposada (no anterior a la data d'entrada), immoble, ubicació, sol·licitant i altres persones que reben els avisos (notificar[])."
+  "gestio_tasques": "Només la poden fer el Responsable de les Brigades del PN i la direcció del parc. El responsable de cada tasca és sempre el Responsable de les Brigades del PN; el camp «Assignada a» inclou sempre tots els equips de treball actius del parc (brigades.json) i els altres responsables (Forestal Catalana, empresa externa, propis). Es poden modificar totes les dades: tipologia, descripció, data proposada (no anterior a la data d'entrada), immoble, ubicació, sol·licitant i altres persones que reben els avisos (notificar[]).",
+  "model_estats": 2,
+  "model_estats_nota": "Model 2 (01/11/2026). Les tasques antigues es converteixen en obrir-les: assignada o en_curs → assignada (o acceptada si no tenen equip), resolta → pendent_verificacio, verificada → resolta. Cada tasca convertida porta model_estats: 2."
 }
