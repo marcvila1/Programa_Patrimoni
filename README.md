@@ -204,7 +204,7 @@ La fitxa mostra les hores estimades, el total certificat, la desviació i el det
 
 **Tancament.** En resoldre (verificar) o descartar una tasca, el programa ofereix el correu de tancament per al sol·licitant i la direcció.
 
-Cada canvi queda a l'historial de la tasca, amb la persona, el rol i la data. També es desa qui va començar la feina, qui la va resoldre, qui la va verificar i qui va fer cada certificació d'hores.
+Cada canvi queda a l'historial de la tasca, amb la persona, el rol i la data. També es desa qui la va acceptar i assignar, les pauses, qui va acabar la feina, qui la va verificar i qui va fer cada certificació d'hores.
 
 ### 4.4. Tasques periòdiques
 
@@ -255,7 +255,7 @@ Tots dos els poden modificar només el Responsable de les Brigades del PN i la d
 
 ### 4.7. Pendents
 
-- **Webapp mòbil per als equips de treball** (caps de brigada/equip i persones de manteniment). L'encàrrec complet (funcions, dades, regles, opcions de desament i estil) és a `docs/ENCARREC_WEBAPP_BRIGADA.md`. En resum: un HTML independent, pensat per al mòbil i molt senzill, per veure les feines assignades (imatges, descripció i ubicació), marcar-les com a «En curs» i «Resolta», pujar fotografies de seguiment i crear peticions noves. Necessitarà desar en un servidor (SINATCAT), perquè els navegadors dels mòbils no permeten triar una carpeta de treball. Mentrestant, els equips poden fer aquestes accions des d'aquest programa.
+- **Webapp mòbil per als equips de treball** (caps de brigada/equip i persones de manteniment). L'encàrrec complet (funcions, dades, regles, opcions de desament i estil) és a `docs/ENCARREC_WEBAPP_BRIGADA.md`. En resum: un HTML independent, pensat per al mòbil i molt senzill, per veure les feines assignades (imatges, descripció i ubicació), posar-les en pausa, reprendre-les i marcar-les com a acabades, pujar fotografies de seguiment i crear peticions noves. Necessitarà desar en un servidor (SINATCAT), perquè els navegadors dels mòbils no permeten triar una carpeta de treball. Mentrestant, els equips poden fer aquestes accions des d'aquest programa.
 - Omplir la direcció i el Responsable de les Brigades del PN de cada parc (Configuració dels parcs) i els equips de treball (Equips de treball).
 - **Integració a SINATCAT:** usuaris únics amb perfil, fotografies a la base de dades, i avisos per correu automàtics en lloc de mailto.
 
