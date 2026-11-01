@@ -144,55 +144,58 @@ Hi ha aquests perfils:
 | Perfil | Què fa |
 |---|---|
 | **Tècnic/a** | Entra peticions i tasques i les consulta |
-| **Cap de brigada** (abans, cap d'Infraestructures i Manteniment) i **director/a de parc** | Valoren, classifiquen i assignen (prioritat, data límit, responsable, equip de treball i, si cal, una persona concreta), certifiquen hores, verifiquen o descarten, i gestionen els equips de treball i la configuració del parc |
-| **Cap de brigada/equip** | Marca la feina com a «En curs» i «Resolta» i hi afegeix fotografies de seguiment |
+| **Responsable de les Brigades del PN** (abans, cap d'Infraestructures i Manteniment) i **director/a de parc** | Són els únics que **gestionen** les tasques: les accepten o descarten, fixen la tipologia, la prioritat i la data límit, les assignen a un equip de treball i, si cal, a una persona concreta, poden modificar-ne totes les dades, certifiquen hores i verifiquen. Gestionen els equips de treball i la configuració del parc. El Responsable de les Brigades del PN és el **responsable per defecte** de totes les tasques |
+| **Cap de brigada/equip** | Amb els botons de la fitxa, comença la feina («En curs») i l'acaba («Resolta»), i hi afegeix fotografies de seguiment |
 | **Persona de manteniment** | El mateix perfil i els mateixos permisos que el cap de brigada/equip |
 
 Fins a la integració a SINATCAT, cada persona indica el seu **perfil** i la seva **unitat** en identificar-se (botó de la capçalera):
 - El director/a, el cap de brigada/equip i la persona de manteniment només actuen al seu parc.
-- El cap de brigada actua al seu parc o, si la seva unitat és central, a tots els parcs.
+- El Responsable de les Brigades del PN actua al seu parc o, si la seva unitat és central, a tots els parcs.
 
 Amb SINATCAT, el perfil vindrà de l'usuari autenticat. Fins llavors és un control d'organització, no de seguretat.
 
 ### 4.2. Entrada d'una tasca
 
-Qualsevol persona pot entrar-ne una amb el botó **＋ Nova tasca**. També es pot fer des de la fitxa d'un immoble, i llavors el formulari surt amb el parc, l'immoble i la ubicació ja omplerts. El formulari demana:
-- **Parc natural** (obligatori).
-- **Tipologia** (obligatòria): seguretat, senyalització, gestió ramadera, gestió cinegètica, desperfectes, manteniment, petició de feina tècnica o altres. Les tipologies són a `data/manteniment_tipologies.json`.
-- **Descripció** (obligatòria).
-- **Ubicació** (obligatòria): es pot clicar el mapa, arrossegar-ne el punt o escriure les coordenades UTM.
-- **Fotografies** (almenys una): es redueixen a 1.600 píxels i es desen amb les dades (`patrimoni/manteniment_fotos/<codi>_NN.jpg`). Des del mòbil es poden fer directament amb la càmera.
-- **Hores de dedicació estimades** (obligatòries). El cap de brigada o la direcció les poden revisar.
-- **Immoble relacionat** del mòdul de patrimoni (opcional). En marcar la ubicació, el programa proposa l'immoble més proper si n'hi ha un a menys de 500 m.
-- **Data proposada de realització** (opcional).
-- **Persona assignada** (opcional): una persona concreta dels equips de treball del parc. Si és d'un equip, també s'hi proposa aquell equip. En blanc, la tasca és de tot l'equip que assigni el cap de brigada.
-- **Nom i correu del sol·licitant**.
+Qualsevol persona pot entrar-ne una amb el botó **＋ Nova tasca**. També es pot fer des de la fitxa d'un immoble, i llavors el formulari surt amb el parc, l'immoble i la ubicació ja omplerts. **Només són obligatoris el parc i la descripció.** La resta és opcional:
+- **Tipologia**: seguretat, senyalització, gestió ramadera, gestió cinegètica, desperfectes, manteniment, petició de feina tècnica o altres (`data/manteniment_tipologies.json`). Si no s'indica, la fixa el Responsable de les Brigades del PN: és un requisit per acceptar la tasca.
+- **Ubicació**: es pot clicar el mapa, arrossegar-ne el punt o escriure les coordenades UTM (cal la X i la Y, o cap de les dues).
+- **Fotografies**: es redueixen a 1.600 píxels i es desen amb les dades (`patrimoni/manteniment_fotos/<codi>_NN.jpg`). Des del mòbil es poden fer directament amb la càmera.
+- **Hores de dedicació estimades**. Si no s'indiquen, en gestionar la tasca es proposen 7 hores (`hores_per_defecte` a `variables.json`).
+- **Immoble relacionat** del mòdul de patrimoni. En marcar la ubicació, el programa proposa l'immoble més proper si n'hi ha un a menys de 500 m.
+- **Data proposada de realització**: no pot ser anterior a la data de creació de la tasca.
+- **Persona assignada**: una persona concreta dels equips de treball del parc.
+- **Nom i correu del sol·licitant** (per defecte, els de la persona identificada).
 
-En registrar-la, es crea un codi `MANT-AAAA-NNNN` i un botó obre un **correu ja redactat** (mailto) per al sol·licitant, la direcció del parc i el cap de brigada. El correu descriu la tasca (codi, tipologia, immoble, coordenades, enllaç al mapa i descripció) i **no esmenta les fotografies**, que són a la base de dades.
+En registrar-la, es crea un codi `MANT-AAAA-NNNN` i un botó obre un **correu ja redactat** (mailto) per al sol·licitant, la direcció del parc i el Responsable de les Brigades del PN. El correu descriu la tasca (codi, tipologia, immoble, coordenades, enllaç al mapa i descripció) i **no esmenta les fotografies**, que són a la base de dades.
 
 ### 4.3. Estats
 
 | Estat | Qui hi fa passar | Què cal |
 |---|---|---|
 | **Nova** | Qualsevol persona, en entrar-la | — |
-| **Assignada** | Cap de brigada o direcció | Prioritat, data límit (si no és «En espera»), responsable i, si és l'equip de treball del parc, l'equip. Opcionalment, una persona concreta. Es posa sola en assignar-los |
+| **Acceptada** (codi intern `assignada`) | Responsable de les Brigades del PN o direcció | **Tipologia**, prioritat i data límit (si no és «En espera»). Opcionalment, l'equip («Assignada a») i una persona concreta |
 | **En curs** | Cap de brigada/equip o persona de manteniment | — |
 | **Resolta** | Cap de brigada/equip o persona de manteniment | — (deixa d'avisar per la data límit) |
-| **Verificada** | Cap de brigada o direcció | Certificació final d'hores. Estat final |
-| **Descartada** | Cap de brigada o direcció | Motiu a les observacions. Estat final |
+| **Verificada** | Responsable de les Brigades del PN o direcció | Certificació final d'hores. Estat final |
+| **Descartada** | Responsable de les Brigades del PN o direcció | Motiu a les observacions. Estat final |
+
+En gestionar una tasca **nova**, només es pot passar a **Acceptada** o **Descartada**: ja no queda com a nova.
 
 Una feina resolta que no es verifica es pot tornar a **En curs**, explicant-ne el motiu.
 
 - La **data límit** és obligatòria excepte amb «En espera». **Una setmana abans** apareix un avís, i també quan ja ha passat. L'avís es veu al mòdul, a la llista, a la fitxa, en un comptador a la pestanya i als indicadors.
-- El **responsable** pot ser qualsevol dels que tingui configurats el parc (Equip de treball del parc, Forestal Catalana, Empresa externa o responsables propis). Si la feina no la fa l'equip de treball del parc, el cap de brigada també la pot marcar com a «En curs» i «Resolta».
+- El **responsable** de totes les tasques és sempre el Responsable de les Brigades del PN: no s'ha de triar.
+- **Assignada a** és un desplegable que inclou **sempre tots els equips de treball actius** del parc (botó «Equips de treball») i, a sota, els altres responsables (Forestal Catalana, empresa externa o propis del parc). Si no s'assigna a cap equip del parc, el Responsable de les Brigades del PN també pot marcar la feina com a «En curs» i «Resolta».
 
-**Hores.** Les certifiquen el cap de brigada o la direcció:
+**Gestió de la tasca** (botó «Accepta o descarta» o «Gestiona»). Només la poden fer el Responsable de les Brigades del PN i la direcció del parc. Es pot canviar tot: estat, prioritat, data límit, «Assignada a», persona assignada, hores estimades (7 per defecte), observacions, tipologia, descripció, data proposada, immoble relacionat, ubicació (amb mapa), sol·licitant i **altres persones que reben els avisos** (`notificar[]`, s'afegeixen als correus). També s'hi poden afegir fotografies de la petició.
+
+**Hores.** Les certifiquen el Responsable de les Brigades del PN o la direcció:
 - **Certificacions parcials:** mentre la feina és en curs o resolta. Serveixen per a les feines llargues, que no es poden certificar de cop.
 - **Certificació final:** obligatòria en verificar. Pot ser 0 si ja s'han certificat totes les hores.
 
 La fitxa mostra les hores estimades, el total certificat, la desviació i el detall de cada certificació.
 
-**Fotografies de seguiment.** Mentre la feina està assignada o en curs, l'equip de treball (cap de brigada/equip o persona de manteniment) o el cap de brigada poden afegir fotografies de com evoluciona, amb una nota. La fitxa les mostra separades de les de la petició.
+**Fotografies de seguiment.** Mentre la feina està assignada o en curs, l'equip de treball (cap de brigada/equip o persona de manteniment) o el Responsable de les Brigades del PN poden afegir fotografies de com evoluciona, amb una nota. La fitxa les mostra separades de les de la petició.
 
 **Tancament.** En verificar o descartar una tasca, el programa ofereix el correu de tancament per al sol·licitant i la direcció.
 
@@ -212,7 +215,7 @@ Camps de cada tasca:
 - **Avisa'm (dies abans):** quan es genera la tasca. En triar la periodicitat es proposa un valor (setmanal 2, quinzenal 4, mensual 7, bimestral 10, trimestral i quadrimestral 14, semestral 21, anual i biennal 30), que es pot canviar. Ha de ser menys que l'interval entre execucions.
 - **Observacions** i si està activa.
 
-Les creen i modifiquen el cap de brigada i la direcció del parc.
+Les creen i modifiquen el Responsable de les Brigades del PN i la direcció del parc.
 
 **Com funcionen.** Cada execució genera una **tasca** els dies d'avís que té la tasca abans de la data. Les tasques antigues sense aquest camp fan servir els 14 dies generals de `variables.json`:
 - La data límit de la tasca és la data de l'execució.
@@ -226,29 +229,29 @@ Les creen i modifiquen el cap de brigada i la direcció del parc.
 
 El botó **⚙ Configuració dels parcs** permet definir, per a cada parc:
 - La **direcció**: nom, càrrec, correu i telèfon.
-- El **cap de brigada**: nom, correu i telèfon.
+- El **Responsable de les Brigades del PN**: nom, correu i telèfon.
 - Els **responsables** disponibles: quins dels generals fa servir el parc i, si cal, responsables propis.
 
 Es desa a `variables.json`.
 
 El botó **👷 Equips de treball** permet crear i mantenir els equips de treball de cada parc. Cada equip té nom, cap de brigada/equip (nom, correu i telèfon), àmbit, membres (un per línia, «Nom — funció») i si està actiu. Els caps i els membres són les persones que es proposen en assignar una tasca a una persona concreta. Un equip amb tasques assignades no es pot esborrar, només desactivar. Es desa a `brigades.json`.
 
-Tots dos els poden modificar només el cap de brigada i la direcció del parc. La resta de perfils els poden consultar.
+Tots dos els poden modificar només el Responsable de les Brigades del PN i la direcció del parc. La resta de perfils els poden consultar.
 
 ### 4.6. Fitxers
 
 | Fitxer | Contingut |
 |---|---|
-| `manteniment.json` | Tasques. Cada una té les dades d'entrada, `hores_estimades`, `fotografies[]` (`fase`: petició o seguiment), la gestió (`gestio{prioritat, data_limit, responsable, brigada, persona, empresa, observacions}` (`brigada` és el codi de l'equip de treball i `persona`, el nom de la persona assignada o `null`)), l'estat, `certificacions_hores[{hores, tipus, data, per}]`, la versió i l'historial |
+| `manteniment.json` | Tasques. Cada una té les dades d'entrada, `notificar[]` (altres correus que reben els avisos), `hores_estimades`, `fotografies[]` (`fase`: petició o seguiment), la gestió (`gestio{prioritat, data_limit, responsable, brigada, persona, empresa, observacions}` (`brigada` és el codi de l'equip de treball i `persona`, el nom de la persona assignada o `null`)), l'estat, `certificacions_hores[{hores, tipus, data, per}]`, la versió i l'historial |
 | `manteniment_tipologies.json` | Tipologies de petició o tasca |
-| `variables.json` | Perfils, prioritats (i si demanen data límit), dies d'avís (7), periodicitats i dies d'antelació de les tasques periòdiques (14), estats, rols, canvis d'estat permesos per rol (`transicions`), responsables generals i configuració de cada parc (`per_parc`: direcció, cap de brigada i responsables) |
+| `variables.json` | Perfils, prioritats (i si demanen data límit), dies d'avís (7), periodicitats i dies d'antelació de les tasques periòdiques (14), estats, rols, canvis d'estat permesos per rol (`transicions`), responsables generals i configuració de cada parc (`per_parc`: direcció, Responsable de les Brigades del PN i responsables) |
 | `brigades.json` | Equips de treball de cada parc |
 | `tasques_periodiques.json` | Tasques periòdiques: parc, element, tasca, periodicitat, data inicial i final, hores, prioritat, responsable, observacions, activa, propera execució i historial |
 
 ### 4.7. Pendents
 
 - **Webapp mòbil per als equips de treball** (caps de brigada/equip i persones de manteniment). L'encàrrec complet (funcions, dades, regles, opcions de desament i estil) és a `docs/ENCARREC_WEBAPP_BRIGADA.md`. En resum: un HTML independent, pensat per al mòbil i molt senzill, per veure les feines assignades (imatges, descripció i ubicació), marcar-les com a «En curs» i «Resolta», pujar fotografies de seguiment i crear peticions noves. Necessitarà desar en un servidor (SINATCAT), perquè els navegadors dels mòbils no permeten triar una carpeta de treball. Mentrestant, els equips poden fer aquestes accions des d'aquest programa.
-- Omplir la direcció i el cap de brigada de cada parc (Configuració dels parcs) i els equips de treball (Equips de treball).
+- Omplir la direcció i el Responsable de les Brigades del PN de cada parc (Configuració dels parcs) i els equips de treball (Equips de treball).
 - **Integració a SINATCAT:** usuaris únics amb perfil, fotografies a la base de dades, i avisos per correu automàtics en lloc de mailto.
 
 ---
