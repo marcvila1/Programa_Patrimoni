@@ -1,13 +1,13 @@
 {
-  "versio": "1.7",
+  "versio": "1.8",
   "data_actualitzacio": "2026-11-01",
   "descripcio": "Variables del mòdul de Gestió de brigades (codi intern: manteniment). Els valors generals s'apliquen a tots els parcs; a per_parc cada parc pot definir els seus responsables (i afegir-ne de propis) i el contacte de la direcció, que rep l'avís de cada tasca nova.",
   "perfils": {
-    "tecnic": "Tècnic/a: entra peticions i tasques (només són obligatoris el parc i la descripció).",
-    "cap_manteniment": "Responsable de les Brigades del PN (abans, cap d'Infraestructures i Manteniment): és el responsable per defecte de totes les tasques del parc. Accepta o descarta les tasques noves (en acceptar-les fixa la tipologia, la prioritat i la data límit), les assigna a un equip de treball i, si cal, a una persona concreta, pot modificar-ne totes les dades, certifica hores i verifica. Gestiona els equips de treball i la configuració. Si la seva unitat és un parc, només en aquell parc; si és una unitat central, a tots.",
-    "direccio": "Director/a de parc: les mateixes funcions que el Responsable de les Brigades del PN, al seu parc.",
-    "brigada": "Cap de brigada/equip: marca les tasques com a En curs i Resolta i hi afegeix fotografies de seguiment. Pendent: accés per una webapp mòbil pròpia.",
-    "persona_manteniment": "Persona de manteniment: el mateix perfil i els mateixos permisos que el cap de brigada/equip. Se li poden assignar tasques concretes (gestio.persona)."
+    "tecnic": "Tècnic/a: treballador/a de la DGPAMN que entra tasques (només són obligatoris el parc i la descripció). Fa servir el programa principal (index.html).",
+    "cap_manteniment": "Responsable de brigades: tècnic/a de la DGPAMN responsable de les brigades. És el responsable per defecte de totes les tasques: les accepta o descarta (en acceptar-les fixa la tipologia, la prioritat i la data límit), les assigna a una colla i, si cal, a una persona concreta, en pot modificar totes les dades, certifica hores, valida els registres de les colles i verifica la feina. Gestiona les colles i la configuració. Si la seva unitat és un parc, només en aquell parc; si és una unitat central, a tots. Fa servir el programa principal (index.html).",
+    "direccio": "Director/a del Parc Natural: les mateixes funcions que el Responsable de brigades, al seu parc. Fa servir el programa principal (index.html).",
+    "brigada": "Cap de colla: responsable d'una colla (equip de treball). Registra la feina feta (hores, persones, fotografies), posa les tasques en pausa i les reprèn, les marca com a acabades i entra tasques noves. Fa servir la webapp de brigades (brigada.html).",
+    "persona_manteniment": "Oficial: persona d'una colla, amb els mateixos permisos que el cap de colla. Se li poden assignar tasques concretes (gestio.persona). Fa servir la webapp de brigades (brigada.html)."
   },
   "prioritats": [
     {
@@ -46,7 +46,7 @@
     {
       "codi": "nova",
       "nom": "Nova",
-      "descripcio": "Entrada pel sol·licitant, pendent que el Responsable de les Brigades del PN o la direcció l'acceptin o la descartin."
+      "descripcio": "Entrada pel sol·licitant, pendent que el Responsable de brigades o la direcció l'acceptin o la descartin."
     },
     {
       "codi": "acceptada",
@@ -66,12 +66,12 @@
     {
       "codi": "pendent_verificacio",
       "nom": "Pendent de verificar",
-      "descripcio": "L'equip ha acabat la feina; pendent que el Responsable de les Brigades del PN o la direcció la verifiquin."
+      "descripcio": "L'equip ha acabat la feina; pendent que el Responsable de brigades o la direcció la verifiquin."
     },
     {
       "codi": "resolta",
       "nom": "Resolta",
-      "descripcio": "Verificada pel Responsable de les Brigades del PN o la direcció. Estat final."
+      "descripcio": "Verificada pel Responsable de brigades o la direcció. Estat final."
     },
     {
       "codi": "descartada",
@@ -89,9 +89,9 @@
     "descartada"
   ],
   "rols": {
-    "manteniment": "Responsable de les Brigades del PN (perfil cap_manteniment)",
+    "manteniment": "Responsable de brigades (perfil cap_manteniment)",
     "direccio": "Direcció del parc (perfil direccio)",
-    "brigada": "Equip de treball: cap de brigada/equip (perfil brigada) i persona de manteniment (perfil persona_manteniment), amb els mateixos permisos: posar en pausa i reprendre la feina, i marcar-la com a acabada (Assignada → Pendent de verificar). Si la tasca no està assignada a cap equip de treball del parc, el Responsable de les Brigades del PN també té aquest rol per a aquella tasca.",
+    "brigada": "Colla: cap de colla (perfil brigada) i oficial (perfil persona_manteniment), amb els mateixos permisos: posar en pausa i reprendre la feina, i marcar-la com a acabada (Assignada → Pendent de verificar), des de la webapp de brigades. Si la tasca no està assignada a cap colla del parc, el Responsable de brigades també té aquest rol per a aquella tasca.",
     "reconeixement": "Pel perfil i la unitat que declara la persona en identificar-se; amb SINATCAT, per l'usuari autenticat."
   },
   "transicions": [
@@ -211,7 +211,7 @@
       "nota": "Cal indicar-ne el motiu."
     }
   ],
-  "certificacio_hores": "Certificacions parcials durant la feina (feines llargues) i una de final, obligatòria en verificar. Les fa el Responsable de les Brigades del PN o la direcció.",
+  "certificacio_hores": "Certificacions parcials durant la feina (feines llargues) i una de final, obligatòria en verificar. Les fa el Responsable de brigades o la direcció.",
   "periodicitats": [
     {
       "codi": "setmanal",
@@ -269,7 +269,7 @@
     }
   ],
   "dies_antelacio_periodiques": 14,
-  "tasques_periodiques": "Cada execució d'una tasca periòdica genera una tasca els dies indicats al camp «Avisa'm (dies abans)» de la tasca (dies_antelacio), amb la data límit igual a la data d'execució. En crear-la es proposa l'antelació de la periodicitat (periodicitats[].antelacio); ha de ser menor que l'interval entre execucions. dies_antelacio_periodiques només s'aplica a tasques antigues sense el camp. Les crea i modifica el Responsable de les Brigades del PN o la direcció del parc.",
+  "tasques_periodiques": "Cada execució d'una tasca periòdica genera una tasca els dies indicats al camp «Avisa'm (dies abans)» de la tasca (dies_antelacio), amb la data límit igual a la data d'execució. En crear-la es proposa l'antelació de la periodicitat (periodicitats[].antelacio); ha de ser menor que l'interval entre execucions. dies_antelacio_periodiques només s'aplica a tasques antigues sense el camp. Les crea i modifica el Responsable de brigades o la direcció del parc.",
   "responsables": [
     {
       "codi": "brigada_parc",
@@ -575,7 +575,7 @@
   },
   "assignacio_persona": "Opcional. Una tasca (i una tasca periòdica) es pot assignar a una persona concreta (gestio.persona, nom). Es proposen els caps i membres dels equips de treball del parc (brigades.json); si es deixa en blanc, la tasca és de tot l'equip.",
   "hores_per_defecte": 7,
-  "gestio_tasques": "Només la poden fer el Responsable de les Brigades del PN i la direcció del parc. El responsable de cada tasca és sempre el Responsable de les Brigades del PN; el camp «Assignada a» inclou sempre tots els equips de treball actius del parc (brigades.json) i els altres responsables (Forestal Catalana, empresa externa, propis). Es poden modificar totes les dades: tipologia, descripció, data proposada (no anterior a la data d'entrada), immoble, ubicació, sol·licitant i altres persones que reben els avisos (notificar[]).",
+  "gestio_tasques": "Només la poden fer el Responsable de brigades i la direcció del parc. El responsable de cada tasca és sempre el Responsable de brigades; el camp «Assignada a» inclou sempre tots els equips de treball actius del parc (brigades.json) i els altres responsables (Forestal Catalana, empresa externa, propis). Es poden modificar totes les dades: tipologia, descripció, data proposada (no anterior a la data d'entrada), immoble, ubicació, sol·licitant i altres persones que reben els avisos (notificar[]).",
   "model_estats": 2,
   "model_estats_nota": "Model 2 (01/11/2026). Les tasques antigues es converteixen en obrir-les: assignada o en_curs → assignada (o acceptada si no tenen equip), resolta → pendent_verificacio, verificada → resolta. Cada tasca convertida porta model_estats: 2."
 }

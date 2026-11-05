@@ -141,11 +141,11 @@
   <!-- Identificació -->
   <section id="vista-acces" hidden>
     <h1>Qui ets?</h1>
-    <p class="muted" style="margin-bottom:14px">Mentre no hi hagi SINATCAT, cal indicar el teu equip de treball. Amb SINATCAT, cada persona tindrà un usuari únic i aquesta pantalla desapareixerà.</p>
+    <p class="muted" style="margin-bottom:14px">Webapp per als caps de colla i els oficials de les brigades. Mentre no hi hagi SINATCAT, cal indicar la teva colla. Amb SINATCAT, cada persona tindrà un usuari únic i aquesta pantalla desapareixerà.</p>
     <div class="card">
       <label class="camp"><span>Parc</span><select id="acc-parc"></select></label>
-      <label class="camp"><span>Equip de treball</span><select id="acc-brigada"></select></label>
-      <label class="camp"><span>Perfil</span><select id="acc-perfil"><option value="brigada">Cap de brigada/equip</option><option value="persona_manteniment">Persona de manteniment</option></select></label>
+      <label class="camp"><span>Colla (equip de treball)</span><select id="acc-brigada"></select></label>
+      <label class="camp"><span>Perfil</span><select id="acc-perfil"><option value="brigada">Cap de colla (responsable de la colla)</option><option value="persona_manteniment">Oficial</option></select></label>
       <label class="camp"><span>El teu nom</span><input type="text" id="acc-nom" autocomplete="name" list="acc-persones"><datalist id="acc-persones"></datalist>
         <div class="err" id="e-accnom" hidden></div></label>
       <button class="btn btn-primary" id="acc-entra" type="button">Entra</button>
@@ -211,7 +211,7 @@
   <!-- Nova tasca -->
   <section id="vista-nova" hidden>
     <h1>Nova tasca</h1>
-    <p class="muted" style="margin-bottom:12px">Només cal el parc i la descripció. El Responsable de les Brigades del PN la revisarà i l'acceptarà o la descartarà.</p>
+    <p class="muted" style="margin-bottom:12px">Només cal el parc i la descripció. El Responsable de brigades la revisarà i l'acceptarà o la descartarà.</p>
     <form id="form-pet" class="card" novalidate>
       <label class="camp"><span>Parc</span><select id="p-parc"></select></label>
       <label class="camp"><span>Descripció</span>
@@ -253,7 +253,7 @@
     <div style="display:flex;gap:8px;margin-bottom:6px">
       <button class="btn btn-sec btn-petit" id="btn-exporta" type="button">⬇ Exporta els pendents</button>
     </div>
-    <p class="petit muted">El fitxer exportat s'envia al Responsable de les Brigades del PN, que l'importa al programa principal (botó «📥 Importa de l'equip»).</p>
+    <p class="petit muted">El fitxer exportat s'envia al Responsable de brigades, que l'importa al programa principal (botó «📥 Importa de l'equip»).</p>
     <h2 id="t-peticions" hidden>Tasques noves que has entrat</h2>
     <div id="llista-pet"></div>
     <h2>Registres de feina</h2>
@@ -273,7 +273,7 @@
 'use strict';
 // ════════════════════════════════════════════════════════════════════
 // CONFIGURACIÓ
-//   Webapp dels equips de treball (cap de brigada/equip i persona de
+//   Webapp dels equips de treball (cap de colla i persona de
 //   manteniment) del mòdul Gestió de brigades del Motor de Patrimoni.
 //   Llegeix les dades publicades i desa al mòbil els registres de feina i
 //   les tasques noves. S'envien amb un fitxer que el programa principal
@@ -283,7 +283,7 @@ const QS = new URLSearchParams(location.search);
 const DADES_URL = (QS.get('dades') || 'https://raw.githubusercontent.com/marcvila1/Programa_Patrimoni/main/data/').replace(/\/?$/, '/');
 const LS_USUARI = 'motor-patrimoni.brigada.usuari';
 const FOTO_MAX = 1600, FOTO_Q = 0.82;
-const PERFILS = { brigada: 'Cap de brigada/equip', persona_manteniment: 'Persona de manteniment' };
+const PERFILS = { brigada: 'Cap de colla', persona_manteniment: 'Oficial' };
 const ESTATS_EQUIP = ['assignada', 'en_pausa'];   // tasques que veu l'equip (model d'estats 2 de l'index)
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -615,7 +615,7 @@ function pintaRes() {
   document.querySelectorAll('.tres button').forEach(b => b.setAttribute('aria-pressed', b.dataset.res === S.res ? 'true' : 'false'));
   $('#camp-motiu').hidden = S.res !== 'pausa';
   $('#ajuda-res').textContent = {
-    acabada: 'Passarà a «Pendent de verificar»: el Responsable de les Brigades del PN la revisarà.',
+    acabada: 'Passarà a «Pendent de verificar»: el Responsable de brigades la revisarà.',
     continua: enPausa ? 'La tasca torna a «Assignada» i continueu treballant-hi.' : 'La tasca continua oberta.',
     pausa: enPausa ? 'La tasca continua en pausa.' : 'La feina s\'atura: indica\'n el motiu.',
   }[S.res] || '';
@@ -715,7 +715,7 @@ function preparaNova() {
   if (!parcs.some(([k]) => k === S.usuari.parc)) parcs.unshift([S.usuari.parc, S.usuari.nomParc || S.usuari.parc]);
   $('#p-parc').innerHTML = parcs.map(([k, n]) => `<option value="${esc(k)}">${esc(n)}</option>`).join('');
   $('#p-parc').value = S.usuari.parc;
-  $('#p-tip').innerHTML = '<option value="">— La fixarà el Responsable de Brigades —</option>' + Object.entries(S.tipologies).map(([k, n]) => `<option value="${esc(k)}">${esc(n)}</option>`).join('');
+  $('#p-tip').innerHTML = '<option value="">— La fixarà el Responsable de brigades —</option>' + Object.entries(S.tipologies).map(([k, n]) => `<option value="${esc(k)}">${esc(n)}</option>`).join('');
   $('#p-data').min = avui();
   netejaPet();
 }
@@ -866,7 +866,7 @@ async function exporta() {
   } catch (e) { if (e.name === 'AbortError') return; }
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nom; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-  toast('Fitxer descarregat. Envia\'l al Responsable de les Brigades del PN.');
+  toast('Fitxer descarregat. Envia\'l al Responsable de brigades.');
 }
 
 // ════════════════════════════════════════════════════════════════════
