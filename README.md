@@ -133,8 +133,8 @@ Recull les peticions i tasques de manteniment dels espais naturals. (Fins al nov
 
 ### 4.0. Pantalla principal
 
-- A dalt, els **filtres**: espai, estat, prioritat, tipologia, **equip** (els responsables generals i cada colla del parc), **persona assignada** i una cerca lliure.
-- A sota, els indicadors (tasques obertes, noves per acceptar, urgents, per assignar, en pausa, pendents de verificar, data límit propera i vençudes) i, a l'esquerra, la **llista de tasques en gran**, **agrupada en desplegables** segons el criteri triat a «Agrupa per»: estat (per defecte), prioritat, parc, equip, persona o tipologia, o sense agrupar. Cada grup mostra quantes tasques té i quantes tenen la data límit propera o vençuda. Es poden plegar i desplegar tots alhora.
+- A dalt, els **filtres**: espai, estat, prioritat, tipologia, **colla** (els responsables generals i cada colla del parc), **persona assignada** i una cerca lliure.
+- A sota, els indicadors (tasques obertes, noves per acceptar, urgents, per assignar, en pausa, pendents de verificar, data límit propera i vençudes) i, a l'esquerra, la **llista de tasques en gran**, **agrupada en desplegables** segons el criteri triat a «Agrupa per»: estat (per defecte), prioritat, parc, colla, persona o tipologia, o sense agrupar. Cada grup mostra quantes tasques té i quantes tenen la data límit propera o vençuda. Es poden plegar i desplegar tots alhora.
 - El **mapa** de les tasques filtrades és petit, a sota de la llista. La fitxa de la tasca seleccionada surt a la dreta.
 - **Vista Tauler o Llista** (botons «▦ Tauler» i «☰ Llista»; el programa recorda l'última triada, i per defecte obre el tauler):
   - El **tauler** mostra les tasques en **dipòsits** (columnes), com al Microsoft Planner, segons «Agrupa per». Cada targeta porta el codi, la tipologia, la descripció, la colla i la persona, la prioritat (color de la vora), la data límit i l'avís ⏰. Les tasques acceptades hi tenen el botó «👷 Assigna».
@@ -157,9 +157,9 @@ Recull les peticions i tasques de manteniment dels espais naturals. (Fins al nov
 | Perfil | Qui és | Eina | Què fa |
 |---|---|---|---|
 | **Tècnic/a** | Treballador/a de la DGPAMN | `index.html` | Entra tasques i les consulta |
-| **Responsable de brigades** | Tècnic/a de la DGPAMN responsable de les brigades | `index.html` | És el **responsable per defecte** de totes les tasques. Les accepta o descarta, fixa la tipologia, la prioritat i la data límit, les assigna a una colla i, si cal, a una persona concreta, en pot modificar totes les dades, certifica hores, valida els registres de les colles i verifica la feina. Gestiona les colles (colles) i la configuració del parc |
+| **Responsable de brigades** | Tècnic/a de la DGPAMN responsable de les brigades | `index.html` | És el **responsable per defecte** de totes les tasques. Les accepta o descarta, fixa la tipologia, la prioritat i la data límit, les assigna a una colla i, si cal, a una persona concreta, en pot modificar totes les dades, certifica hores, valida els registres de les colles i verifica la feina. Gestiona les colles i la configuració del parc |
 | **Director/a del Parc Natural** | Director/a del parc | `index.html` | Les mateixes funcions que el Responsable de brigades, al seu parc |
-| **Cap de colla** | Responsable d'una colla (colla) | `brigada.html` | Registra la feina feta (hores, persones i fotografies), posa les tasques en pausa i les reprèn, les marca com a acabades («Pendent de verificar») i entra tasques noves |
+| **Cap de colla** | Responsable d'una colla | `brigada.html` | Registra la feina feta (hores, persones i fotografies), posa les tasques en pausa i les reprèn, les marca com a acabades («Pendent de verificar») i entra tasques noves |
 | **Oficial** | Persona d'una colla | `brigada.html` | El mateix que el cap de colla. Se li poden assignar tasques concretes |
 
 Al programa principal, la finestra d'identificació només ofereix els tres primers perfils. Els caps de colla i els oficials són les persones que es donen d'alta a cada colla amb el botó «👷 Colles» (cap i membres).
@@ -191,7 +191,7 @@ En registrar-la, es crea un codi `MANT-AAAA-NNNN` i un botó obre un **correu ja
 | **Nova** | Quan es crea | Qualsevol persona |
 | **Acceptada** | S'ha gestionat l'entrada i s'ha acceptat: té **tipologia**, prioritat i data límit (si no és «En espera»), però **encara no té colla** | Responsable de brigades o direcció |
 | **Descartada** | No es farà. Cal el motiu a les observacions. Estat final | Responsable de brigades o direcció |
-| **Assignada** | Té un **colla** (o un altre responsable) per fer-la. Es posa sola en assignar la colla; si es treu la colla, torna a «Acceptada» | Responsable de brigades o direcció |
+| **Assignada** | Té una **colla** (o un altre responsable) per fer-la. Es posa sola en assignar la colla; si es treu la colla, torna a «Acceptada» | Responsable de brigades o direcció |
 | **En pausa** | La feina s'ha aturat per algun motiu (cal indicar-lo). Pot continuar assignada; en reprendre-la torna a «Assignada», o a «Acceptada» si es treu la colla | Colla, Responsable de brigades o direcció |
 | **Pendent de verificar** | La colla ha acabat la feina («Feina acabada») | Colla |
 | **Resolta** | El Responsable de brigades o la direcció l'han verificada, amb la certificació final d'hores. Estat final | Responsable de brigades o direcció |
@@ -202,7 +202,7 @@ En gestionar una tasca **nova**, només es pot passar a **Acceptada** o **Descar
 
 Una feina pendent de verificar que no es verifica torna a la colla (**Assignada**), explicant-ne el motiu. Les pauses queden registrades a la tasca (`pauses[{inici, per, motiu, fi}]`), i també qui la va acceptar (`acceptacio`), qui la va assignar (`gestio.assignat_per`, `gestio.data_assignacio`), qui va acabar la feina (`feina_acabada`) i qui la va verificar (`verificacio`).
 
-**Tasques d'abans d'aquest canvi.** Es converteixen soles en obrir-les: «Assignada» o «En curs» passen a «Assignada» (o «Acceptada» si no tenien equip), l'antiga «Resolta» passa a «Pendent de verificar» i «Verificada» passa a «Resolta». L'estat «En curs» desapareix.
+**Tasques d'abans d'aquest canvi.** Es converteixen soles en obrir-les: «Assignada» o «En curs» passen a «Assignada» (o «Acceptada» si no tenien colla), l'antiga «Resolta» passa a «Pendent de verificar» i «Verificada» passa a «Resolta». L'estat «En curs» desapareix.
 
 - La **data límit** és obligatòria excepte amb «En espera». **Una setmana abans** apareix un avís, i també quan ja ha passat. L'avís es veu al mòdul, a la llista, a la fitxa, en un comptador a la pestanya i als indicadors.
 - El **responsable** de totes les tasques és sempre el Responsable de brigades: no s'ha de triar.
