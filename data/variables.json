@@ -6,7 +6,7 @@
     "tecnic": "Tècnic/a: treballador/a de la DGPAMN que entra tasques (només són obligatoris el parc i la descripció). Fa servir el programa principal (index.html).",
     "cap_manteniment": "Responsable de brigades: tècnic/a de la DGPAMN responsable de les brigades. És el responsable per defecte de totes les tasques: les accepta o descarta (en acceptar-les fixa la tipologia, la prioritat i la data límit), les assigna a una colla i, si cal, a una persona concreta, en pot modificar totes les dades, certifica hores, valida els registres de les colles i verifica la feina. Gestiona les colles i la configuració. Si la seva unitat és un parc, només en aquell parc; si és una unitat central, a tots. Fa servir el programa principal (index.html).",
     "direccio": "Director/a del Parc Natural: les mateixes funcions que el Responsable de brigades, al seu parc. Fa servir el programa principal (index.html).",
-    "brigada": "Cap de colla: responsable d'una colla (colla). Registra la feina feta (hores, persones, fotografies), posa les tasques en pausa i les reprèn, les marca com a acabades i entra tasques noves. Fa servir la webapp de brigades (brigada.html).",
+    "brigada": "Cap de colla: responsable d'una colla. Registra la feina feta (hores, persones, fotografies), posa les tasques en pausa i les reprèn, les marca com a acabades i entra tasques noves. Fa servir la webapp de brigades (brigada.html).",
     "persona_manteniment": "Oficial: persona d'una colla, amb els mateixos permisos que el cap de colla. Se li poden assignar tasques concretes (gestio.persona). Fa servir la webapp de brigades (brigada.html)."
   },
   "prioritats": [
