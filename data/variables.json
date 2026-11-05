@@ -6,7 +6,7 @@
     "tecnic": "Tècnic/a: treballador/a de la DGPAMN que entra tasques (només són obligatoris el parc i la descripció). Fa servir el programa principal (index.html).",
     "cap_manteniment": "Responsable de brigades: tècnic/a de la DGPAMN responsable de les brigades. És el responsable per defecte de totes les tasques: les accepta o descarta (en acceptar-les fixa la tipologia, la prioritat i la data límit), les assigna a una colla i, si cal, a una persona concreta, en pot modificar totes les dades, certifica hores, valida els registres de les colles i verifica la feina. Gestiona les colles i la configuració. Si la seva unitat és un parc, només en aquell parc; si és una unitat central, a tots. Fa servir el programa principal (index.html).",
     "direccio": "Director/a del Parc Natural: les mateixes funcions que el Responsable de brigades, al seu parc. Fa servir el programa principal (index.html).",
-    "brigada": "Cap de colla: responsable d'una colla (equip de treball). Registra la feina feta (hores, persones, fotografies), posa les tasques en pausa i les reprèn, les marca com a acabades i entra tasques noves. Fa servir la webapp de brigades (brigada.html).",
+    "brigada": "Cap de colla: responsable d'una colla (colla). Registra la feina feta (hores, persones, fotografies), posa les tasques en pausa i les reprèn, les marca com a acabades i entra tasques noves. Fa servir la webapp de brigades (brigada.html).",
     "persona_manteniment": "Oficial: persona d'una colla, amb els mateixos permisos que el cap de colla. Se li poden assignar tasques concretes (gestio.persona). Fa servir la webapp de brigades (brigada.html)."
   },
   "prioritats": [
@@ -51,12 +51,12 @@
     {
       "codi": "acceptada",
       "nom": "Acceptada",
-      "descripcio": "Gestionada: té tipologia, prioritat i data límit, però encara no té cap equip assignat."
+      "descripcio": "Gestionada: té tipologia, prioritat i data límit, però encara no té cap colla assignada."
     },
     {
       "codi": "assignada",
       "nom": "Assignada",
-      "descripcio": "Té un equip de treball (o un altre responsable) per fer-la."
+      "descripcio": "Té una colla (o un altre responsable) per fer-la."
     },
     {
       "codi": "en_pausa",
@@ -66,7 +66,7 @@
     {
       "codi": "pendent_verificacio",
       "nom": "Pendent de verificar",
-      "descripcio": "L'equip ha acabat la feina; pendent que el Responsable de brigades o la direcció la verifiquin."
+      "descripcio": "La colla ha acabat la feina; pendent que el Responsable de brigades o la direcció la verifiquin."
     },
     {
       "codi": "resolta",
@@ -104,7 +104,7 @@
         "manteniment",
         "direccio"
       ],
-      "nota": "Acceptar (cal tipologia, prioritat i data límit). Si s'assigna un equip alhora, passa directament a Assignada."
+      "nota": "Acceptar (cal tipologia, prioritat i data límit). Si s'assigna una colla alhora, passa directament a Assignada."
     },
     {
       "de": [
@@ -126,7 +126,7 @@
         "manteniment",
         "direccio"
       ],
-      "nota": "S'aplica sola en assignar un equip."
+      "nota": "S'aplica sola en assignar una colla."
     },
     {
       "de": [
@@ -138,7 +138,7 @@
         "manteniment",
         "direccio"
       ],
-      "nota": "S'aplica sola en treure l'equip."
+      "nota": "S'aplica sola en treure la colla."
     },
     {
       "de": [
@@ -162,7 +162,7 @@
         "manteniment",
         "direccio"
       ],
-      "nota": "Reprendre la feina (l'equip continua assignat)."
+      "nota": "Reprendre la feina (la colla continua assignada)."
     },
     {
       "de": [
@@ -194,7 +194,7 @@
         "manteniment",
         "direccio"
       ],
-      "nota": "No es verifica: torna a l'equip (cal explicar-ne el motiu)."
+      "nota": "No es verifica: torna a la colla (cal explicar-ne el motiu)."
     },
     {
       "de": [
@@ -273,7 +273,7 @@
   "responsables": [
     {
       "codi": "brigada_parc",
-      "nom": "Equip de treball del parc"
+      "nom": "Colla del parc"
     },
     {
       "codi": "forestal_catalana",
@@ -573,9 +573,9 @@
       "responsables_propis": []
     }
   },
-  "assignacio_persona": "Opcional. Una tasca (i una tasca periòdica) es pot assignar a una persona concreta (gestio.persona, nom). Es proposen els caps i membres dels equips de treball del parc (brigades.json); si es deixa en blanc, la tasca és de tot l'equip.",
+  "assignacio_persona": "Opcional. Una tasca (i una tasca periòdica) es pot assignar a una persona concreta (gestio.persona, nom). Es proposen els caps i membres de les colles del parc (brigades.json); si es deixa en blanc, la tasca és de tota la colla.",
   "hores_per_defecte": 7,
-  "gestio_tasques": "Només la poden fer el Responsable de brigades i la direcció del parc. El responsable de cada tasca és sempre el Responsable de brigades; el camp «Assignada a» inclou sempre tots els equips de treball actius del parc (brigades.json) i els altres responsables (Forestal Catalana, empresa externa, propis). Es poden modificar totes les dades: tipologia, descripció, data proposada (no anterior a la data d'entrada), immoble, ubicació, sol·licitant i altres persones que reben els avisos (notificar[]).",
+  "gestio_tasques": "Només la poden fer el Responsable de brigades i la direcció del parc. El responsable de cada tasca és sempre el Responsable de brigades; el camp «Assignada a» inclou sempre totes les colles actives del parc (brigades.json) i els altres responsables (Forestal Catalana, empresa externa, propis). Es poden modificar totes les dades: tipologia, descripció, data proposada (no anterior a la data d'entrada), immoble, ubicació, sol·licitant i altres persones que reben els avisos (notificar[]).",
   "model_estats": 2,
   "model_estats_nota": "Model 2 (01/11/2026). Les tasques antigues es converteixen en obrir-les: assignada o en_curs → assignada (o acceptada si no tenen equip), resolta → pendent_verificacio, verificada → resolta. Cada tasca convertida porta model_estats: 2."
 }

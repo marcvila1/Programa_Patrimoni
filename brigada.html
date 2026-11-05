@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#088074">
-<title>Equip de treball · Gestió de brigades</title>
+<title>Colla · Gestió de brigades</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
   :root {
@@ -132,7 +132,7 @@
 <body>
 
 <header class="cap">
-  <div class="marca"><div class="logo">E</div><div class="qui"><b id="cap-brigada">Equip de treball</b><small id="cap-parc">Gestió de brigades</small></div></div>
+  <div class="marca"><div class="logo">E</div><div class="qui"><b id="cap-brigada">Colla</b><small id="cap-parc">Gestió de brigades</small></div></div>
   <button id="btn-canvia" type="button" hidden>Canvia</button>
 </header>
 <div id="barra" class="barra" hidden></div>
@@ -144,7 +144,7 @@
     <p class="muted" style="margin-bottom:14px">Webapp per als caps de colla i els oficials de les brigades. Mentre no hi hagi SINATCAT, cal indicar la teva colla. Amb SINATCAT, cada persona tindrà un usuari únic i aquesta pantalla desapareixerà.</p>
     <div class="card">
       <label class="camp"><span>Parc</span><select id="acc-parc"></select></label>
-      <label class="camp"><span>Colla (equip de treball)</span><select id="acc-brigada"></select></label>
+      <label class="camp"><span>Colla (colla)</span><select id="acc-brigada"></select></label>
       <label class="camp"><span>Perfil</span><select id="acc-perfil"><option value="brigada">Cap de colla (responsable de la colla)</option><option value="persona_manteniment">Oficial</option></select></label>
       <label class="camp"><span>El teu nom</span><input type="text" id="acc-nom" autocomplete="name" list="acc-persones"><datalist id="acc-persones"></datalist>
         <div class="err" id="e-accnom" hidden></div></label>
@@ -253,7 +253,7 @@
     <div style="display:flex;gap:8px;margin-bottom:6px">
       <button class="btn btn-sec btn-petit" id="btn-exporta" type="button">⬇ Exporta els pendents</button>
     </div>
-    <p class="petit muted">El fitxer exportat s'envia al Responsable de brigades, que l'importa al programa principal (botó «📥 Importa de l'equip»).</p>
+    <p class="petit muted">El fitxer exportat s'envia al Responsable de brigades, que l'importa al programa principal (botó «📥 Importa de la colla»).</p>
     <h2 id="t-peticions" hidden>Tasques noves que has entrat</h2>
     <div id="llista-pet"></div>
     <h2>Registres de feina</h2>
@@ -273,7 +273,7 @@
 'use strict';
 // ════════════════════════════════════════════════════════════════════
 // CONFIGURACIÓ
-//   Webapp dels equips de treball (cap de colla i persona de
+//   Webapp de brigades (cap de colla i persona de
 //   manteniment) del mòdul Gestió de brigades del Motor de Patrimoni.
 //   Llegeix les dades publicades i desa al mòbil els registres de feina i
 //   les tasques noves. S'envien amb un fitxer que el programa principal
@@ -284,7 +284,7 @@ const DADES_URL = (QS.get('dades') || 'https://raw.githubusercontent.com/marcvil
 const LS_USUARI = 'motor-patrimoni.brigada.usuari';
 const FOTO_MAX = 1600, FOTO_Q = 0.82;
 const PERFILS = { brigada: 'Cap de colla', persona_manteniment: 'Oficial' };
-const ESTATS_EQUIP = ['assignada', 'en_pausa'];   // tasques que veu l'equip (model d'estats 2 de l'index)
+const ESTATS_EQUIP = ['assignada', 'en_pausa'];   // tasques que veu la colla (model d'estats 2 de l'index)
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const avui = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
@@ -427,13 +427,13 @@ const persones = b => [...(b?.cap?.nom ? [b.cap.nom] : []), ...(b?.membres || []
 
 function mostraAcces() {
   $('#nav').hidden = true; $('#btn-canvia').hidden = true;
-  $('#cap-brigada').textContent = 'Equip de treball'; $('#cap-parc').textContent = 'Gestió de brigades';
+  $('#cap-brigada').textContent = 'Colla'; $('#cap-parc').textContent = 'Gestió de brigades';
   vista('acces');
   const parcs = Object.entries(S.brigades).filter(([k]) => equipsParc(k).length);
   const sp = $('#acc-parc'), u = lsGet();
   if (!parcs.length) {
     sp.innerHTML = '<option value="">— Cap equip configurat —</option>'; $('#acc-brigada').innerHTML = ''; $('#acc-entra').disabled = true;
-    avis('Encara no hi ha cap equip de treball configurat al programa principal (Gestió de brigades › Equips de treball). Pots provar l\'aplicació amb dades d\'exemple.', 'prova');
+    avis('Encara no hi ha cap colla configurat al programa principal (Gestió de brigades › Colles). Pots provar l\'aplicació amb dades d\'exemple.', 'prova');
   } else {
     avis(S.errDades ? 'No s\'han pogut carregar les dades en línia: ' + S.errDades : '', S.errDades ? 'error' : '');
     $('#acc-entra').disabled = false;
@@ -457,10 +457,10 @@ async function entra(u) {
   if (!u.prova) lsSet({ parc: u.parc, brigada: u.brigada, nom: u.nom, perfil: u.perfil });
   await carregaTasques();
   $('#btn-canvia').hidden = false; $('#nav').hidden = false;
-  $('#cap-brigada').textContent = u.nomBrigada || 'Equip de treball';
+  $('#cap-brigada').textContent = u.nomBrigada || 'Colla';
   $('#cap-parc').textContent = (u.nomParc || u.parc) + (u.nom ? ' · ' + u.nom : '');
   if (S.prova) avis('Mode prova: dades d\'exemple. Els registres i les tasques noves es desen només en aquest dispositiu.', 'prova');
-  else if (!S.tasques.length) avis('El teu equip no té cap tasca assignada ara mateix. Pots entrar tasques noves.', '');
+  else if (!S.tasques.length) avis('El teva colla no té cap tasca assignada ara mateix. Pots entrar tasques noves.', '');
   else avis('', '');
   preparaNova();
   await refresca();
@@ -687,7 +687,7 @@ function sortEdicio() {
 function iniciaEdicio(id) {
   const r = S.registres.find(x => x.id === id); if (!r) return;
   if (r.validacio) { toast('Registre validat pel responsable: només el pot modificar ell.'); return; }
-  if (!S.tasques.some(t => t.id === r.tasca)) { toast('La tasca ja no està assignada al teu equip: no es pot modificar.'); return; }
+  if (!S.tasques.some(t => t.id === r.tasca)) { toast('La tasca ja no està assignada al teva colla: no es pot modificar.'); return; }
   S.edit = id; pintaSelectTasques();
   $('#f-tasca').value = r.tasca; $('#f-data').value = r.data; $('#f-hores').value = r.hores; $('#f-pers').value = r.persones;
   S.fotos = (r.fotos || []).slice(); S.res = r.resultat || (r.finalitzada ? 'acabada' : 'continua'); $('#f-motiu').value = r.motiu_pausa || '';
@@ -852,7 +852,7 @@ function pintaLlista() {
   }).join('');
 }
 
-/** Fitxer per al programa principal (Gestió de brigades › «📥 Importa de l'equip»). */
+/** Fitxer per al programa principal (Gestió de brigades › «📥 Importa de la colla»). */
 async function exporta() {
   const registres = S.registres.filter(r => r.sync === 'pendent'), peticions = S.peticions.filter(p => p.sync === 'pendent');
   if (!registres.length && !peticions.length) { toast('No hi ha res pendent d\'enviar.'); return; }
@@ -862,7 +862,7 @@ async function exporta() {
   const nom = `equip_${S.usuari.brigada}_${avui()}.json`;
   const blob = new Blob([JSON.stringify(pac)], { type: 'application/json' }), fit = new File([blob], nom, { type: 'application/json' });
   try {
-    if (navigator.canShare?.({ files: [fit] })) { await navigator.share({ files: [fit], title: 'Registres de l\'equip de treball' }); return; }
+    if (navigator.canShare?.({ files: [fit] })) { await navigator.share({ files: [fit], title: 'Registres de la colla' }); return; }
   } catch (e) { if (e.name === 'AbortError') return; }
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nom; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);

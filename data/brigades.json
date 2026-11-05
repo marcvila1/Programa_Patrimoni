@@ -1,7 +1,7 @@
 {
   "versio": "1.0",
   "data_actualitzacio": "2026-10-30",
-  "descripcio": "Colles (equips de treball, abans brigades) de cada parc natural: nom, cap de colla (nom, correu, telèfon), àmbit i membres (oficials). Es gestionen des del mòdul de Gestió de brigades (botó «Equips de treball») pel Responsable de brigades o el/la director/a del Parc Natural. Els caps de colla i els membres són les persones que es poden assignar a una tasca i les que entren a la webapp de brigades. Una colla amb tasques assignades no s'esborra: es desactiva (activa: false).",
+  "descripcio": "Colles (colles, abans brigades) de cada parc natural: nom, cap de colla (nom, correu, telèfon), àmbit i membres (oficials). Es gestionen des del mòdul de Gestió de brigades (botó «Colles») pel Responsable de brigades o el/la director/a del Parc Natural. Els caps de colla i els membres són les persones que es poden assignar a una tasca i les que entren a la webapp de brigades. Una colla amb tasques assignades no s'esborra: es desactiva (activa: false).",
   "per_parc": {
     "PNAE": {
       "nom_parc": "Parc Natural dels Aiguamolls de l'Empordà",

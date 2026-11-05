@@ -133,20 +133,20 @@ Recull les peticions i tasques de manteniment dels espais naturals. (Fins al nov
 
 ### 4.0. Pantalla principal
 
-- A dalt, els **filtres**: espai, estat, prioritat, tipologia, **equip** (els responsables generals i cada equip de treball del parc), **persona assignada** i una cerca lliure.
+- A dalt, els **filtres**: espai, estat, prioritat, tipologia, **equip** (els responsables generals i cada colla del parc), **persona assignada** i una cerca lliure.
 - A sota, els indicadors (tasques obertes, noves per acceptar, urgents, per assignar, en pausa, pendents de verificar, data límit propera i vençudes) i, a l'esquerra, la **llista de tasques en gran**, **agrupada en desplegables** segons el criteri triat a «Agrupa per»: estat (per defecte), prioritat, parc, equip, persona o tipologia, o sense agrupar. Cada grup mostra quantes tasques té i quantes tenen la data límit propera o vençuda. Es poden plegar i desplegar tots alhora.
 - El **mapa** de les tasques filtrades és petit, a sota de la llista. La fitxa de la tasca seleccionada surt a la dreta.
 - **Vista Tauler o Llista** (botons «▦ Tauler» i «☰ Llista»; el programa recorda l'última triada, i per defecte obre el tauler):
-  - El **tauler** mostra les tasques en **dipòsits** (columnes), com al Microsoft Planner, segons «Agrupa per». Cada targeta porta el codi, la tipologia, la descripció, l'equip i la persona, la prioritat (color de la vora), la data límit i l'avís ⏰. Les tasques acceptades hi tenen el botó «👷 Assigna».
+  - El **tauler** mostra les tasques en **dipòsits** (columnes), com al Microsoft Planner, segons «Agrupa per». Cada targeta porta el codi, la tipologia, la descripció, la colla i la persona, la prioritat (color de la vora), la data límit i l'avís ⏰. Les tasques acceptades hi tenen el botó «👷 Assigna».
   - **Per estat** hi ha una columna per a cada estat. Resolta i Descartada només mostren les dels últims 30 dies, si no es marca «Mostra les verificades i descartades».
-  - **Per equip** hi ha una columna per a cada equip de treball actiu, més «Sense assignar» i els altres responsables.
-  - **Arrossegar una targeta** (amb el ratolí) a una altra columna en canvia l'estat o l'equip, amb les mateixes regles i permisos que la gestió:
+  - **Per colla** hi ha una columna per a cada colla activa, més «Sense assignar» i els altres responsables.
+  - **Arrossegar una targeta** (amb el ratolí) a una altra columna en canvia l'estat o la colla, amb les mateixes regles i permisos que la gestió:
     - Nova → Acceptada / Descartada: s'obre la gestió amb el canvi triat (cal la tipologia, la prioritat i la data límit, o el motiu).
     - Acceptada → Assignada: s'obre l'assignació ràpida.
-    - Assignada o En pausa → Acceptada: treu l'equip.
+    - Assignada o En pausa → Acceptada: treu la colla.
     - Assignada → En pausa, i Pendent de verificar → Resolta: s'obre la gestió amb el canvi triat (motiu de la pausa o certificació d'hores).
-    - Assignada → Pendent de verificar: «Feina acabada» de l'equip de treball.
-    - Al tauler per equip, moure la targeta la reassigna a l'equip de la columna (o la deixa sense equip).
+    - Assignada → Pendent de verificar: «Feina acabada» de la colla.
+    - Al tauler per colla, moure la targeta la reassigna a la colla de la columna (o la deixa sense colla).
     - Si el perfil no té permís per a aquell canvi, la targeta no es mou i el programa diu qui el pot fer.
   - Agrupat per prioritat, parc, persona o tipologia, el tauler és només de consulta.
   - En clicar una targeta, se n'obre la fitxa a sota, al costat del mapa.
@@ -157,12 +157,12 @@ Recull les peticions i tasques de manteniment dels espais naturals. (Fins al nov
 | Perfil | Qui és | Eina | Què fa |
 |---|---|---|---|
 | **Tècnic/a** | Treballador/a de la DGPAMN | `index.html` | Entra tasques i les consulta |
-| **Responsable de brigades** | Tècnic/a de la DGPAMN responsable de les brigades | `index.html` | És el **responsable per defecte** de totes les tasques. Les accepta o descarta, fixa la tipologia, la prioritat i la data límit, les assigna a una colla i, si cal, a una persona concreta, en pot modificar totes les dades, certifica hores, valida els registres de les colles i verifica la feina. Gestiona les colles (equips de treball) i la configuració del parc |
+| **Responsable de brigades** | Tècnic/a de la DGPAMN responsable de les brigades | `index.html` | És el **responsable per defecte** de totes les tasques. Les accepta o descarta, fixa la tipologia, la prioritat i la data límit, les assigna a una colla i, si cal, a una persona concreta, en pot modificar totes les dades, certifica hores, valida els registres de les colles i verifica la feina. Gestiona les colles (colles) i la configuració del parc |
 | **Director/a del Parc Natural** | Director/a del parc | `index.html` | Les mateixes funcions que el Responsable de brigades, al seu parc |
-| **Cap de colla** | Responsable d'una colla (equip de treball) | `brigada.html` | Registra la feina feta (hores, persones i fotografies), posa les tasques en pausa i les reprèn, les marca com a acabades («Pendent de verificar») i entra tasques noves |
+| **Cap de colla** | Responsable d'una colla (colla) | `brigada.html` | Registra la feina feta (hores, persones i fotografies), posa les tasques en pausa i les reprèn, les marca com a acabades («Pendent de verificar») i entra tasques noves |
 | **Oficial** | Persona d'una colla | `brigada.html` | El mateix que el cap de colla. Se li poden assignar tasques concretes |
 
-Al programa principal, la finestra d'identificació només ofereix els tres primers perfils. Els caps de colla i els oficials són les persones que es donen d'alta a cada colla amb el botó «👷 Equips de treball» (cap i membres).
+Al programa principal, la finestra d'identificació només ofereix els tres primers perfils. Els caps de colla i els oficials són les persones que es donen d'alta a cada colla amb el botó «👷 Colles» (cap i membres).
 
 Fins a la integració a SINATCAT, cada persona indica el seu **perfil** i la seva **unitat** en identificar-se (botó de la capçalera):
 - El/la director/a del Parc Natural només actua al seu parc; els caps de colla i els oficials, a les tasques de la seva colla.
@@ -179,7 +179,7 @@ Qualsevol persona pot entrar-ne una amb el botó **＋ Nova tasca**. També es p
 - **Hores de dedicació estimades**. Si no s'indiquen, en gestionar la tasca es proposen 7 hores (`hores_per_defecte` a `variables.json`).
 - **Immoble relacionat** del mòdul de patrimoni. En marcar la ubicació, el programa proposa l'immoble més proper si n'hi ha un a menys de 500 m.
 - **Data proposada de realització**: no pot ser anterior a la data de creació de la tasca.
-- **Persona assignada**: una persona concreta dels equips de treball del parc.
+- **Persona assignada**: una persona concreta de les colles del parc.
 - **Nom i correu del sol·licitant** (per defecte, els de la persona identificada).
 
 En registrar-la, es crea un codi `MANT-AAAA-NNNN` i un botó obre un **correu ja redactat** (mailto) per al sol·licitant, la direcció del parc i el Responsable de brigades. El correu descriu la tasca (codi, tipologia, immoble, coordenades, enllaç al mapa i descripció) i **no esmenta les fotografies**, que són a la base de dades.
@@ -189,24 +189,24 @@ En registrar-la, es crea un codi `MANT-AAAA-NNNN` i un botó obre un **correu ja
 | Estat | Quan | Qui hi fa passar |
 |---|---|---|
 | **Nova** | Quan es crea | Qualsevol persona |
-| **Acceptada** | S'ha gestionat l'entrada i s'ha acceptat: té **tipologia**, prioritat i data límit (si no és «En espera»), però **encara no té equip** | Responsable de brigades o direcció |
+| **Acceptada** | S'ha gestionat l'entrada i s'ha acceptat: té **tipologia**, prioritat i data límit (si no és «En espera»), però **encara no té colla** | Responsable de brigades o direcció |
 | **Descartada** | No es farà. Cal el motiu a les observacions. Estat final | Responsable de brigades o direcció |
-| **Assignada** | Té un **equip de treball** (o un altre responsable) per fer-la. Es posa sola en assignar l'equip; si es treu l'equip, torna a «Acceptada» | Responsable de brigades o direcció |
-| **En pausa** | La feina s'ha aturat per algun motiu (cal indicar-lo). Pot continuar assignada; en reprendre-la torna a «Assignada», o a «Acceptada» si es treu l'equip | Equip de treball, Responsable de brigades o direcció |
-| **Pendent de verificar** | L'equip ha acabat la feina («Feina acabada») | Equip de treball |
+| **Assignada** | Té un **colla** (o un altre responsable) per fer-la. Es posa sola en assignar la colla; si es treu la colla, torna a «Acceptada» | Responsable de brigades o direcció |
+| **En pausa** | La feina s'ha aturat per algun motiu (cal indicar-lo). Pot continuar assignada; en reprendre-la torna a «Assignada», o a «Acceptada» si es treu la colla | Colla, Responsable de brigades o direcció |
+| **Pendent de verificar** | La colla ha acabat la feina («Feina acabada») | Colla |
 | **Resolta** | El Responsable de brigades o la direcció l'han verificada, amb la certificació final d'hores. Estat final | Responsable de brigades o direcció |
 
-En gestionar una tasca **nova**, només es pot passar a **Acceptada** o **Descartada**. Si en acceptar-la ja s'hi posa un equip, queda directament **Assignada**.
+En gestionar una tasca **nova**, només es pot passar a **Acceptada** o **Descartada**. Si en acceptar-la ja s'hi posa una colla, queda directament **Assignada**.
 
-**Assignació ràpida.** Les tasques acceptades tenen un botó **👷 Assigna** a la llista i a la fitxa, que obre una finestra per triar l'equip i, si cal, una persona concreta.
+**Assignació ràpida.** Les tasques acceptades tenen un botó **👷 Assigna** a la llista i a la fitxa, que obre una finestra per triar la colla i, si cal, una persona concreta.
 
-Una feina pendent de verificar que no es verifica torna a l'equip (**Assignada**), explicant-ne el motiu. Les pauses queden registrades a la tasca (`pauses[{inici, per, motiu, fi}]`), i també qui la va acceptar (`acceptacio`), qui la va assignar (`gestio.assignat_per`, `gestio.data_assignacio`), qui va acabar la feina (`feina_acabada`) i qui la va verificar (`verificacio`).
+Una feina pendent de verificar que no es verifica torna a la colla (**Assignada**), explicant-ne el motiu. Les pauses queden registrades a la tasca (`pauses[{inici, per, motiu, fi}]`), i també qui la va acceptar (`acceptacio`), qui la va assignar (`gestio.assignat_per`, `gestio.data_assignacio`), qui va acabar la feina (`feina_acabada`) i qui la va verificar (`verificacio`).
 
 **Tasques d'abans d'aquest canvi.** Es converteixen soles en obrir-les: «Assignada» o «En curs» passen a «Assignada» (o «Acceptada» si no tenien equip), l'antiga «Resolta» passa a «Pendent de verificar» i «Verificada» passa a «Resolta». L'estat «En curs» desapareix.
 
 - La **data límit** és obligatòria excepte amb «En espera». **Una setmana abans** apareix un avís, i també quan ja ha passat. L'avís es veu al mòdul, a la llista, a la fitxa, en un comptador a la pestanya i als indicadors.
 - El **responsable** de totes les tasques és sempre el Responsable de brigades: no s'ha de triar.
-- **Assignada a** és un desplegable que inclou **sempre tots els equips de treball actius** del parc (botó «Equips de treball») i, a sota, els altres responsables (Forestal Catalana, empresa externa o propis del parc). Si la tasca està assignada a un responsable que no és un equip del parc (Forestal Catalana, empresa…), el Responsable de brigades fa també les accions de l'equip (pausa i feina acabada).
+- **Assignada a** és un desplegable que inclou **sempre totes les colles actives** del parc (botó «Colles») i, a sota, els altres responsables (Forestal Catalana, empresa externa o propis del parc). Si la tasca està assignada a un responsable que no és una colla del parc (Forestal Catalana, empresa…), el Responsable de brigades fa també les accions de la colla (pausa i feina acabada).
 
 **Gestió de la tasca** (botó «Accepta o descarta» o «Gestiona»). Només la poden fer el Responsable de brigades i la direcció del parc. Es pot canviar tot: estat, prioritat, data límit, «Assignada a», persona assignada, hores estimades (7 per defecte), observacions, tipologia, descripció, data proposada, immoble relacionat, ubicació (amb mapa), sol·licitant i **altres persones que reben els avisos** (`notificar[]`, s'afegeixen als correus). També s'hi poden afegir fotografies de la petició.
 
@@ -216,7 +216,7 @@ Una feina pendent de verificar que no es verifica torna a l'equip (**Assignada**
 
 La fitxa mostra les hores estimades, el total certificat, la desviació i el detall de cada certificació.
 
-**Fotografies de seguiment.** Mentre la feina està assignada o en pausa, l'equip de treball (cap de colla o oficial) o el Responsable de brigades poden afegir fotografies de com evoluciona, amb una nota. La fitxa les mostra separades de les de la petició.
+**Fotografies de seguiment.** Mentre la feina està assignada o en pausa, la colla (cap de colla o oficial) o el Responsable de brigades poden afegir fotografies de com evoluciona, amb una nota. La fitxa les mostra separades de les de la petició.
 
 **Tancament.** En resoldre (verificar) o descartar una tasca, el programa ofereix el correu de tancament per al sol·licitant i la direcció.
 
@@ -232,7 +232,7 @@ Camps de cada tasca:
 - Parc i element (opcional).
 - Tasca, tipologia i **periodicitat**: setmanal, quinzenal, mensual, bimestral, trimestral, quadrimestral, semestral, anual o biennal.
 - Data de la primera execució i, si cal, data de finalització.
-- Hores estimades per execució, prioritat, «Assignada a» (equip de treball o altre responsable) i, opcionalment, persona assignada.
+- Hores estimades per execució, prioritat, «Assignada a» (colla o altre responsable) i, opcionalment, persona assignada.
 - **Avisa'm (dies abans):** quan es genera la tasca. En triar la periodicitat es proposa un valor (setmanal 2, quinzenal 4, mensual 7, bimestral 10, trimestral i quadrimestral 14, semestral 21, anual i biennal 30), que es pot canviar. Ha de ser menys que l'interval entre execucions.
 - **Observacions** i si està activa.
 
@@ -240,13 +240,13 @@ Les creen i modifiquen el Responsable de brigades i la direcció del parc.
 
 **Com funcionen.** Cada execució genera una **tasca** els dies d'avís que té la tasca abans de la data. Les tasques antigues sense aquest camp fan servir els 14 dies generals de `variables.json`:
 - La data límit de la tasca és la data de l'execució.
-- La tasca hereta la tipologia, la prioritat, l'assignació, la persona assignada i les hores estimades. Surt com a «Assignada» si la tasca periòdica té equip, i com a «Acceptada» si no en té.
+- La tasca hereta la tipologia, la prioritat, l'assignació, la persona assignada i les hores estimades. Surt com a «Assignada» si la tasca periòdica té colla, i com a «Acceptada» si no en té.
 - A partir d'aquí segueix el circuit normal: assignació, pausa si cal, feina acabada, certificació d'hores i verificació.
 - Les tasques generades porten la marca 🔁 i l'enllaç a la tasca periòdica.
 
 **Quan es generen.** En obrir el programa amb la carpeta connectada, i en desar una tasca periòdica. No es dupliquen. Les execucions es calculen sempre des de la data inicial: una tasca mensual del dia 31 passa al darrer dia dels mesos més curts.
 
-### 4.5. Configuració per parc i equips de treball
+### 4.5. Configuració per parc i colles
 
 El botó **⚙ Configuració dels parcs** permet definir, per a cada parc:
 - La **direcció**: nom, càrrec, correu i telèfon.
@@ -255,7 +255,7 @@ El botó **⚙ Configuració dels parcs** permet definir, per a cada parc:
 
 Es desa a `variables.json`.
 
-El botó **👷 Equips de treball** permet crear i mantenir els equips de treball de cada parc. Cada equip té nom, cap de colla (nom, correu i telèfon), àmbit, membres (un per línia, «Nom — funció») i si està actiu. Els caps i els membres són les persones que es proposen en assignar una tasca a una persona concreta. Un equip amb tasques assignades no es pot esborrar, només desactivar. Es desa a `brigades.json`.
+El botó **👷 Colles** permet crear i mantenir les colles de cada parc. Cada colla té nom, cap de colla (nom, correu i telèfon), àmbit, membres (un per línia, «Nom — funció») i si està activa. Els caps i els membres són les persones que es proposen en assignar una tasca a una persona concreta. Una colla amb tasques assignades no es pot esborrar, només desactivar. Es desa a `brigades.json`.
 
 Tots dos els poden modificar només el Responsable de brigades i la direcció del parc. La resta de perfils els poden consultar.
 
@@ -263,18 +263,18 @@ Tots dos els poden modificar només el Responsable de brigades i la direcció de
 
 | Fitxer | Contingut |
 |---|---|
-| `manteniment.json` | Tasques. Cada una té les dades d'entrada, `notificar[]` (altres correus que reben els avisos), `hores_estimades`, `fotografies[]` (`fase`: petició o seguiment), la gestió (`gestio{prioritat, data_limit, responsable, brigada, persona, empresa, observacions}` (`brigada` és el codi de l'equip de treball i `persona`, el nom de la persona assignada o `null`)), l'estat, `certificacions_hores[{hores, tipus, data, per}]`, la versió i l'historial |
+| `manteniment.json` | Tasques. Cada una té les dades d'entrada, `notificar[]` (altres correus que reben els avisos), `hores_estimades`, `fotografies[]` (`fase`: petició o seguiment), la gestió (`gestio{prioritat, data_limit, responsable, brigada, persona, empresa, observacions}` (`brigada` és el codi de la colla i `persona`, el nom de la persona assignada o `null`)), l'estat, `certificacions_hores[{hores, tipus, data, per}]`, la versió i l'historial |
 | `manteniment_tipologies.json` | Tipologies de petició o tasca |
 | `variables.json` | Perfils, prioritats (i si demanen data límit), dies d'avís (7), periodicitats i dies d'antelació de les tasques periòdiques (14), estats, rols, canvis d'estat permesos per rol (`transicions`), responsables generals i configuració de cada parc (`per_parc`: direcció, Responsable de brigades i responsables) |
-| `brigades.json` | Equips de treball de cada parc |
+| `brigades.json` | Colles de cada parc |
 | `tasques_periodiques.json` | Tasques periòdiques: parc, element, tasca, periodicitat, data inicial i final, hores, prioritat, responsable, observacions, activa, propera execució i historial |
 
-### 4.7. Webapp dels equips de treball (`brigada.html`)
+### 4.7. Webapp de brigades (`brigada.html`)
 
-Aplicació per al mòbil dels **caps de colla** i els **oficials**. S'obre amb `brigada.html` (en proves: `brigada.html?prova=1`). Llegeix les dades publicades (`data/`) i desa al mòbil el que fa l'equip, també sense cobertura.
+Aplicació per al mòbil dels **caps de colla** i els **oficials**. S'obre amb `brigada.html` (en proves: `brigada.html?prova=1`). Llegeix les dades publicades (`data/`) i desa al mòbil el que fa la colla, també sense cobertura.
 
-- **Identificació:** parc, equip de treball, perfil i nom. Es recorda al dispositiu.
-- **Registrar** feina d'una tasca de l'equip («Assignada» o «En pausa»):
+- **Identificació:** parc, colla, perfil i nom. Es recorda al dispositiu.
+- **Registrar** feina d'una tasca de la colla («Assignada» o «En pausa»):
   - Data, hores, persones i fotografies.
   - Com queda la tasca: **✔ Feina acabada** (passarà a «Pendent de verificar»), **○ Continua** (si estava en pausa, **▶ Reprèn**) o **⏸ En pausa** (amb motiu).
   - Les tasques assignades a la persona identificada surten primer, amb la marca «👤 Assignada a tu».
@@ -282,17 +282,17 @@ Aplicació per al mòbil dels **caps de colla** i els **oficials**. S'obre amb `
 - **📝 Nova tasca:** només són obligatoris el parc i la descripció. Opcionals: tipologia, ubicació (GPS del mòbil o toc al mapa), immoble relacionat (es proposa el més proper a menys de 500 m), fotografies, hores estimades i data proposada (no anterior a avui).
 - **Registres:** llista dels registres i de les tasques entrades, amb l'estat d'enviament, i botó **⬇ Exporta els pendents**, que genera un fitxer `equip_<equip>_<data>.json` per enviar (correu o compartir).
 
-**Al programa principal**, el Responsable de brigades o la direcció importen el fitxer amb el botó **📥 Importa de l'equip**:
+**Al programa principal**, el Responsable de brigades o la direcció importen el fitxer amb el botó **📥 Importa de la colla**:
 - Les tasques noves entren com a **Nova** (`origen.peticio`), amb les fotografies.
 - Els registres s'afegeixen a la tasca (`registres_brigada[]`), amb les fotografies com a fotografies de seguiment, i en canvien l'estat: «Feina acabada» → Pendent de verificar; «En pausa» → En pausa; «Continua» d'una tasca en pausa → Assignada.
-- Tornar a importar el mateix fitxer no duplica res. Un registre modificat a l'equip s'actualitza si encara no s'ha validat.
-- A la fitxa de la tasca, la secció **Registres de l'equip** mostra els registres, el total d'hores i un botó **Valida** per a cadascun (o tots alhora). Un cop validat, l'equip ja no el pot modificar.
+- Tornar a importar el mateix fitxer no duplica res. Un registre modificat a la colla s'actualitza si encara no s'ha validat.
+- A la fitxa de la tasca, la secció **Registres de la colla** mostra els registres, el total d'hores i un botó **Valida** per a cadascun (o tots alhora). Un cop validat, la colla ja no el pot modificar.
 - Quan les dades es publiquen, la webapp marca com a «rebut» el que ja s'ha importat i hi mostra les validacions.
 
 ### 4.8. Pendents
 
-- **Integració a SINATCAT:** usuaris únics amb perfil, desament directe de la webapp dels equips (sense fitxer), fotografies a la base de dades i avisos per correu automàtics en lloc de mailto.
-- Omplir la direcció i el Responsable de brigades de cada parc (Configuració dels parcs) i els equips de treball, amb els membres (Equips de treball).
+- **Integració a SINATCAT:** usuaris únics amb perfil, desament directe de la webapp de brigades (sense fitxer), fotografies a la base de dades i avisos per correu automàtics en lloc de mailto.
+- Omplir la direcció i el Responsable de brigades de cada parc (Configuració dels parcs) i les colles, amb els membres (Colles).
 
 ---
 
@@ -407,7 +407,7 @@ SINATCAT ja autentica l'usuari, de manera que **el registre de canvis incorporar
 ```
 
 - `meta.modificat_per` de cada immoble passarà a ser l'identificador de l'usuari.
-- Amb l'usuari autenticat es podran aplicar **permisos per unitat**, si cal: per exemple, que cada parc només editi els seus immobles. Ara mateix tothom pot editar-ho tot, per cobrir vacances, baixes i suports entre equips.
+- Amb l'usuari autenticat es podran aplicar **permisos per unitat**, si cal: per exemple, que cada parc només editi els seus immobles. Ara mateix tothom pot editar-ho tot, per cobrir vacances, baixes i suports entre colles.
 - La carpeta de treball deixarà de ser necessària: el desament anirà contra la base de dades de SINATCAT, mantenint el control de versions per immoble.
 
 ### 8.2. Vincle entre actuacions i elements patrimonials
@@ -488,7 +488,7 @@ El Mòdul 2 d'aquest programa (filtres, mapa, indicadors i exportació) és la b
 
 ## 10. Aspectes tècnics
 
-- Dos fitxers HTML, sense instal·lació: `index.html` (programa principal) i `brigada.html` (webapp dels equips). Llibreria externa: Leaflet 1.9.4 (cdnjs) per als mapes.
+- Dos fitxers HTML, sense instal·lació: `index.html` (programa principal) i `brigada.html` (webapp de brigades). Llibreria externa: Leaflet 1.9.4 (cdnjs) per als mapes.
 - Mapes base: ICGC (topogràfic i ortofoto, © ICGC, CC BY) i OpenStreetMap.
 - Les coordenades es transformen de UTM 31N a latitud i longitud amb fórmules pròpies, verificades amb `pyproj` sobre els 388 punts del patrimoni (error inferior a 1 mm).
 - Paràmetres opcionals a l'URL, per a proves o per a un altre allotjament de les dades: `index.html?dades=<url de la carpeta data/>&unitats=<url de unitats_promotores.json>`.

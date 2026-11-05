@@ -510,13 +510,13 @@
     <div class="cap-modul">
       <div>
         <h1 id="t-mant">Gestió de brigades</h1>
-        <p>Peticions i tasques de manteniment dels espais naturals. Qualsevol persona pot entrar-ne una; el Responsable de brigades hi assigna la prioritat, la data límit, l'equip de treball i, si cal, la persona que l'ha de fer.</p>
+        <p>Peticions i tasques de manteniment dels espais naturals. Qualsevol persona pot entrar-ne una; el Responsable de brigades hi assigna la prioritat, la data límit, la colla i, si cal, la persona que l'ha de fer.</p>
       </div>
       <div class="accions-modul">
         <button type="button" class="btn btn-secondary" id="mant-config">⚙ Configuració dels parcs</button>
-        <button type="button" class="btn btn-secondary" id="mant-brigades">👷 Equips de treball</button>
+        <button type="button" class="btn btn-secondary" id="mant-brigades">👷 Colles</button>
         <button type="button" class="btn btn-secondary" id="mant-periodiques">🔁 Tasques periòdiques</button>
-        <button type="button" class="btn btn-secondary" id="mant-importa" title="Registres de feina i tasques noves de la webapp dels equips (brigada.html)">📥 Importa de l'equip</button>
+        <button type="button" class="btn btn-secondary" id="mant-importa" title="Registres de feina i tasques noves de la webapp de brigades (brigada.html)">📥 Importa de la colla</button>
         <button type="button" class="btn btn-secondary" id="mant-csv">Exporta a CSV</button>
         <button type="button" class="btn btn-primary" id="mant-nova">＋ Nova tasca</button>
       </div>
@@ -527,7 +527,7 @@
       <select id="mf-estat" aria-label="Estat"></select>
       <select id="mf-prioritat" aria-label="Prioritat"></select>
       <select id="mf-tipologia" aria-label="Tipologia"></select>
-      <select id="mf-responsable" aria-label="Equip"></select>
+      <select id="mf-responsable" aria-label="Colla"></select>
       <select id="mf-persona" aria-label="Persona assignada"></select>
       <input type="search" id="mf-cerca" placeholder="Cerca (codi, descripció, immoble, persona…)" aria-label="Cerca">
       <label class="text-small"><input type="checkbox" id="mf-tancades"> Mostra les verificades i descartades</label>
@@ -539,7 +539,7 @@
           <div class="llista-cap"><span id="mant-recompte" class="text-small text-muted"></span>
             <span class="mant-cap-controls">
               <span class="mant-vista" id="mant-vista" role="group" aria-label="Vista"><button type="button" data-vista="tauler" aria-pressed="false">▦ Tauler</button><button type="button" data-vista="llista" aria-pressed="false">☰ Llista</button></span>
-              <label class="text-small">Agrupa per <select id="mf-agrupa" aria-label="Agrupa per"><option value="estat">Estat</option><option value="prioritat">Prioritat</option><option value="parc">Parc</option><option value="equip">Equip</option><option value="persona">Persona</option><option value="tipologia">Tipologia</option><option value="">Sense agrupar</option></select></label>
+              <label class="text-small">Agrupa per <select id="mf-agrupa" aria-label="Agrupa per"><option value="estat">Estat</option><option value="prioritat">Prioritat</option><option value="parc">Parc</option><option value="equip">Colla</option><option value="persona">Persona</option><option value="tipologia">Tipologia</option><option value="">Sense agrupar</option></select></label>
               <select id="mf-ordre" aria-label="Ordena"><option value="limit">Per data límit</option><option value="prioritat">Per prioritat</option><option value="recent">Més recents</option></select>
               <button type="button" class="btn-link text-small" id="mant-plega" title="Plega o desplega tots els grups">Plega-ho tot</button>
             </span></div>
@@ -2419,13 +2419,13 @@ const Manteniment = (() => {
   const brigada = (u, codi) => brigadesParc(u, true).find(b => b.codi === codi);
   const nomBrigada = (t) => { const b = brigada(t.unitat, t.gestio?.brigada); return b ? `${b.nom}${b.cap?.nom ? ' (cap: ' + b.cap.nom + ')' : ''}` : t.gestio?.cap_brigada || null; };
   /**
-   * Persones que es poden assignar a una tasca: caps i membres dels equips de treball actius del parc.
-   * Si s'indica un equip, primer les d'aquell equip. Retorna [{nom, equip, nomEquip, funcio}] sense repeticions.
+   * Persones que es poden assignar a una tasca: caps i membres de les colles actives del parc.
+   * Si s'indica una colla, primer les d'aquella colla. Retorna [{nom, equip, nomEquip, funcio}] sense repeticions.
    */
   function personesParc(u, codiEquip) {
     const ll = [], vistos = new Set();
-    const equips = brigadesParc(u).slice().sort((a, b) => (b.codi === codiEquip) - (a.codi === codiEquip));
-    for (const b of equips) {
+    const colles = brigadesParc(u).slice().sort((a, b) => (b.codi === codiEquip) - (a.codi === codiEquip));
+    for (const b of colles) {
       const gent = [...(b.cap?.nom ? [{ nom: b.cap.nom, funcio: 'Cap de colla' }] : []), ...(b.membres || [])];
       for (const m of gent) {
         const k = normal(m.nom);
@@ -2435,18 +2435,18 @@ const Manteniment = (() => {
     }
     return ll;
   }
-  /** Equip de treball al qual pertany una persona (pel nom), per proposar-lo en assignar-la. */
+  /** Colla al qual pertany una persona (pel nom), per proposar-lo en assignar-la. */
   const equipDePersona = (u, nom) => personesParc(u).find(x => normal(x.nom) === normal(nom))?.equip || null;
   const htmlDatalistPersones = (id, u, codiEquip) => `<datalist id="${id}">${(u ? personesParc(u, codiEquip) : []).map(x => `<option value="${esc(x.nom)}">${esc(x.nomEquip)}${x.funcio ? ' · ' + esc(x.funcio) : ''}</option>`).join('')}</datalist>`;
-  /** Etiquetes noves sobre dades antigues (variables.json de la carpeta): «Brigada Parc» → «Equip de treball del parc». */
+  /** Etiquetes noves sobre dades antigues (variables.json de la carpeta): «Brigada Parc» → «Colla del parc». */
   function actualitzaEtiquetes() {
-    (V().responsables || []).forEach(x => { if (x.codi === 'brigada_parc' && /^brigada parc$/i.test(x.nom || '')) x.nom = 'Equip de treball del parc'; });
+    (V().responsables || []).forEach(x => { if (x.codi === 'brigada_parc' && /^(brigada parc|equip de treball del parc)$/i.test(x.nom || '')) x.nom = 'Colla del parc'; });
     // variables.json antic (abans del model d'estats 2): s'hi posen els estats i els canvis d'estat nous
     if (S.variables && S.variables.model_estats !== 2) Object.assign(S.variables, { model_estats: 2, estats: clone(ESTATS_DEFECTE), transicions: clone(TRANSICIONS_DEFECTE),
       estats_tancats: ['resolta', 'descartada'], estats_sense_avis: ['pendent_verificacio', 'resolta', 'descartada'] });
   }
   /**
-   * Model d'estats 2 (01/11/2026): Nova → Acceptada / Descartada → Assignada (té equip) ⇄ En pausa → Pendent de verificar → Resolta.
+   * Model d'estats 2 (01/11/2026): Nova → Acceptada / Descartada → Assignada (té colla) ⇄ En pausa → Pendent de verificar → Resolta.
    * Converteix les tasques del model anterior (assignada · en_curs · resolta = pendent de verificar · verificada = tancada).
    */
   function migraTasques(llista) {
@@ -2464,7 +2464,7 @@ const Manteniment = (() => {
   const horesDefecte = () => V().hores_per_defecte ?? 7;
   /** Responsable per defecte de totes les tasques del parc: el Responsable de brigades (Configuració dels parcs). */
   const nomRespBrigades = u => configParc(u).responsable_manteniment?.nom || null;
-  // «Assignada a»: equips de treball actius del parc (sempre tots) i altres responsables (Forestal Catalana, empresa…)
+  // «Assignada a»: colles actives del parc (sempre totes) i altres responsables (Forestal Catalana, empresa…)
   const valorAssignacio = g => (!g?.responsable ? '' : g.responsable === 'brigada_parc' ? (g.brigada ? 'eq:' + g.brigada : '') : 'r:' + g.responsable);
   const llegeixAssignacio = v => (!v ? { responsable: null, brigada: null } : v.startsWith('eq:') ? { responsable: 'brigada_parc', brigada: v.slice(3) } : { responsable: v.slice(2), brigada: null });
   function htmlOpcionsAssignacio(u, g) {
@@ -2473,14 +2473,14 @@ const Manteniment = (() => {
     const altres = responsablesParc(u).filter(x => x.codi !== 'brigada_parc');
     if (g?.responsable && g.responsable !== 'brigada_parc' && !altres.some(x => x.codi === g.responsable)) altres.push({ codi: g.responsable, nom: nomResponsable(u, g.responsable) });
     return `<option value="">— Sense assignar: Responsable de brigades${nomRespBrigades(u) ? ' (' + esc(nomRespBrigades(u)) + ')' : ''} —</option>`
-      + (eqs.length ? `<optgroup label="Equips de treball">${eqs.map(b => `<option value="eq:${esc(b.codi)}" ${'eq:' + b.codi === act ? 'selected' : ''}>${esc(b.nom)}${b.cap?.nom ? ' · cap: ' + esc(b.cap.nom) : ''}${b.activa === false ? ' (inactiu)' : ''}</option>`).join('')}</optgroup>` : '')
+      + (eqs.length ? `<optgroup label="Colles">${eqs.map(b => `<option value="eq:${esc(b.codi)}" ${'eq:' + b.codi === act ? 'selected' : ''}>${esc(b.nom)}${b.cap?.nom ? ' · cap: ' + esc(b.cap.nom) : ''}${b.activa === false ? ' (inactiva)' : ''}</option>`).join('')}</optgroup>` : '')
       + (altres.length ? `<optgroup label="Altres">${altres.map(x => `<option value="r:${esc(x.codi)}" ${'r:' + x.codi === act ? 'selected' : ''}>${esc(x.nom)}</option>`).join('')}</optgroup>` : '');
   }
   /** Text de «Assignada a» d'una tasca (null si no està assignada). */
   function nomAssignacio(t) {
     const g = t.gestio || {};
     if (!g.responsable) return null;
-    if (g.responsable === 'brigada_parc') return nomBrigada(t) || 'Equip de treball del parc';
+    if (g.responsable === 'brigada_parc') return nomBrigada(t) || 'Colla del parc';
     return nomResponsable(t.unitat, g.responsable) + (g.empresa ? ' · ' + g.empresa : '');
   }
   const emailsDe = txt => String(txt || '').split(/[\s,;]+/).map(x => x.trim()).filter(Boolean);
@@ -2604,12 +2604,12 @@ const Manteniment = (() => {
     opcions('#mf-estat', 'Tots els estats', (V().estats || []).map(e => [e.codi, e.nom]), v('#mf-estat'));
     opcions('#mf-prioritat', 'Totes les prioritats', [...(V().prioritats || []).map(p => [p.codi, p.nom]), ['_', 'Sense prioritat']], v('#mf-prioritat'));
     opcions('#mf-tipologia', 'Totes les tipologies', tipologies().map(t => [t.codi, t.nom]), v('#mf-tipologia'));
-    // Equips: els responsables generals i, del parc filtrat (o de tots), cada equip de treball
+    // Equips: els responsables generals i, del parc filtrat (o de tots), cada colla
     const parcF = v('#mf-parc'), parcsEq = parcF ? [parcF] : parcs;
-    const equips = parcsEq.flatMap(u => brigadesParc(u, true).map(b => [`eq:${u}:${b.codi}`, `${parcF ? '' : u + ' · '}${b.nom}${b.activa === false ? ' (inactiu)' : ''}`]));
+    const colles = parcsEq.flatMap(u => brigadesParc(u, true).map(b => [`eq:${u}:${b.codi}`, `${parcF ? '' : u + ' · '}${b.nom}${b.activa === false ? ' (inactiva)' : ''}`]));
     const actResp = v('#mf-responsable');
-    $('#mf-responsable').innerHTML = `<option value="">Tots els equips</option><optgroup label="Responsables">${(V().responsables || []).map(x => `<option value="${esc(x.codi)}" ${x.codi === actResp ? 'selected' : ''}>${esc(x.nom)}</option>`).join('')}</optgroup>`
-      + (equips.length ? `<optgroup label="Equips de treball">${equips.map(([c, l]) => `<option value="${esc(c)}" ${c === actResp ? 'selected' : ''}>${esc(l)}</option>`).join('')}</optgroup>` : '');
+    $('#mf-responsable').innerHTML = `<option value="">Totes les colles</option><optgroup label="Responsables">${(V().responsables || []).map(x => `<option value="${esc(x.codi)}" ${x.codi === actResp ? 'selected' : ''}>${esc(x.nom)}</option>`).join('')}</optgroup>`
+      + (colles.length ? `<optgroup label="Colles">${colles.map(([c, l]) => `<option value="${esc(c)}" ${c === actResp ? 'selected' : ''}>${esc(l)}</option>`).join('')}</optgroup>` : '');
     if (actResp && $('#mf-responsable').value !== actResp) $('#mf-responsable').value = '';
     const persones = [...new Set((S.mant || []).filter(t => (!parcF || t.unitat === parcF) && t.gestio?.persona).map(t => t.gestio.persona))].sort(ordCa);
     opcions('#mf-persona', 'Totes les persones', [['_', 'Sense persona assignada'], ...persones.map(n => [n, n])], v('#mf-persona'));
@@ -2646,9 +2646,9 @@ const Manteniment = (() => {
       ['Tasques obertes', obertes.length, $('#mf-parc').value ? nomUnitat($('#mf-parc').value) : 'Tots els espais'],
       ['Noves per acceptar', obertes.filter(t => t.estat === 'nova').length, 'Pendents del Responsable de brigades'],
       ['Urgents', obertes.filter(t => t.gestio?.prioritat === 'urgent' && !senseAvis(t)).length, 'Obertes amb prioritat urgent'],
-      ['Per assignar', obertes.filter(t => t.estat === 'acceptada').length, 'Acceptades sense equip'],
+      ['Per assignar', obertes.filter(t => t.estat === 'acceptada').length, 'Acceptades sense colla'],
       ['En pausa', obertes.filter(t => t.estat === 'en_pausa').length, 'Feina aturada'],
-      ['Pendents de verificar', obertes.filter(t => t.estat === 'pendent_verificacio').length, "Acabades per l'equip"],
+      ['Pendents de verificar', obertes.filter(t => t.estat === 'pendent_verificacio').length, "Acabades per la colla"],
       [`Data límit en ${diesAvis()} dies`, obertes.filter(t => avisLimit(t)?.tipus === 'propera').length, 'Avís previ'],
       ['Vençudes', obertes.filter(t => avisLimit(t)?.tipus === 'vencuda').length, 'Data límit superada'],
     ];
@@ -2706,10 +2706,10 @@ const Manteniment = (() => {
       <span class="linia">${htmlPrio(g.prioritat)} <span class="marca comp">${esc(nomEstat(t.estat))}</span>
         ${g.data_limit ? `<span class="text-small text-muted">límit ${esc(fmtData(g.data_limit))}</span>` : ''}
         ${a ? `<span class="marca" title="${esc(a.text)}">⏰ ${a.tipus === 'vencuda' ? 'vençuda' : a.dies + ' d'}</span>` : ''}</span></button>
-      ${rapid ? `<button type="button" class="mant-assigna-rapid" data-assigna="${esc(t.id)}" title="Assigna la tasca a un equip de treball">👷 Assigna</button>` : ''}</li>`;
+      ${rapid ? `<button type="button" class="mant-assigna-rapid" data-assigna="${esc(t.id)}" title="Assigna la tasca a una colla">👷 Assigna</button>` : ''}</li>`;
   }
   // ---------- Tauler (dipòsits com al Planner) ----------
-  //   Columnes segons «Agrupa per». Per estat i per equip, les targetes es poden arrossegar: el canvi segueix les mateixes
+  //   Columnes segons «Agrupa per». Per estat i per colla, les targetes es poden arrossegar: el canvi segueix les mateixes
   //   regles i permisos que la gestió (si cal una dada, s'obre la gestió o l'assignació ràpida amb el canvi ja triat).
   const CLAU_VISTA = 'motor-patrimoni.mant.vista';
   const vistaActual = () => { try { return localStorage.getItem(CLAU_VISTA) || 'tauler'; } catch { return 'tauler'; } };
@@ -2751,7 +2751,7 @@ const Manteniment = (() => {
       for (const t of ll) {
         const g = t.gestio || {};
         const k = !g.responsable ? '_' : g.responsable === 'brigada_parc' ? `eq:${t.unitat}:${g.brigada}` : `r:${t.unitat}:${g.responsable}`;
-        if (!cols.has(k)) cols.set(k, { clau: k, nom: (k.startsWith('eq:') ? brigada(t.unitat, g.brigada)?.nom || g.brigada || 'Equip' : nomResponsable(t.unitat, g.responsable)) + nomU(t.unitat), color: k.startsWith('r:') ? '#605e5c' : '#088074', tasques: [], drop: 'equip' });
+        if (!cols.has(k)) cols.set(k, { clau: k, nom: (k.startsWith('eq:') ? brigada(t.unitat, g.brigada)?.nom || g.brigada || 'Colla' : nomResponsable(t.unitat, g.responsable)) + nomU(t.unitat), color: k.startsWith('r:') ? '#605e5c' : '#088074', tasques: [], drop: 'equip' });
         cols.get(k).tasques.push(t);
       }
       const sense = cols.get('_'); cols.delete('_');
@@ -2773,7 +2773,7 @@ const Manteniment = (() => {
           ${avisos ? `<span class="alerta" title="Data límit propera o vençuda">⏰ ${avisos}</span>` : ''}<span class="compte">${c.tasques.length}</span></div>
         ${c.nota ? `<div class="mant-col-nota">${esc(c.nota)}</div>` : ''}
         <div class="mant-col-cos">${c.tasques.map(t => htmlCarta(t, !!c.drop && !esTancada(t))).join('') || '<div class="mant-col-buida">Cap tasca</div>'}</div></section>`;
-    }).join('')}</div>${per && !['estat', 'equip'].includes(per) ? '<p class="text-small text-muted" style="padding:6px 12px">Per moure targetes entre columnes, agrupa per estat o per equip.</p>' : ''}` };
+    }).join('')}</div>${per && !['estat', 'equip'].includes(per) ? '<p class="text-small text-muted" style="padding:6px 12px">Per moure targetes entre columnes, agrupa per estat o per colla.</p>' : ''}` };
   }
   /** Què passa en deixar una targeta en una altra columna. */
   async function deixaCarta(id, col) {
@@ -2787,7 +2787,7 @@ const Manteniment = (() => {
       if (t.estat === 'nova') return no(`${t.id} és nova: primer cal acceptar-la (botó «Accepta o descarta»).`);
       if (!['acceptada', 'assignada', 'en_pausa'].includes(t.estat)) return no(`Una tasca «${nomEstat(t.estat)}» no es pot reassignar.`);
       const [tipus, u, codi] = col === '_' ? ['_'] : col.split(':');
-      if (col !== '_' && u !== t.unitat) return no(`Aquest equip és d'un altre parc (${u}); la tasca és del ${t.unitat}.`);
+      if (col !== '_' && u !== t.unitat) return no(`Aquesta colla és d'un altre parc (${u}); la tasca és del ${t.unitat}.`);
       return reassigna(t, col === '_' ? '' : `${tipus}:${codi}`);
     }
     const a = col;
@@ -2795,10 +2795,10 @@ const Manteniment = (() => {
     if (!(await potSortir())) return;
     if (t.estat === 'nova' && ['acceptada', 'assignada', 'descartada'].includes(a)) {
       if (!gestor) return no('Només el Responsable de brigades i la direcció poden acceptar o descartar tasques.');
-      return gestio(t, { estat: a === 'descartada' ? 'descartada' : 'acceptada', missatge: a === 'assignada' ? 'Accepta la tasca i tria l\'equip a «Assignada a».' : a === 'acceptada' ? 'Completa la tipologia, la prioritat i la data límit.' : 'Indica el motiu a les observacions.' });
+      return gestio(t, { estat: a === 'descartada' ? 'descartada' : 'acceptada', missatge: a === 'assignada' ? 'Accepta la tasca i tria la colla a «Assignada a».' : a === 'acceptada' ? 'Completa la tipologia, la prioritat i la data límit.' : 'Indica el motiu a les observacions.' });
     }
     if (t.estat === 'acceptada' && a === 'assignada') return gestor ? assignaRapid(t) : no('Només el Responsable de brigades i la direcció poden assignar tasques.');
-    if (['assignada', 'en_pausa'].includes(t.estat) && a === 'acceptada') return gestor ? reassigna(t, '') : no('Només el Responsable de brigades i la direcció poden treure l\'equip.');
+    if (['assignada', 'en_pausa'].includes(t.estat) && a === 'acceptada') return gestor ? reassigna(t, '') : no('Només el Responsable de brigades i la direcció poden treure la colla.');
     const permesos = estatsPermesos(t, r);
     if (!permesos.includes(a)) return no(`No es pot passar de «${nomEstat(t.estat)}» a «${nomEstat(a)}»${rolsQuePoden(t.estat, a) ? `: ho poden fer ${rolsQuePoden(t.estat, a)}` : ''}.`);
     const perEquip = transicions().some(x => x.de.includes(t.estat) && x.a === a && x.rols.includes('brigada'));
@@ -2806,13 +2806,13 @@ const Manteniment = (() => {
     if (gestor) return gestio(t, { estat: t.estat === 'en_pausa' && a === 'assignada' ? 'repren' : a });
     return no('Amb el teu perfil no pots fer aquest canvi.');
   }
-  /** Assigna (o treu) l'equip d'una tasca acceptada, assignada o en pausa, sense obrir la gestió. */
+  /** Assigna (o treu) la colla d'una tasca acceptada, assignada o en pausa, sense obrir la gestió. */
   async function reassigna(t, valor) {
     const r = rolsUsuari(t), ass = llegeixAssignacio(valor), moment = ara(), qui = { nom: S.usuari.nom, email: S.usuari.email || null, rols: [...r.rols] };
     if (valorAssignacio(t.gestio) === valorAssignacio(ass)) return;
     if (ass.responsable === 'empresa_externa' || !valor) {
-      const ok = await finestra({ titol: valor ? 'Empresa externa' : `Treure l'equip de ${esc(t.id)}`,
-        cos: valor ? '<div class="camp"><label for="re-empresa">Empresa (opcional)</label><input type="text" id="re-empresa"></div>' : `<p>La tasca tornarà a «Acceptada», sense equip${t.estat === 'en_pausa' ? ', i es tancarà la pausa' : ''}.</p>`,
+      const ok = await finestra({ titol: valor ? 'Empresa externa' : `Treure la colla de ${esc(t.id)}`,
+        cos: valor ? '<div class="camp"><label for="re-empresa">Empresa (opcional)</label><input type="text" id="re-empresa"></div>' : `<p>La tasca tornarà a «Acceptada», sense colla${t.estat === 'en_pausa' ? ', i es tancarà la pausa' : ''}.</p>`,
         botons: [{ text: 'Cancel·la', accio: 'no' }, { text: 'Confirma', accio: 'si', principal: true, recull: f => $('#re-empresa', f)?.value.trim() || null }] });
       if (ok?.accio !== 'si') return;
       ass.empresa = ok.dades;
@@ -2833,7 +2833,7 @@ const Manteniment = (() => {
     catch (e) { toast((e.conflicte ? e.message + ' Recarrega les dades.' : 'Error en desar: ' + e.message), 'error', 10000); return; }
     refrescaTot(); pintaLlista();
     if (st.mode === 'fitxa' && st.sel === t.id) await pintaFitxa(t.id);
-    toast(valor ? `${t.id} assignada a ${nomAssignacio(nou)}.` : `${t.id}: sense equip (Acceptada).`);
+    toast(valor ? `${t.id} assignada a ${nomAssignacio(nou)}.` : `${t.id}: sense colla (Acceptada).`);
   }
   // Arrossegar targetes (ratolí). Al mòbil, les targetes s'obren i els canvis es fan des de la fitxa.
   function iniciaArrossegar() {
@@ -2897,7 +2897,7 @@ const Manteniment = (() => {
       st.iniciat = true;
       pintaFiltres();
       ['#mf-estat', '#mf-prioritat', '#mf-tipologia', '#mf-responsable', '#mf-persona', '#mf-tancades', '#mf-ordre', '#mf-agrupa'].forEach(s => $(s).addEventListener('change', pintaLlista));
-      $('#mf-parc').addEventListener('change', () => { pintaFiltres(); pintaLlista(); });   // els equips i les persones depenen del parc
+      $('#mf-parc').addEventListener('change', () => { pintaFiltres(); pintaLlista(); });   // les colles i les persones depenen del parc
       $('#mant-llista').addEventListener('toggle', e => { const d = e.target; if (!d.dataset?.grup) return; d.open ? plegats.delete(d.dataset.grup) : plegats.add(d.dataset.grup);
         $('#mant-plega').textContent = $$('#mant-llista details.mant-grup[open]').length ? 'Plega-ho tot' : 'Desplega-ho tot'; }, true);
       $$('#mant-vista button').forEach(b => b.addEventListener('click', () => { desaVista(b.dataset.vista); pintaLlista(); setTimeout(() => mapa?.invalidateSize(), 60); }));
@@ -2949,7 +2949,7 @@ const Manteniment = (() => {
         <div class="id">${esc(nomUnitat(t.unitat))}</div><div class="xips" style="margin-top:6px"><span class="xip">${esc(t.unitat)}</span> ${htmlPrio(g.prioritat)} <span class="marca comp">${esc(nomEstat(t.estat))}</span></div></div>
         <div class="botons">${botoAssigna}${botoEquip}${esTancada(t) || !gestor ? '' : `<button type="button" class="btn ${botoEquip || botoAssigna ? 'btn-secondary' : 'btn-primary'}" data-m="gestio">${t.estat === 'nova' ? '⚑ Accepta o descarta' : t.estat === 'pendent_verificacio' ? '✓ Verifica / gestiona' : '⚑ Gestiona'}</button>`}</div></div>
       ${a ? `<div class="avis-box" style="margin:12px 20px 0"><strong>⏰ ${a.tipus === 'vencuda' ? 'Data límit vençuda' : 'Data límit propera'}:</strong> ${esc(a.text)}</div>` : ''}
-      ${t.estat === 'acceptada' ? '<div class="info-box text-small" style="margin:12px 20px 0">Tasca acceptada: falta assignar-la a un equip de treball (botó «Assigna»).</div>' : ''}
+      ${t.estat === 'acceptada' ? '<div class="info-box text-small" style="margin:12px 20px 0">Tasca acceptada: falta assignar-la a una colla (botó «Assigna»).</div>' : ''}
       ${t.estat === 'en_pausa' ? `<div class="avis-box text-small" style="margin:12px 20px 0"><strong>⏸ En pausa</strong>${(t.pauses || []).at(-1)?.motiu ? ': ' + esc(t.pauses.at(-1).motiu) : ''}${(t.pauses || []).at(-1)?.inici ? ' (des del ' + esc(fmtData(t.pauses.at(-1).inici)) + ')' : ''}.</div>` : ''}
       ${t.estat === 'pendent_verificacio' ? '<div class="info-box text-small" style="margin:12px 20px 0">Feina feta: pendent que el Responsable de brigades o la direcció del parc la verifiquin.</div>' : ''}
       ${t.estat === 'nova' ? '<div class="info-box text-small" style="margin:12px 20px 0">Tasca nova: el Responsable de brigades o la direcció l\'han d\'acceptar (cal la tipologia, la prioritat i la data límit) o descartar.</div>' : ''}
@@ -2960,7 +2960,7 @@ const Manteniment = (() => {
         ${camp('Data proposada de realització', t.data_proposada ? esc(fmtData(t.data_proposada)) : '<span class="buit">—</span>')}
         ${camp('Coordenades UTM', t.utm?.x != null ? `X ${esc(t.utm.x)} · Y ${esc(t.utm.y)}` : '<span class="buit">—</span>')}
         ${camp('Sol·licitant', `${txt(t.sollicitant?.nom)}${t.sollicitant?.email ? ` · <a href="mailto:${esc(t.sollicitant.email)}">${esc(t.sollicitant.email)}</a>` : ''}`)}
-        ${t.origen?.peticio ? camp('Origen', `Webapp de l'equip ${esc(t.origen.nom_equip || t.origen.equip || '')} · importada el ${esc(fmtData(t.origen.importat))} per ${esc(t.origen.importat_per || '')}`) : ''}
+        ${t.origen?.peticio ? camp('Origen', `Webapp de la colla ${esc(t.origen.nom_equip || t.origen.equip || '')} · importada el ${esc(fmtData(t.origen.importat))} per ${esc(t.origen.importat_per || '')}`) : ''}
         ${(t.notificar || []).length ? camp('Altres persones notificades', esc(t.notificar.join(', ')), true) : ''}
         ${camp('Data d\'entrada', esc(fmtData(t.creat)))}
         ${t.periodica ? camp('Tasca periòdica', `<button type="button" class="btn-link" data-obre-per="${esc(t.periodica.id)}">${esc(t.periodica.id)}</button> · execució ${esc(t.periodica.execucio || '')} del ${esc(fmtData(t.periodica.data))}`) : ''}
@@ -2974,7 +2974,7 @@ const Manteniment = (() => {
       ${htmlRegistresEquip(t)}
       <div class="mant-seccio"><h3>Fotografies</h3><div id="mant-fotos">${fotosDe(t).length ? '<div class="mant-foto-buida">Carregant les fotografies…</div>' : '<div class="mant-foto-buida">Sense fotografies.</div>'}</div>
         ${['assignada', 'en_pausa'].includes(t.estat) ? `<p style="margin-top:8px"><label class="btn btn-secondary btn-petit" style="cursor:pointer">＋ Afegeix fotografies de seguiment<input type="file" id="mant-seguiment" accept="image/*" capture="environment" multiple hidden></label>
-          <span class="text-small text-muted">Com evoluciona la feina (equip de treball).</span></p>` : ''}</div>
+          <span class="text-small text-muted">Com evoluciona la feina (colla).</span></p>` : ''}</div>
       <div class="mant-seccio"><h3>Gestió</h3><div class="camps">
         ${camp('Prioritat', htmlPrio(g.prioritat))}
         ${camp('Data límit', g.data_limit ? esc(fmtData(g.data_limit)) : '<span class="buit">—</span>')}
@@ -3017,7 +3017,7 @@ const Manteniment = (() => {
     if (!fitxers.length) return;
     if (!S.usuari && !(await demanaUsuari('Indica qui afegeix les fotografies.'))) return;
     const r = rolsUsuari(t);
-    if (!r.rols.has('brigada') && !r.rols.has('manteniment')) { toast('Només l\'equip de treball (cap de colla o oficial) o el Responsable de brigades poden afegir fotografies de seguiment.', 'error', 7000); return; }
+    if (!r.rols.has('brigada') && !r.rols.has('manteniment')) { toast('Només la colla (cap de colla o oficial) o el Responsable de brigades poden afegir fotografies de seguiment.', 'error', 7000); return; }
     let fotos;
     try { fotos = await Promise.all(fitxers.map(redueixFoto)); } catch (e) { toast(e.message, 'error'); return; }
     const a = await finestra({ titol: `Fotografies de seguiment · ${esc(t.id)}`, cos: `<div class="mant-galeria">${fotos.map(f => `<figure><img src="${f.dataURL}" alt=""></figure>`).join('')}</div>
@@ -3057,7 +3057,7 @@ const Manteniment = (() => {
         ${h('mn-hores', 'Hores de dedicació estimades (opcional)', '<input type="text" inputmode="decimal" id="mn-hores" placeholder="p. ex. 7">', { ajuda: `Estimació de les hores de feina (totes les persones). Si no s'indica, en acceptar-la es proposen ${horesDefecte()} h.` })}
         ${h('mn-descripcio', 'Descripció', '<textarea id="mn-descripcio" rows="3" placeholder="Què passa, on exactament i què caldria fer"></textarea>', { req: true, ample: true })}
         ${h('mn-persona', 'Persona assignada (opcional)', `<input type="text" id="mn-persona" list="mn-persones" placeholder="— Cap persona concreta —" autocomplete="off">${htmlDatalistPersones('mn-persones', parc)}`,
-          { ajuda: 'Si la tasca l\'ha de fer una persona concreta. Deixa-ho en blanc perquè l\'assigni el Responsable de brigades a un equip.' })}
+          { ajuda: 'Si la tasca l\'ha de fer una persona concreta. Deixa-ho en blanc perquè l\'assigni el Responsable de brigades a una colla.' })}
         ${h('mn-element', 'Immoble relacionat del mòdul de patrimoni', '<select id="mn-element"></select>', { ample: true, ajuda: 'Si la tasca és en un immoble o al seu voltant. En marcar el punt al mapa es proposa l\'immoble més proper.' })}
         <div id="mn-proper" class="ample text-small" hidden></div>
       </div></div>
@@ -3170,7 +3170,7 @@ const Manteniment = (() => {
       gestio: { prioritat: null, data_limit: null, responsable: null, brigada: null, persona: null, empresa: null, observacions: null, assignat_per: null, data_assignacio: null },
       historial: [{ data: moment, usuari: { nom: S.usuari.nom, unitat: S.usuari.unitat || null, font: 'manual' }, accio: 'alta', canvis: [] }],
     };
-    // Persona concreta (opcional): si és d'un equip de treball, es proposa també aquell equip
+    // Persona concreta (opcional): si és d'una colla, es proposa també aquella colla
     if (v('#mn-persona')) {
       tasca.gestio.persona = v('#mn-persona');
       const eq = equipDePersona(tasca.unitat, tasca.gestio.persona);
@@ -3198,27 +3198,27 @@ const Manteniment = (() => {
   // ---------- Rols i canvis d'estat ----------
   //   manteniment: Responsable de brigades del parc · direccio: direcció del parc · brigada: caps de colla i oficials del parc
   //   El rol es reconeix pel correu electrònic de la persona identificada (amb SINATCAT, per l'usuari autenticat).
-  const NOM_ROL = { manteniment: 'Responsable de brigades', direccio: 'Director/a del Parc Natural', brigada: 'Colla (cap de colla o oficial)' };
+  const NOM_ROL = { manteniment: 'Responsable de brigades', direccio: 'Director/a del Parc Natural', brigada: 'Cap de colla o oficial' };
   const ESTATS_DEFECTE = [
     { codi: 'nova', nom: 'Nova', descripcio: "Entrada pel sol·licitant, pendent que el Responsable de brigades o la direcció l'acceptin o la descartin." },
-    { codi: 'acceptada', nom: 'Acceptada', descripcio: 'Gestionada: té tipologia, prioritat i data límit, però encara no té cap equip assignat.' },
-    { codi: 'assignada', nom: 'Assignada', descripcio: 'Té un equip de treball (o un altre responsable) per fer-la.' },
+    { codi: 'acceptada', nom: 'Acceptada', descripcio: 'Gestionada: té tipologia, prioritat i data límit, però encara no té cap colla assignada.' },
+    { codi: 'assignada', nom: 'Assignada', descripcio: 'Té una colla (o un altre responsable) per fer-la.' },
     { codi: 'en_pausa', nom: 'En pausa', descripcio: "La feina s'ha aturat per algun motiu. Pot seguir assignada o tornar a Acceptada." },
-    { codi: 'pendent_verificacio', nom: 'Pendent de verificar', descripcio: "L'equip ha acabat la feina; pendent que el Responsable de brigades o la direcció la verifiquin." },
+    { codi: 'pendent_verificacio', nom: 'Pendent de verificar', descripcio: "La colla ha acabat la feina; pendent que el Responsable de brigades o la direcció la verifiquin." },
     { codi: 'resolta', nom: 'Resolta', descripcio: 'Verificada pel Responsable de brigades o la direcció. Estat final.' },
     { codi: 'descartada', nom: 'Descartada', descripcio: 'No es farà (cal indicar-ne el motiu a les observacions). Estat final.' },
   ];
   const GESTORS = ['manteniment', 'direccio'];
   const TRANSICIONS_DEFECTE = [
-    { de: ['nova'], a: 'acceptada', rols: GESTORS, nota: "Acceptar (cal tipologia, prioritat i data límit). Si s'assigna un equip alhora, passa directament a Assignada." },
+    { de: ['nova'], a: 'acceptada', rols: GESTORS, nota: "Acceptar (cal tipologia, prioritat i data límit). Si s'assigna una colla alhora, passa directament a Assignada." },
     { de: ['nova'], a: 'assignada', rols: GESTORS },
-    { de: ['acceptada', 'en_pausa'], a: 'assignada', rols: GESTORS, nota: "S'aplica sola en assignar un equip." },
-    { de: ['assignada', 'en_pausa'], a: 'acceptada', rols: GESTORS, nota: "S'aplica sola en treure l'equip." },
+    { de: ['acceptada', 'en_pausa'], a: 'assignada', rols: GESTORS, nota: "S'aplica sola en assignar una colla." },
+    { de: ['assignada', 'en_pausa'], a: 'acceptada', rols: GESTORS, nota: "S'aplica sola en treure la colla." },
     { de: ['assignada'], a: 'en_pausa', rols: [...GESTORS, 'brigada'], nota: 'Cal indicar-ne el motiu.' },
-    { de: ['en_pausa'], a: 'assignada', rols: ['brigada', ...GESTORS], nota: "Reprendre la feina (l'equip continua assignat)." },
+    { de: ['en_pausa'], a: 'assignada', rols: ['brigada', ...GESTORS], nota: "Reprendre la feina (la colla continua assignada)." },
     { de: ['assignada'], a: 'pendent_verificacio', rols: ['brigada'], nota: 'Feina acabada.' },
     { de: ['pendent_verificacio'], a: 'resolta', rols: GESTORS, nota: "Verificar: cal la certificació final d'hores." },
-    { de: ['pendent_verificacio'], a: 'assignada', rols: GESTORS, nota: "No es verifica: torna a l'equip (cal explicar-ne el motiu)." },
+    { de: ['pendent_verificacio'], a: 'assignada', rols: GESTORS, nota: "No es verifica: torna a la colla (cal explicar-ne el motiu)." },
     { de: ['nova', 'acceptada', 'assignada', 'en_pausa'], a: 'descartada', rols: GESTORS, nota: 'Cal indicar-ne el motiu.' },
   ];
   const transicions = () => V().transicions || TRANSICIONS_DEFECTE;
@@ -3231,7 +3231,7 @@ const Manteniment = (() => {
     if (u.perfil === 'cap_manteniment' && (alParc || !S.espais?.[u.unitat])) rols.add('manteniment');   // unitat central: tots els parcs
     if (PERFILS_EQUIP.includes(u.perfil) && alParc) rols.add('brigada');   // cap de colla i oficial: mateixos permisos
     // Si la feina no la fa la Brigada Parc (Forestal Catalana, empresa…), el Responsable de brigades en porta el seguiment
-    if (t.gestio?.responsable !== 'brigada_parc' && rols.has('manteniment')) rols.add('brigada');   // sense equip assignat (o extern): ho porta el Responsable de brigades
+    if (t.gestio?.responsable !== 'brigada_parc' && rols.has('manteniment')) rols.add('brigada');   // sense colla assignat (o extern): ho porta el Responsable de brigades
     return { rols, provisionals };
   }
   /** Pot gestionar la configuració i les brigades d'un parc. */
@@ -3248,14 +3248,14 @@ const Manteniment = (() => {
       rol en aquest parc: <strong>${r.rols.size ? esc([...r.rols].map(k => NOM_ROL[k]).join(', ')) : 'cap'}</strong> · <button type="button" class="btn-link" data-m="usuari">canvia el perfil</button></div>`;
   }
 
-  // ---------- Equip de treball: començar i acabar la feina ----------
+  // ---------- Colla: començar i acabar la feina ----------
   async function accioEquip(t, a) {
     if (!S.usuari?.perfil && !(await demanaUsuari('Indica qui ets i el teu perfil.'))?.perfil) return;
     const r = rolsUsuari(t);
     if (!r.rols.has('brigada') || !estatsPermesos(t, r).includes(a)) { toast('Amb el teu perfil no pots fer aquest canvi d\'estat.', 'error', 7000); return; }
     const TXT = {
       pendent_verificacio: ['✓ Feina acabada', 'La tasca passarà a «Pendent de verificar» fins que el Responsable de brigades o la direcció la verifiquin.', 'Nota (opcional)'],
-      en_pausa: ['⏸ Posa la feina en pausa', 'La tasca passarà a «En pausa» i continuarà assignada a l\'equip.', 'Motiu de la pausa'],
+      en_pausa: ['⏸ Posa la feina en pausa', 'La tasca passarà a «En pausa» i continuarà assignada a la colla.', 'Motiu de la pausa'],
       assignada: ['▶ Reprèn la feina', 'La tasca tornarà a «Assignada».', 'Nota (opcional)'],
     }[a];
     const res = await finestra({ titol: `${TXT[0]} · ${esc(t.id)}`,
@@ -3281,7 +3281,7 @@ const Manteniment = (() => {
   /** Tanca la darrera pausa oberta (en reprendre, desassignar o descartar). */
   const tancaPausa = (t, moment, qui) => (t.pauses || []).map((q, i, ll) => (i === ll.length - 1 && !q.fi ? { ...q, fi: moment, represa_per: qui } : q));
 
-  /** Assignació ràpida d'una tasca acceptada a un equip de treball (Responsable de brigades o direcció). */
+  /** Assignació ràpida d'una tasca acceptada a una colla (Responsable de brigades o direcció). */
   async function assignaRapid(t) {
     if (!S.usuari?.perfil && !(await demanaUsuari('Indica qui ets i el teu perfil.'))?.perfil) return;
     const r = rolsUsuari(t);
@@ -3289,12 +3289,12 @@ const Manteniment = (() => {
     if (!(await potSortir())) return;
     const res = await finestra({ titol: `👷 Assigna ${esc(t.id)}`,
       cos: `<p class="text-small">${esc(nomTipologia(t.tipologia))} · ${esc((t.descripcio || '').slice(0, 140))}</p>
-        <div class="camp"><label for="ar-equip" class="required">Assignada a</label><select id="ar-equip">${htmlOpcionsAssignacio(t.unitat, {}).replace(/<option value="">[^<]*<\/option>/, '<option value="">— Tria l\'equip —</option>')}</select><div class="camp-error" hidden></div>
-          ${brigadesParc(t.unitat).length ? '' : '<div class="ajuda">Aquest parc encara no té equips de treball (botó «Equips de treball»).</div>'}</div>
+        <div class="camp"><label for="ar-equip" class="required">Assignada a</label><select id="ar-equip">${htmlOpcionsAssignacio(t.unitat, {}).replace(/<option value="">[^<]*<\/option>/, '<option value="">— Tria la colla —</option>')}</select><div class="camp-error" hidden></div>
+          ${brigadesParc(t.unitat).length ? '' : '<div class="ajuda">Aquest parc encara no té colles (botó «Colles»).</div>'}</div>
         <div class="camp" id="ar-empresa-camp" hidden><label for="ar-empresa">Empresa</label><input type="text" id="ar-empresa"></div>
         <div class="camp"><label for="ar-persona">Persona assignada (opcional)</label><input type="text" id="ar-persona" list="ar-persones" autocomplete="off" placeholder="— Cap persona concreta —">${htmlDatalistPersones('ar-persones', t.unitat)}</div>`,
       botons: [{ text: 'Cancel·la', accio: 'no' }, { text: 'Assigna', accio: 'si', principal: true,
-        validar: f => { const ok = !!$('#ar-equip', f).value; const e = $('#ar-equip', f).closest('.camp').querySelector('.camp-error'); e.hidden = ok; e.textContent = 'Tria l\'equip de treball.'; return ok; },
+        validar: f => { const ok = !!$('#ar-equip', f).value; const e = $('#ar-equip', f).closest('.camp').querySelector('.camp-error'); e.hidden = ok; e.textContent = 'Tria la colla.'; return ok; },
         recull: f => ({ ass: $('#ar-equip', f).value, empresa: $('#ar-empresa', f).value.trim() || null, persona: $('#ar-persona', f).value.trim() || null }) }],
       // en obrir: l'empresa només surt si es tria «Empresa externa»
       enObrir: f => $('#ar-equip', f).addEventListener('change', e => { $('#ar-empresa-camp', f).hidden = e.target.value !== 'r:empresa_externa'; }) });
@@ -3342,7 +3342,7 @@ const Manteniment = (() => {
     const r = rolsUsuari(t);
     if (!potGestionar(r)) {
       await finestra({ titol: 'Gestió de la tasca', cos: `<p>Només el <strong>Responsable de brigades</strong> i la <strong>direcció del parc</strong> (${esc(t.unitat)}) poden gestionar les tasques.</p>
-        ${r.rols.has('brigada') ? '<p>Com a equip de treball, pots començar i acabar la feina amb els botons de la fitxa.</p>' : ''}
+        ${r.rols.has('brigada') ? '<p>Com a cap de colla o oficial, pots posar la feina en pausa, reprendre-la i acabar-la amb els botons de la fitxa o amb la webapp de brigades.</p>' : ''}
         <p class="text-small">El teu perfil: ${esc(PERFILS[S.usuari?.perfil] || 'sense perfil')}${S.usuari?.unitat ? ' · ' + esc(S.usuari.unitat) : ''}. El pots canviar amb el botó de la capçalera.</p>`, botons: [{ text: 'Tanca', accio: 'ok', principal: true }] });
       return;
     }
@@ -3355,8 +3355,8 @@ const Manteniment = (() => {
       nova: [['acceptada', 'Acceptada'], ['descartada', 'Descartada']],
       acceptada: [['acceptada', 'Acceptada (actual)'], ['descartada', '→ Descartada']],
       assignada: [['assignada', 'Assignada (actual)'], ['en_pausa', '→ En pausa'], ['descartada', '→ Descartada']],
-      en_pausa: [['en_pausa', 'En pausa (actual)'], ['repren', '→ Reprèn (Assignada, o Acceptada si es treu l\'equip)'], ['descartada', '→ Descartada']],
-      pendent_verificacio: [['pendent_verificacio', 'Pendent de verificar (actual)'], ['resolta', '→ Resolta (verifica la feina)'], ['assignada', '→ Torna a l\'equip (no es verifica)']],
+      en_pausa: [['en_pausa', 'En pausa (actual)'], ['repren', '→ Reprèn (Assignada, o Acceptada si es treu la colla)'], ['descartada', '→ Descartada']],
+      pendent_verificacio: [['pendent_verificacio', 'Pendent de verificar (actual)'], ['resolta', '→ Resolta (verifica la feina)'], ['assignada', '→ Torna a la colla (no es verifica)']],
     };
     const estats = (OPC[t.estat] || [[t.estat, nomEstat(t.estat) + ' (actual)']]).filter(([e]) => e === t.estat || e === 'repren' || permesos.includes(e) || (t.estat === 'nova' && e === 'acceptada'));
     const p = $('#mant-panell');
@@ -3365,18 +3365,18 @@ const Manteniment = (() => {
       <div class="fitxa-cos"><div id="mant-errors"></div>
       <div class="mant-seccio"><h3>Estat i assignació</h3><div class="camps">
         ${h('mg-estat', esNova ? 'Decisió' : 'Estat', `<select id="mg-estat">${estats.map(([e, l]) => `<option value="${esc(e)}">${esc(l)}</option>`).join('')}</select>`,
-          { req: esNova, ajuda: esNova ? 'Una tasca nova s\'accepta (cal la tipologia, la prioritat i la data límit) o es descarta. Si alhora l\'assignes a un equip, queda «Assignada».' : 'En assignar un equip la tasca passa a «Assignada»; si es treu l\'equip, torna a «Acceptada».' })}
+          { req: esNova, ajuda: esNova ? 'Una tasca nova s\'accepta (cal la tipologia, la prioritat i la data límit) o es descarta. Si alhora l\'assignes a una colla, queda «Assignada».' : 'En assignar una colla la tasca passa a «Assignada»; si es treu la colla, torna a «Acceptada».' })}
         ${h('mg-prioritat', 'Prioritat', `<select id="mg-prioritat"><option value="">— Sense assignar —</option>${(V().prioritats || []).map(x => `<option value="${esc(x.codi)}" ${x.codi === g.prioritat ? 'selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>`)}
         ${h('mg-limit', 'Data límit', `<input type="date" id="mg-limit" value="${esc(g.data_limit || '')}">`, { ajuda: `Obligatòria si la prioritat no és «En espera». S'avisa ${diesAvis()} dies abans.` })}
         ${h('mg-assignada', 'Assignada a', `<select id="mg-assignada">${htmlOpcionsAssignacio(u, g)}</select>`,
-          { ample: true, ajuda: brigadesParc(u).length ? 'Tots els equips de treball actius del parc. El responsable de la tasca és sempre el Responsable de brigades.' : 'Aquest parc encara no té equips de treball (botó «Equips de treball»).' })}
+          { ample: true, ajuda: brigadesParc(u).length ? 'Totes les colles actives del parc. El responsable de la tasca és sempre el Responsable de brigades.' : 'Aquest parc encara no té colles (botó «Colles»).' })}
         ${h('mg-empresa', 'Empresa', `<input type="text" id="mg-empresa" value="${esc(g.empresa || '')}">`)}
         ${h('mg-persona', 'Persona assignada (opcional)', `<input type="text" id="mg-persona" list="mg-persones" value="${esc(g.persona || '')}" placeholder="— Cap persona concreta —" autocomplete="off">${htmlDatalistPersones('mg-persones', u, g.brigada)}`,
-          { ajuda: 'En blanc, la tasca és de tot l\'equip. En triar una persona d\'un equip, es proposa aquell equip.' })}
+          { ajuda: 'En blanc, la tasca és de tota la colla. En triar una persona d\'una colla, es proposa aquella colla.' })}
         ${h('mg-hores', 'Hores estimades', `<input type="text" inputmode="decimal" id="mg-hores" value="${esc(t.hores_estimades ?? horesDefecte())}">`, { ajuda: `Per defecte, ${horesDefecte()} h.` })}
         ${h('mg-cert', 'Hores a certificar ara', '<input type="text" inputmode="decimal" id="mg-cert">',
           { ajuda: `Hores de feina fetes des de la darrera certificació (totes les persones). Ja certificades: ${fmtNum(horesCertificades(t))} h${t.hores_estimades != null ? ` de ${fmtNum(t.hores_estimades)} h estimades` : ''}. En feines llargues es poden certificar per parts; en verificar cal fer la certificació final (pot ser 0).` })}
-        ${h('mg-obs', 'Observacions', `<textarea id="mg-obs" rows="3">${esc(g.observacions || '')}</textarea>`, { ample: true, ajuda: 'Obligatòries per descartar una tasca, per posar-la en pausa (motiu) o per tornar-la a l\'equip si no es verifica.' })}
+        ${h('mg-obs', 'Observacions', `<textarea id="mg-obs" rows="3">${esc(g.observacions || '')}</textarea>`, { ample: true, ajuda: 'Obligatòries per descartar una tasca, per posar-la en pausa (motiu) o per tornar-la a la colla si no es verifica.' })}
       </div></div>
       <div class="mant-seccio"><h3>Petició</h3><div class="camps">
         ${h('mg-tipologia', 'Tipologia', `<select id="mg-tipologia"><option value="">— Sense tipologia —</option>${tipologies().filter(x => x.activa !== false || x.codi === t.tipologia).map(x => `<option value="${esc(x.codi)}" ${x.codi === t.tipologia ? 'selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>`, { ajuda: 'Obligatòria per acceptar la tasca.' })}
@@ -3454,7 +3454,7 @@ const Manteniment = (() => {
     const pr = prioritat(v('#mg-prioritat')), ass = llegeixAssignacio(v('#mg-assignada'));
     nou.gestio = { ...(t.gestio || {}), prioritat: pr?.codi || null, data_limit: pr?.requereix_data_limit ? v('#mg-limit') : null, ...ass, cap_brigada: null,
       empresa: ass.responsable === 'empresa_externa' ? v('#mg-empresa') : null, persona: v('#mg-persona'), observacions: v('#mg-obs') };
-    // Acceptada ⇄ Assignada segons si té equip (o un altre responsable); en pausa sense equip → Acceptada
+    // Acceptada ⇄ Assignada segons si té colla (o un altre responsable); en pausa sense colla → Acceptada
     const teEquip = !!nou.gestio.responsable;
     if (['acceptada', 'assignada'].includes(est)) est = teEquip ? 'assignada' : 'acceptada';
     if (est === 'en_pausa' && !teEquip) est = 'acceptada';
@@ -3527,16 +3527,16 @@ const Manteniment = (() => {
         cos: `<p>Cal comunicar el tancament al sol·licitant i a la direcció del parc. El botó obre un correu ja redactat.</p><p>${htmlBotoCorreu(nou, 'tancament', 'Envia l\'avís de tancament')}</p>`,
         botons: [{ text: 'Tanca', accio: 'ok', principal: true }] });
     } else if (t.estat === 'nova' && ['acceptada', 'assignada'].includes(nou.estat)) {
-      await finestra({ titol: `✓ Tasca ${esc(nou.id)} ${nou.estat === 'assignada' ? 'acceptada i assignada' : 'acceptada'}`, cos: `<p>Pots avisar el sol·licitant${nomAssignacio(nou) ? ' i l\'equip assignat' : ''}:</p><p>${htmlBotoCorreu(nou, 'actualitzacio', 'Envia l\'avís per correu')}</p>`,
+      await finestra({ titol: `✓ Tasca ${esc(nou.id)} ${nou.estat === 'assignada' ? 'acceptada i assignada' : 'acceptada'}`, cos: `<p>Pots avisar el sol·licitant${nomAssignacio(nou) ? ' i la colla assignada' : ''}:</p><p>${htmlBotoCorreu(nou, 'actualitzacio', 'Envia l\'avís per correu')}</p>`,
         botons: [{ text: 'Tanca', accio: 'ok', principal: true }] });
     }
   }
 
-  // ---------- Importació dels fitxers de la webapp dels equips (brigada.html) ----------
+  // ---------- Importació dels fitxers de la webapp de brigades (brigada.html) ----------
   //   El fitxer porta registres de feina (hores, persones, fotografies i com queda la tasca) i tasques noves.
   //   Els registres s'afegeixen a la tasca (registres_brigada[]) i en canvien l'estat: «Feina acabada» → Pendent de verificar,
   //   «En pausa» → En pausa, «Continua» d'una tasca en pausa → Assignada. Les tasques noves entren com a «Nova».
-  //   Tornar a importar el mateix fitxer no duplica res; un registre modificat a l'equip s'actualitza si encara no s'ha validat.
+  //   Tornar a importar el mateix fitxer no duplica res; un registre modificat a la colla s'actualitza si encara no s'ha validat.
   const dataURLaBlob = async d => (await fetch(d)).blob();
   const textResultat = r => ({ acabada: '✔ Feina acabada', pausa: '⏸ En pausa', continua: '○ Continua' }[r.resultat] || r.resultat || '—');
   async function importaEquip() {
@@ -3549,7 +3549,7 @@ const Manteniment = (() => {
     for (const f of fitxers) {
       let pac;
       try { pac = JSON.parse(await f.text()); } catch { resum.errors.push(`${f.name}: no és un fitxer JSON vàlid.`); continue; }
-      if (pac?.format !== 'motor-patrimoni.registres-brigada') { resum.errors.push(`${f.name}: no és un fitxer de la webapp dels equips.`); continue; }
+      if (pac?.format !== 'motor-patrimoni.registres-brigada') { resum.errors.push(`${f.name}: no és un fitxer de la webapp de brigades.`); continue; }
       if (pac.prova) { resum.errors.push(`${f.name}: és del mode prova (dades d'exemple) i no s'importa.`); continue; }
       if (!potGestionar(rolsUsuari({ unitat: pac.unitat }))) { resum.errors.push(`${f.name}: només el Responsable de brigades o la direcció del ${pac.unitat} el poden importar.`); continue; }
       try { await importaPeticions(pac, resum); await importaRegistres(pac, resum); }
@@ -3558,10 +3558,10 @@ const Manteniment = (() => {
     refrescaTot(); pintaLlista();
     if (st.mode === 'fitxa' && st.sel) await pintaFitxa(st.sel);
     const li = (c, t) => (c ? `<li>${t}</li>` : '');
-    await finestra({ titol: '📥 Importació de l\'equip', cos: `<ul style="margin-left:18px">
+    await finestra({ titol: '📥 Importació de la colla', cos: `<ul style="margin-left:18px">
         ${li(resum.tasques.length, `<strong>${resum.tasques.length}</strong> ${resum.tasques.length === 1 ? 'tasca nova' : 'tasques noves'} (estat «Nova»): ${esc(resum.tasques.join(', '))}`)}
         ${li(resum.nous, `<strong>${resum.nous}</strong> ${resum.nous === 1 ? 'registre de feina nou' : 'registres de feina nous'}`)}
-        ${li(resum.actualitzats, `${resum.actualitzats} ${resum.actualitzats === 1 ? 'registre actualitzat' : 'registres actualitzats'} (modificats a l'equip)`)}
+        ${li(resum.actualitzats, `${resum.actualitzats} ${resum.actualitzats === 1 ? 'registre actualitzat' : 'registres actualitzats'} (modificats a la colla)`)}
         ${li(resum.estats.length, `Canvis d'estat: ${resum.estats.map(esc).join('; ')}`)}
         ${li(resum.repetits, `${resum.repetits} ja s'havien importat abans (no es dupliquen)`)}
         ${li(resum.validats, `${resum.validats} ${resum.validats === 1 ? 'registre ja validat no s\'ha modificat' : 'registres ja validats no s\'han modificat'}`)}
@@ -3585,7 +3585,7 @@ const Manteniment = (() => {
         origen: { peticio: p.id, equip: pac.brigada, nom_equip: pac.nom_brigada || null, importat: moment, importat_per: S.usuari.nom },
         gestio: { prioritat: null, data_limit: null, responsable: null, brigada: null, persona: null, empresa: null, observacions: null, assignat_per: null, data_assignacio: null },
         historial: [{ data: moment, usuari: { nom: qui, unitat: pac.unitat, font: 'brigada' }, accio: 'alta', canvis: [],
-          nota: `Entrada des de la webapp de l'equip ${pac.nom_brigada || pac.brigada}; importada per ${S.usuari.nom}` }],
+          nota: `Entrada des de la webapp de la colla ${pac.nom_brigada || pac.brigada}; importada per ${S.usuari.nom}` }],
       };
       const meta = { fase: 'peticio', data: p.creat || moment, per: { nom: qui, email: null }, nota: null };
       const fotos = await Promise.all((p.fotos || []).map(async d => ({ blob: await dataURLaBlob(d), dataURL: d, meta })));
@@ -3631,15 +3631,15 @@ const Manteniment = (() => {
       nou.registres_brigada = llista; nou.model_estats = 2;
       if (fotos.length && !nou.fotografies) nou.fotografies = fotosDe(t);
       delete nou.fotografia;
-      canvis.unshift({ camp: 'registres_brigada', etiqueta: 'Registres de l\'equip', abans: n0, despres: llista.length });
+      canvis.unshift({ camp: 'registres_brigada', etiqueta: 'Registres de la colla', abans: n0, despres: llista.length });
       nou.versio = (t.versio || 1) + 1; nou.modificat = moment; nou.modificat_per = S.usuari.nom;
       nou.historial = [...(t.historial || []), { data: moment, usuari: { nom: S.usuari.nom, email: S.usuari.email || null, unitat: S.usuari.unitat || null, font: 'manual' }, accio: 'seguiment', canvis,
-        nota: `Importat de l'equip ${pac.nom_brigada || pac.brigada}: ${nous} ${nous === 1 ? 'registre nou' : 'registres nous'}${actualitzats ? `, ${actualitzats} actualitzats` : ''}` }];
+        nota: `Importat de la colla ${pac.nom_brigada || pac.brigada}: ${nous} ${nous === 1 ? 'registre nou' : 'registres nous'}${actualitzats ? `, ${actualitzats} actualitzats` : ''}` }];
       await desaTasca(nou, t.versio || 1, false, fotos);
       resum.nous += nous; resum.actualitzats += actualitzats;
     }
   }
-  /** Validació dels registres de l'equip: un cop validats, l'equip ja no els pot modificar. */
+  /** Validació dels registres de la colla: un cop validats, la colla ja no els pot modificar. */
   async function validaRegistres(t, ids) {
     if (!S.usuari?.perfil && !(await demanaUsuari('Indica qui ets i el teu perfil.'))?.perfil) return;
     const r = rolsUsuari(t);
@@ -3652,7 +3652,7 @@ const Manteniment = (() => {
     const hores = nou.registres_brigada.filter(x => ids.includes(x.id)).reduce((a, x) => a + (+x.hores || 0), 0);
     nou.versio = (t.versio || 1) + 1; nou.modificat = moment; nou.modificat_per = S.usuari.nom;
     nou.historial = [...(t.historial || []), { data: moment, usuari: { nom: S.usuari.nom, email: S.usuari.email || null, unitat: S.usuari.unitat || null, rols: [...r.rols], font: 'manual' }, accio: 'gestio',
-      canvis: [{ camp: 'registres_brigada.validacio', etiqueta: 'Registres de l\'equip validats', abans: null, despres: `${n} (${fmtNum(hores)} h)` }] }];
+      canvis: [{ camp: 'registres_brigada.validacio', etiqueta: 'Registres de la colla validats', abans: null, despres: `${n} (${fmtNum(hores)} h)` }] }];
     try { await desaTasca(nou, t.versio || 1, false); }
     catch (e) { toast((e.conflicte ? e.message + ' Recarrega les dades.' : 'Error en desar: ' + e.message), 'error', 10000); return; }
     refrescaTot(); pintaLlista(); await pintaFitxa(t.id);
@@ -3663,7 +3663,7 @@ const Manteniment = (() => {
     if (!ll.length) return '';
     const gestor = potGestionar(rolsUsuari(t)), pend = ll.filter(x => !x.validacio);
     const h = ll.reduce((a, x) => a + (+x.hores || 0), 0), hp = ll.reduce((a, x) => a + (+x.hores || 0) * (+x.persones || 1), 0);
-    return `<div class="mant-seccio"><h3>Registres de l'equip (${ll.length})</h3>
+    return `<div class="mant-seccio"><h3>Registres de la colla (${ll.length})</h3>
       <p class="text-small" style="margin-bottom:6px">Total: <strong>${esc(fmtNum(h))} h</strong> registrades (${esc(fmtNum(hp))} h × persona)${pend.length ? ` · ${pend.length} pendents de validar` : ' · tots validats'}.</p>
       <div class="taula-wrap"><table class="canvis-llista"><thead><tr><th>Data</th><th class="num">Hores</th><th class="num">Pers.</th><th>Com queda</th><th>Qui</th><th>Validació</th></tr></thead><tbody>
       ${ll.map(x => `<tr><td>${esc(fmtData(x.data))}</td><td class="num">${esc(fmtNum(x.hores))}</td><td class="num">${esc(x.persones ?? '')}</td>
@@ -3671,7 +3671,7 @@ const Manteniment = (() => {
         <td>${x.validacio ? `🔒 ${esc(fmtData(x.validacio.data))} · ${esc(x.validacio.per?.nom || '')}` : gestor ? `<button type="button" class="btn btn-secondary btn-petit" data-valida-reg="${esc(x.id)}">Valida</button>` : '<span class="buit">Pendent</span>'}</td></tr>`).join('')}
       </tbody></table></div>
       ${gestor && pend.length > 1 ? `<p style="margin-top:8px"><button type="button" class="btn btn-secondary btn-petit" data-valida-tots>Valida'ls tots (${pend.length})</button></p>` : ''}
-      <p class="text-small text-muted" style="margin-top:6px">Un cop validat, l'equip ja no pot modificar el registre. Les hores es certifiquen igualment a «Gestiona».</p></div>`;
+      <p class="text-small text-muted" style="margin-top:6px">Un cop validat, la colla ja no pot modificar el registre. Les hores es certifiquen igualment a «Gestiona».</p></div>`;
   }
 
   // ---------- Configuració per parc (variables.json) ----------
@@ -3709,10 +3709,10 @@ const Manteniment = (() => {
         ${h('cf-mtel', 'Telèfon', `<input type="tel" id="cf-mtel" value="${esc(c.responsable_manteniment?.telefon || '')}" ${dis}>`)}</div></div>
       <div class="mant-seccio"><h3>Responsables disponibles en aquest parc</h3>
         ${(V().responsables || []).map(r => `<label style="display:block;margin:4px 0"><input type="checkbox" data-resp="${esc(r.codi)}" ${(c.responsables || []).includes(r.codi) ? 'checked' : ''} ${dis}> ${esc(r.nom)}</label>`).join('')}
-        <div style="margin-top:10px"><strong class="text-small">Responsables propis del parc</strong> <span class="text-small text-muted">(p. ex. una empresa concreta o un altre equip)</span>
+        <div style="margin-top:10px"><strong class="text-small">Responsables propis del parc</strong> <span class="text-small text-muted">(p. ex. una empresa concreta o una altra colla)</span>
         <div id="cf-propis">${(c.responsables_propis || []).map((r, i) => `<div style="display:flex;gap:8px;margin:4px 0"><input type="text" data-propi="${i}" value="${esc(r.nom)}" style="flex:1" ${dis}>${pot ? `<button type="button" class="btn btn-perill btn-petit" data-treu-propi="${i}">Treu</button>` : ''}</div>`).join('')}</div>
         ${pot ? '<button type="button" class="btn btn-secondary btn-petit" id="cf-afegeix-propi">＋ Afegeix un responsable propi</button>' : ''}</div></div>
-      <div class="mant-seccio text-small text-muted">Els equips de treball de cada parc es gestionen amb el botó «👷 Equips de treball».</div></div>
+      <div class="mant-seccio text-small text-muted">Les colles de cada parc es gestionen amb el botó «👷 Colles».</div></div>
       <div class="peu-edicio"><button type="button" class="btn btn-secondary" data-m="cancela">Tanca</button>${pot ? '<button type="button" class="btn btn-primary" data-m="desa">Desa la configuració</button>' : ''}</div>`;
     };
     const recull = () => {
@@ -3743,26 +3743,26 @@ const Manteniment = (() => {
   // ---------- Brigades de treball (brigades.json) ----------
   async function brigades(parcInicial) {
     if (!(await potSortir())) return;
-    if (!S.usuari?.perfil && !(await demanaUsuari('Abans de gestionar els equips de treball, indica qui ets i el teu perfil.'))?.perfil) return;
+    if (!S.usuari?.perfil && !(await demanaUsuari('Abans de gestionar les colles, indica qui ets i el teu perfil.'))?.perfil) return;
     const p = obreEditor('brigades');
     const parc = parcInicial || $('#mf-parc').value || S.parc || espaisOrdenats()[0];
     const llista = clone(brigadesParc(parc, true)), pot = gestorDelParc(parc), dis = pot ? '' : 'disabled';
     const targeta = (b, i) => `<div class="mant-config-cap" data-brigada="${i}"><div class="camps">
-        ${h(`br-nom-${i}`, 'Nom de l\'equip', `<input type="text" id="br-nom-${i}" data-k="nom" value="${esc(b.nom || '')}" placeholder="p. ex. Equip nord" ${dis}>`, { req: true })}
+        ${h(`br-nom-${i}`, 'Nom de la colla', `<input type="text" id="br-nom-${i}" data-k="nom" value="${esc(b.nom || '')}" placeholder="p. ex. Colla nord" ${dis}>`, { req: true })}
         ${h(`br-cnom-${i}`, 'Cap de colla', `<input type="text" id="br-cnom-${i}" data-k="cap.nom" value="${esc(b.cap?.nom || '')}" ${dis}>`)}
         ${h(`br-cemail-${i}`, 'Correu del cap', `<input type="email" id="br-cemail-${i}" data-k="cap.email" value="${esc(b.cap?.email || '')}" ${dis}>`)}
         ${h(`br-ctel-${i}`, 'Telèfon del cap', `<input type="tel" id="br-ctel-${i}" data-k="cap.telefon" value="${esc(b.cap?.telefon || '')}" ${dis}>`)}
         ${h(`br-amb-${i}`, 'Àmbit o sector', `<input type="text" id="br-amb-${i}" data-k="ambit" value="${esc(b.ambit || '')}" ${dis}>`)}
-        ${h(`br-memb-${i}`, 'Membres de l\'equip', `<textarea id="br-memb-${i}" data-k="membres" rows="3" placeholder="Un per línia: Nom i cognoms — funció" ${dis}>${esc((b.membres || []).map(m => m.nom + (m.funcio ? ' — ' + m.funcio : '')).join('\n'))}</textarea>`, { ample: true })}
-      </div><div style="display:flex;gap:16px;align-items:center;margin-top:6px"><label class="text-small"><input type="checkbox" data-k="activa" ${b.activa !== false ? 'checked' : ''} ${dis}> Actiu (es pot assignar)</label>
-        ${pot ? `<button type="button" class="btn btn-perill btn-petit" data-treu-brigada="${i}" ${(S.mant || []).some(t => t.unitat === parc && t.gestio?.brigada === b.codi) ? 'disabled title="Té tasques assignades: desactiva\'l en lloc d\'esborrar-lo"' : ''}>Esborra</button>` : ''}</div></div>`;
+        ${h(`br-memb-${i}`, 'Membres de la colla', `<textarea id="br-memb-${i}" data-k="membres" rows="3" placeholder="Un per línia: Nom i cognoms — funció" ${dis}>${esc((b.membres || []).map(m => m.nom + (m.funcio ? ' — ' + m.funcio : '')).join('\n'))}</textarea>`, { ample: true })}
+      </div><div style="display:flex;gap:16px;align-items:center;margin-top:6px"><label class="text-small"><input type="checkbox" data-k="activa" ${b.activa !== false ? 'checked' : ''} ${dis}> Activa (es pot assignar)</label>
+        ${pot ? `<button type="button" class="btn btn-perill btn-petit" data-treu-brigada="${i}" ${(S.mant || []).some(t => t.unitat === parc && t.gestio?.brigada === b.codi) ? 'disabled title="Té tasques assignades: desactiva-la en lloc d\'esborrar-la"' : ''}>Esborra</button>` : ''}</div></div>`;
     const pinta = () => {
-      p.innerHTML = `<div class="fitxa-cap"><div><h2>👷 Equips de treball</h2><div class="id">brigades.json</div></div></div>${avisNoGestor(parc)}
+      p.innerHTML = `<div class="fitxa-cap"><div><h2>👷 Colles</h2><div class="id">brigades.json</div></div></div>${avisNoGestor(parc)}
       <div class="fitxa-cos"><div id="mant-errors"></div>
       <div class="mant-seccio"><div class="camps">${selParc('br-parc', parc)}</div></div>
-      <div class="mant-seccio"><div id="br-llista">${llista.map(targeta).join('') || '<p class="buit">Aquest parc encara no té equips de treball.</p>'}</div>
-        ${pot ? '<button type="button" class="btn btn-secondary btn-petit" id="br-afegeix">＋ Afegeix un equip</button>' : ''}</div></div>
-      <div class="peu-edicio"><button type="button" class="btn btn-secondary" data-m="cancela">Tanca</button>${pot ? '<button type="button" class="btn btn-primary" data-m="desa">Desa els equips</button>' : ''}</div>`;
+      <div class="mant-seccio"><div id="br-llista">${llista.map(targeta).join('') || '<p class="buit">Aquest parc encara no té colles.</p>'}</div>
+        ${pot ? '<button type="button" class="btn btn-secondary btn-petit" id="br-afegeix">＋ Afegeix una colla</button>' : ''}</div></div>
+      <div class="peu-edicio"><button type="button" class="btn btn-secondary" data-m="cancela">Tanca</button>${pot ? '<button type="button" class="btn btn-primary" data-m="desa">Desa les colles</button>' : ''}</div>`;
     };
     const recull = () => {
       $$('#mant-panell [data-brigada]').forEach(d => {
@@ -3783,18 +3783,18 @@ const Manteniment = (() => {
       else if (e.target.dataset.m === 'desa' && pot) {
         recull();
         const err = [];
-        llista.forEach((b, i) => { if (!b.nom) err.push(`l'equip ${i + 1} no té nom`); if (!correuValid(b.cap?.email)) err.push(`correu no vàlid: ${b.cap.email}`); });
+        llista.forEach((b, i) => { if (!b.nom) err.push(`la colla ${i + 1} no té nom`); if (!correuValid(b.cap?.email)) err.push(`correu no vàlid: ${b.cap.email}`); });
         const noms = llista.map(b => b.nom.toLowerCase());
-        if (noms.some((n, i) => n && noms.indexOf(n) !== i)) err.push('hi ha dos equips amb el mateix nom');
+        if (noms.some((n, i) => n && noms.indexOf(n) !== i)) err.push('hi ha dues colles amb el mateix nom');
         if (err.length) { $('#mant-errors').innerHTML = `<div class="error-box" style="margin:12px 20px 0">${esc(err.join('; '))}.</div>`; return; }
         const usats = new Set(llista.map(b => b.codi).filter(Boolean));
         llista.forEach(b => { if (!b.codi) { let c = slug(b.nom) || 'brigada', k = c, n = 2; while (usats.has(k)) k = `${c}_${n++}`; b.codi = k; usats.add(k); } });
         S.brigades = S.brigades || { per_parc: {} };
         S.brigades.per_parc = S.brigades.per_parc || {};
         S.brigades.per_parc[parc] = { nom_parc: nomUnitat(parc), brigades: llista, modificat: ara(), modificat_per: S.usuari.nom };
-        try { await desaConfig(); } catch (er) { toast('Error en desar els equips: ' + er.message, 'error', 10000); return; }
+        try { await desaConfig(); } catch (er) { toast('Error en desar les colles: ' + er.message, 'error', 10000); return; }
         pinta();
-        toast(`Equips de treball del ${parc} desats${Carpeta.activa() ? '' : ' (sense carpeta: cal descarregar els fitxers)'}.`);
+        toast(`Colles del ${parc} desades${Carpeta.activa() ? '' : ' (sense carpeta: cal descarregar els fitxers)'}.`);
       }
     });
     p.addEventListener('change', cfgCanvi = e => { if (st.mode === 'brigades' && e.target.id === 'br-parc') brigades(e.target.value); });
@@ -3803,7 +3803,7 @@ const Manteniment = (() => {
   function exportaCSV() {
     const ll = ordena(filtrades());
     const files = [['Codi', 'Data entrada', 'Unitat', 'Espai natural', 'Tipologia', 'Immoble', 'Descripció', 'UTM X', 'UTM Y', 'Data proposada', 'Sol·licitant', 'Correu sol·licitant',
-      'Prioritat', 'Data límit', 'Responsable', 'Equip de treball', 'Persona assignada', 'Empresa', 'Hores estimades', 'Hores certificades', 'Fotografies', 'Estat', 'Feina acabada', 'Acabada per', 'Resolta (verificada)', 'Verificada per', 'Observacions', 'Avís']];
+      'Prioritat', 'Data límit', 'Responsable', 'Colla', 'Persona assignada', 'Empresa', 'Hores estimades', 'Hores certificades', 'Fotografies', 'Estat', 'Feina acabada', 'Acabada per', 'Resolta (verificada)', 'Verificada per', 'Observacions', 'Avís']];
     ll.forEach(t => { const g = t.gestio || {}; files.push([t.id, fmtData(t.creat), t.unitat, nomUnitat(t.unitat), nomTipologia(t.tipologia), nomElement(t.element) || '', t.descripcio, t.utm?.x, t.utm?.y,
       t.data_proposada || '', t.sollicitant?.nom, t.sollicitant?.email, g.prioritat ? nomPrioritat(g.prioritat) : '', g.data_limit || '', g.responsable ? nomResponsable(t.unitat, g.responsable) : '',
       nomBrigada(t) || '', g.persona || '', g.empresa || '', t.hores_estimades ?? '', certificacionsDe(t).length ? horesCertificades(t) : '', fotosDe(t).length, nomEstat(t.estat), t.feina_acabada?.data ? fmtData(t.feina_acabada.data) : '', t.feina_acabada?.per?.nom || '', t.verificacio?.data ? fmtData(t.verificacio.data) : '', t.verificacio?.per?.nom || '', g.observacions || '', avisLimit(t)?.text || '']); });
@@ -3929,7 +3929,7 @@ const Manteniment = (() => {
         ${h('pf-fi', 'Data de finalització (opcional)', `<input type="date" id="pf-fi" value="${esc(x.data_fi || '')}" ${dis}>`)}
         ${h('pf-hores', 'Hores estimades per execució', `<input type="text" inputmode="decimal" id="pf-hores" value="${esc(x.hores_estimades ?? '')}" ${dis}>`, { req: true })}
         ${h('pf-prioritat', 'Prioritat', `<select id="pf-prioritat" ${dis}>${(V().prioritats || []).filter(q => q.requereix_data_limit).map(q => `<option value="${esc(q.codi)}" ${q.codi === x.prioritat ? 'selected' : ''}>${esc(q.nom)}</option>`).join('')}</select>`, { req: true, ajuda: 'La data límit de cada tasca és la data de l\'execució.' })}
-        ${h('pf-assignada', 'Assignada a', `<select id="pf-assignada" ${dis}>${u ? htmlOpcionsAssignacio(u, x) : ''}</select>`, { ample: true, ajuda: 'Cada tasca generada queda assignada a aquest equip. El responsable és sempre el Responsable de brigades.' })}
+        ${h('pf-assignada', 'Assignada a', `<select id="pf-assignada" ${dis}>${u ? htmlOpcionsAssignacio(u, x) : ''}</select>`, { ample: true, ajuda: 'Cada tasca generada queda assignada a aquesta colla. El responsable és sempre el Responsable de brigades.' })}
         ${h('pf-empresa', 'Empresa', `<input type="text" id="pf-empresa" value="${esc(x.empresa || '')}" ${dis}>`)}
         ${h('pf-persona', 'Persona assignada (opcional)', `<input type="text" id="pf-persona" list="pf-persones" value="${esc(x.persona || '')}" placeholder="— Cap persona concreta —" autocomplete="off" ${dis}>${htmlDatalistPersones('pf-persones', u, x.brigada)}`)}
         ${h('pf-x', 'UTM X (si no hi ha immoble)', `<input type="text" inputmode="numeric" id="pf-x" value="${esc(x.utm?.x ?? '')}" ${dis}>`)}
