@@ -271,7 +271,7 @@ Tots dos els poden modificar només el Responsable de brigades i la direcció de
 
 ### 4.7. Webapp dels equips de treball (`brigada.html`)
 
-Aplicació per al mòbil dels **caps de colla** i les **oficials**. S'obre amb `brigada.html` (en proves: `brigada.html?prova=1`). Llegeix les dades publicades (`data/`) i desa al mòbil el que fa l'equip, també sense cobertura.
+Aplicació per al mòbil dels **caps de colla** i els **oficials**. S'obre amb `brigada.html` (en proves: `brigada.html?prova=1`). Llegeix les dades publicades (`data/`) i desa al mòbil el que fa l'equip, també sense cobertura.
 
 - **Identificació:** parc, equip de treball, perfil i nom. Es recorda al dispositiu.
 - **Registrar** feina d'una tasca de l'equip («Assignada» o «En pausa»):
