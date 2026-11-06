@@ -1,55 +1,92 @@
 {
-  "versio": "1.0",
-  "data_actualitzacio": "2026-10-29",
-  "descripcio": "Tipologies de petició o incidència del mòdul de Manteniment. Es poden afegir tipologies noves; no se n'ha d'esborrar cap que ja s'hagi fet servir (es pot marcar activa: false).",
+  "versio": "2.0",
+  "data_actualitzacio": "2026-11-06",
+  "model": 2,
+  "descripcio": "Tipologies de tasca del mòdul de Manteniment. Es poden afegir tipologies noves; no se n'ha d'esborrar cap que ja s'hagi fet servir (es pot marcar activa: false). Les anteriors al 06/11/2026 es conserven inactives.",
   "tipologies": [
     {
-      "codi": "seguretat",
-      "nom": "Seguretat",
-      "descripcio": "Risc per a les persones: estructures inestables, caiguda d'arbres, baranes trencades, incendis…",
+      "codi": "equipaments_installacions",
+      "nom": "Equipaments i Instal·lacions",
+      "descripcio": "Edificis, centres d'informació, aparcaments, observatoris, baranes, mobiliari i instal·lacions (electricitat, aigua, climatització).",
       "activa": true
     },
     {
-      "codi": "senyalitzacio",
-      "nom": "Senyalització",
-      "descripcio": "Cartells, fites, pals o senyals malmesos, caiguts, il·legibles o que falten.",
+      "codi": "us_public",
+      "nom": "Ús públic",
+      "descripcio": "Itineraris, senyalització, àrees de lleure, miradors i serveis per als visitants.",
       "activa": true
     },
     {
-      "codi": "gestio_ramadera",
-      "nom": "Gestió ramadera",
-      "descripcio": "Tancats, abeuradors, passos canadencs, bestiar fora de zona…",
+      "codi": "conservacio",
+      "nom": "Conservació",
+      "descripcio": "Actuacions sobre hàbitats, flora i fauna: tancats de protecció, control d'espècies, restauració.",
       "activa": true
     },
     {
-      "codi": "gestio_cinegetica",
-      "nom": "Gestió cinegètica",
-      "descripcio": "Fauna cinegètica, danys, senyalització de zones de caça, batudes…",
+      "codi": "sistema_hidric",
+      "nom": "Sistema hídric",
+      "descripcio": "Recs, canals, comportes, basses, fonts, lleres i infraestructures hidràuliques.",
       "activa": true
     },
     {
-      "codi": "desperfectes",
-      "nom": "Desperfectes",
-      "descripcio": "Danys en equipaments o instal·lacions: vandalisme, trencaments, deteriorament.",
+      "codi": "ramaderia",
+      "nom": "Ramaderia i infraestructures ramaderes",
+      "descripcio": "Tancats, abeuradors, passos canadencs, corrals i gestió del bestiar.",
       "activa": true
     },
     {
-      "codi": "manteniment",
-      "nom": "Manteniment",
-      "descripcio": "Manteniment ordinari: neteja, desbrossada, pintura, reparacions menors, camins.",
-      "activa": true
-    },
-    {
-      "codi": "peticio_feina_tecnica",
-      "nom": "Petició de feina tècnica",
-      "descripcio": "Encàrrecs a la brigada o a l'equip tècnic: muntatges, suport a actuacions, preparació d'espais.",
+      "codi": "neteja_residus",
+      "nom": "Neteja i residus",
+      "descripcio": "Recollida de residus, neteja d'espais, papereres i abocaments.",
       "activa": true
     },
     {
       "codi": "altres",
       "nom": "Altres",
-      "descripcio": "Qualsevol altra petició o incidència.",
+      "descripcio": "Qualsevol altra petició o tasca.",
       "activa": true
+    },
+    {
+      "codi": "seguretat",
+      "nom": "Seguretat",
+      "descripcio": "Risc per a les persones: estructures inestables, caiguda d'arbres, baranes trencades, incendis…",
+      "activa": false
+    },
+    {
+      "codi": "senyalitzacio",
+      "nom": "Senyalització",
+      "descripcio": "Cartells, fites, pals o senyals malmesos, caiguts, il·legibles o que falten.",
+      "activa": false
+    },
+    {
+      "codi": "gestio_ramadera",
+      "nom": "Gestió ramadera",
+      "descripcio": "Tancats, abeuradors, passos canadencs, bestiar fora de zona…",
+      "activa": false
+    },
+    {
+      "codi": "gestio_cinegetica",
+      "nom": "Gestió cinegètica",
+      "descripcio": "Fauna cinegètica, danys, senyalització de zones de caça, batudes…",
+      "activa": false
+    },
+    {
+      "codi": "desperfectes",
+      "nom": "Desperfectes",
+      "descripcio": "Danys en equipaments o instal·lacions: vandalisme, trencaments, deteriorament.",
+      "activa": false
+    },
+    {
+      "codi": "manteniment",
+      "nom": "Manteniment",
+      "descripcio": "Manteniment ordinari: neteja, desbrossada, pintura, reparacions menors, camins.",
+      "activa": false
+    },
+    {
+      "codi": "peticio_feina_tecnica",
+      "nom": "Petició de feina tècnica",
+      "descripcio": "Encàrrecs a la brigada o a l'equip tècnic: muntatges, suport a actuacions, preparació d'espais.",
+      "activa": false
     }
   ]
 }

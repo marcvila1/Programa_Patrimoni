@@ -369,12 +369,12 @@ function dadesProva() {
   return {
     parc: 'PNAE', nomParc: "Parc Natural dels Aiguamolls de l'Empordà",
     brigada: { codi: 'equip_parc_pnae', nom: 'Equip del Parc', membres: [{ nom: 'Anna Roca' }, { nom: 'Pere Vila' }] },
-    tipologies: { seguretat: 'Seguretat', senyalitzacio: 'Senyalització', desperfectes: 'Desperfectes', manteniment: 'Manteniment' },
+    tipologies: { equipaments_installacions: 'Equipaments i Instal·lacions', us_public: 'Ús públic', conservacio: 'Conservació', sistema_hidric: 'Sistema hídric', ramaderia: 'Ramaderia i infraestructures ramaderes', neteja_residus: 'Neteja i residus', altres: 'Altres' },
     tasques: [
-      { id: 'MANT-2026-0001', model_estats: 2, unitat: 'PNAE', estat: 'assignada', tipologia: 'senyalitzacio', descripcio: "Substituir el cartell informatiu de l'observatori de la Massona, il·legible per l'ús.", utm: p(42.2231, 3.0968), gestio: g('alta', 3, 'Anna Roca'), fotografies: [] },
-      { id: 'MANT-2026-0002', model_estats: 2, unitat: 'PNAE', estat: 'en_pausa', tipologia: 'seguretat', descripcio: 'Reparar la barana de fusta del pont de la llera, amb dos travessers trencats.', utm: p(42.2178, 3.1024), gestio: g('urgent', -1), fotografies: [], pauses: [{ inici: dia(-2), motiu: 'Esperant la fusta tractada', fi: null }] },
-      { id: 'MANT-2026-0003', model_estats: 2, unitat: 'PNAE', estat: 'assignada', tipologia: 'manteniment', descripcio: 'Desbrossar i netejar el camí de vianants entre el Cortalet i el mirador.', utm: p(42.2305, 3.0899), gestio: g('moderada', 12), fotografies: [], periodica: { id: 'PER-0001' } },
-      { id: 'MANT-2026-0004', model_estats: 2, unitat: 'PNAE', estat: 'assignada', tipologia: 'desperfectes', descripcio: "Arreglar la porta del magatzem d'eines, que no tanca bé.", utm: p(42.2192, 3.0951), gestio: g('baixa', 25), fotografies: [] },
+      { id: 'MANT-2026-0001', model_estats: 2, unitat: 'PNAE', estat: 'assignada', tipologia: 'us_public', descripcio: "Substituir el cartell informatiu de l'observatori de la Massona, il·legible per l'ús.", utm: p(42.2231, 3.0968), gestio: g('alta', 3, 'Anna Roca'), fotografies: [] },
+      { id: 'MANT-2026-0002', model_estats: 2, unitat: 'PNAE', estat: 'en_pausa', tipologia: 'equipaments_installacions', descripcio: 'Reparar la barana de fusta del pont de la llera, amb dos travessers trencats.', utm: p(42.2178, 3.1024), gestio: g('urgent', -1), fotografies: [], pauses: [{ inici: dia(-2), motiu: 'Esperant la fusta tractada', fi: null }] },
+      { id: 'MANT-2026-0003', model_estats: 2, unitat: 'PNAE', estat: 'assignada', tipologia: 'us_public', descripcio: 'Desbrossar i netejar el camí de vianants entre el Cortalet i el mirador.', utm: p(42.2305, 3.0899), gestio: g('moderada', 12), fotografies: [], periodica: { id: 'PER-0001' } },
+      { id: 'MANT-2026-0004', model_estats: 2, unitat: 'PNAE', estat: 'assignada', tipologia: 'equipaments_installacions', descripcio: "Arreglar la porta del magatzem d'eines, que no tanca bé.", utm: p(42.2192, 3.0951), gestio: g('baixa', 25), fotografies: [] },
     ],
   };
 }
@@ -478,7 +478,7 @@ async function carregaTasques() {
   try { llista = await jget('manteniment.json'); } catch (e) { avis('No s\'han pogut carregar les tasques: ' + e.message, 'error'); }
   S.mant = (Array.isArray(llista) ? llista : []).map(model2);
   S.tasques = S.mant.filter(i => i.unitat === u.parc && ESTATS_EQUIP.includes(i.estat)
-    && i.gestio?.responsable === 'brigada_parc' && i.gestio?.brigada === u.brigada);
+    && collesDe(i.gestio).includes(u.brigada));
 }
 
 /**
@@ -515,7 +515,10 @@ const ORD_PRIO = { urgent: 4, alta: 3, moderada: 2, baixa: 1, en_espera: 0 };
 const nomPrio = c => ({ urgent: 'Urgent', alta: 'Alta', moderada: 'Moderada', baixa: 'Baixa', en_espera: 'En espera' }[c] || 'Sense prioritat');
 const dies = iso => { if (!iso) return null; const a = new Date(avui()), b = new Date(iso); return Math.round((b - a) / 864e5); };
 const acabades = () => new Set(S.registres.filter(r => (r.resultat || (r.finalitzada ? 'acabada' : '')) === 'acabada' && r.id !== S.edit).map(r => r.tasca));
-const esMeva = t => !!(S.usuari?.nom && t.gestio?.persona && normal(t.gestio.persona) === normal(S.usuari.nom));
+// Una tasca pot ser de diverses colles (gestio.brigades) i de diverses persones (gestio.persones); gestio.brigada i gestio.persona són la primera
+const collesDe = g => g?.responsable === 'brigada_parc' || g?.brigades?.length ? (g.brigades?.length ? g.brigades : g.brigada ? [g.brigada] : []) : [];
+const personesDe = g => g?.persones?.length ? g.persones : g?.persona ? [g.persona] : [];
+const esMeva = t => !!(S.usuari?.nom && personesDe(t.gestio).some(n => normal(n) === normal(S.usuari.nom)));
 function titol(t) {
   const tip = S.tipologies[t.tipologia] || t.tipologia || 'Tasca';
   const d = (t.descripcio || '').trim(); return d ? `${tip} — ${d.length > 48 ? d.slice(0, 47) + '…' : d}` : tip;
@@ -554,7 +557,7 @@ function pintaFitxa() {
   box.innerHTML = `
     <span class="etq prio-${esc(t.gestio?.prioritat || 'cap')}">${esc(nomPrio(t.gestio?.prioritat))}</span>
     ${t.estat === 'en_pausa' ? '<span class="etq etq-pausa">⏸ En pausa</span>' : ''}
-    ${esMeva(t) ? '<span class="etq etq-tu">👤 Assignada a tu</span>' : t.gestio?.persona ? `<span class="etq etq-tu">👤 ${esc(t.gestio.persona)}</span>` : ''}
+    ${esMeva(t) ? '<span class="etq etq-tu">👤 Assignada a tu</span>' : personesDe(t.gestio).length ? `<span class="etq etq-tu">👤 ${esc(personesDe(t.gestio).join(', '))}</span>` : ''}
     ${t.periodica ? '<span class="etq" style="background:#e0f2f0">🔁 Periòdica</span>' : ''}
     <p>${esc(t.descripcio || '')}</p>
     ${pausa ? `<p class="petit pausat">Pausa${pausa.inici ? ' des del ' + fmtData(pausa.inici) : ''}${pausa.motiu ? ': ' + esc(pausa.motiu) : ''}</p>` : ''}

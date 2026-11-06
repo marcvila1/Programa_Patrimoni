@@ -172,14 +172,16 @@ Amb SINATCAT, el perfil vindrà de l'usuari autenticat. Fins llavors és un cont
 
 ### 4.2. Entrada d'una tasca
 
-Qualsevol persona pot entrar-ne una amb el botó **＋ Nova tasca**. També es pot fer des de la fitxa d'un immoble, i llavors el formulari surt amb el parc, l'immoble i la ubicació ja omplerts. **Només són obligatoris el parc i la descripció.** La resta és opcional:
-- **Tipologia**: seguretat, senyalització, gestió ramadera, gestió cinegètica, desperfectes, manteniment, petició de feina tècnica o altres (`data/manteniment_tipologies.json`). Si no s'indica, la fixa el Responsable de brigades: és un requisit per acceptar la tasca.
+Qualsevol persona pot entrar-ne una amb el botó **＋ Nova tasca**. També es pot fer des de la fitxa d'un immoble, i llavors el formulari surt amb el parc, l'immoble i la ubicació ja omplerts. **Són obligatoris el parc, la categoria de petició, el títol i la descripció.** La resta és opcional:
+- **Categoria de petició** (obligatòria): Incidència, Manteniment, Millora, Nova actuació, Inspecció o revisió, o Altres. El Responsable de brigades la pot canviar a «Gestiona».
+- **Títol** (obligatori, màxim 50 caràcters): nom curt de l'actuació. És el que surt remarcat a la llista i al tauler de tasques, i a la llista de tasques de la colla. Les tasques periòdiques prenen el nom de la tasca. Les tasques antigues sense títol mostren la tipologia.
+- **Tipologia**: Equipaments i Instal·lacions, Ús públic, Conservació, Sistema hídric, Ramaderia i infraestructures ramaderes, Neteja i residus, o Altres (`data/manteniment_tipologies.json`). Les tipologies anteriors al 06/11/2026 es conserven inactives perquè les tasques antigues en mantinguin el nom; si la carpeta de treball encara té el fitxer antic, el programa l'actualitza sol. Si no s'indica, la fixa el Responsable de brigades: és un requisit per acceptar la tasca.
 - **Ubicació**: es pot clicar el mapa, arrossegar-ne el punt o escriure les coordenades UTM (cal la X i la Y, o cap de les dues).
 - **Fotografies**: es redueixen a 1.600 píxels i es desen amb les dades (`patrimoni/manteniment_fotos/<codi>_NN.jpg`). Des del mòbil es poden fer directament amb la càmera.
 - **Hores de dedicació estimades**. Si no s'indiquen, en gestionar la tasca es proposen 7 hores (`hores_per_defecte` a `variables.json`).
 - **Immoble relacionat** del mòdul de patrimoni. En marcar la ubicació, el programa proposa l'immoble més proper si n'hi ha un a menys de 500 m.
 - **Data proposada de realització**: no pot ser anterior a la data de creació de la tasca.
-- **Persona assignada**: una persona concreta de les colles del parc.
+- **Persones assignades**: una o diverses persones de les colles del parc (s'escriu el nom i «＋ Afegeix»). Si una persona és d'una colla, la tasca s'assigna també a aquella colla.
 - **Nom i correu del sol·licitant** (per defecte, els de la persona identificada).
 
 En registrar-la, es crea un codi `MANT-AAAA-NNNN` i un botó obre un **correu ja redactat** (mailto) per al sol·licitant, la direcció del parc i el Responsable de brigades. El correu descriu la tasca (codi, tipologia, immoble, coordenades, enllaç al mapa i descripció) i **no esmenta les fotografies**, que són a la base de dades.
@@ -251,11 +253,14 @@ Les creen i modifiquen el Responsable de brigades i la direcció del parc.
 El botó **⚙ Configuració dels parcs** permet definir, per a cada parc:
 - La **direcció**: nom, càrrec, correu i telèfon.
 - El **Responsable de brigades**: nom, correu i telèfon.
-- Els **responsables** disponibles: quins dels generals fa servir el parc i, si cal, responsables propis.
+
+A qui es poden assignar les tasques es gestiona des de **Colles**: ja no hi ha «responsables disponibles» per parc ni l'opció «Altres» (Forestal Catalana, empresa externa) a «Assignada a».
 
 Es desa a `variables.json`.
 
-El botó **👷 Colles** permet crear i mantenir les colles de cada parc. Cada colla té nom, cap de colla (nom, correu i telèfon), àmbit, membres (un per línia, «Nom — funció») i si està activa. Els caps i els membres són les persones que es proposen en assignar una tasca a una persona concreta. Una colla amb tasques assignades no es pot esborrar, només desactivar. Es desa a `brigades.json`.
+El botó **👷 Colles** permet crear i mantenir les colles de cada parc. Cada colla té nom, cap de colla (nom, correu i telèfon), àmbit, membres i si està activa. Cada **membre** té nom, funció i **correu electrònic**; el correu es verifica (format vàlid i sense repetir dins de la colla) i no es pot desar si és incorrecte. Una persona pot ser membre de diverses colles. Els caps i els membres són les persones que es proposen en assignar una tasca a una persona concreta. Una colla amb tasques assignades no es pot esborrar, només desactivar. Es desa a `brigades.json`.
+
+**Assignació a diverses colles i persones.** A «Assignada a» es poden marcar una o diverses colles, i a «Persones assignades», una o diverses persones. Es desen a `gestio.brigades[]` i `gestio.persones[]`; per compatibilitat, `gestio.brigada` i `gestio.persona` guarden la primera de cada llista. Al tauler agrupat per colla, la tasca surt a la columna de cada colla; en arrossegar-la d'una columna a una altra es canvia aquella colla i es mantenen les altres. A `brigada.html`, cada colla veu les tasques on està assignada.
 
 Tots dos els poden modificar només el Responsable de brigades i la direcció del parc. La resta de perfils els poden consultar.
 
