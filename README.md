@@ -4,6 +4,9 @@ Programa per consultar, actualitzar i analitzar el patrimoni immobiliari dels es
 
 Té tres mòduls: Gestió del Patrimoni, Gestió de Dades i Gestió de brigades. Fa servir el mateix disseny i el mateix sistema de carpeta de treball que el Motor de Contractació, i les mateixes unitats promotores (`unitats_promotores.json` del repositori `Motor-Contractacio-DGPA`).
 
+
+> **Seguretat:** abans de fer servir el programa amb dades reals, llegiu [`SEGURETAT.md`](SEGURETAT.md): permisos de la carpeta de SharePoint, què no s'ha de publicar al GitHub, el flux d'avisos i com repetir les proves de seguretat.
+
 ---
 
 ## 1. Com s'obre
@@ -172,15 +175,16 @@ Amb SINATCAT, el perfil vindrà de l'usuari autenticat. Fins llavors és un cont
 
 ### 4.2. Entrada d'una tasca
 
-Qualsevol persona pot entrar-ne una amb el botó **＋ Nova tasca**. També es pot fer des de la fitxa d'un immoble, i llavors el formulari surt amb el parc, l'immoble i la ubicació ja omplerts. **Són obligatoris el parc, la categoria de petició, el títol i la descripció.** La resta és opcional:
-- **Categoria de petició** (obligatòria): Incidència, Manteniment, Millora, Nova actuació, Inspecció o revisió, o Altres. El Responsable de brigades la pot canviar a «Gestiona».
+Qualsevol persona pot entrar-ne una amb el botó **＋ Nova tasca**. També es pot fer des de la fitxa d'un immoble, i llavors el formulari surt amb el parc, l'immoble i la ubicació ja omplerts. **Són obligatoris el parc, el títol i la descripció.** La resta és opcional:
+- **Categoria de petició**: Incidència, Manteniment, Millora, Nova actuació, Inspecció o revisió, o Altres. En crear la tasca és opcional; a «Gestiona» és obligatòria, i la fixa el Responsable de brigades si no s'ha indicat.
 - **Títol** (obligatori, màxim 50 caràcters): nom curt de l'actuació. És el que surt remarcat a la llista i al tauler de tasques, i a la llista de tasques de la colla. Les tasques periòdiques prenen el nom de la tasca. Les tasques antigues sense títol mostren la tipologia.
 - **Tipologia**: Equipaments i Instal·lacions, Ús públic, Conservació, Sistema hídric, Ramaderia i infraestructures ramaderes, Neteja i residus, o Altres (`data/manteniment_tipologies.json`). Les tipologies anteriors al 06/11/2026 es conserven inactives perquè les tasques antigues en mantinguin el nom; si la carpeta de treball encara té el fitxer antic, el programa l'actualitza sol. Si no s'indica, la fixa el Responsable de brigades: és un requisit per acceptar la tasca.
 - **Ubicació**: es pot clicar el mapa, arrossegar-ne el punt o escriure les coordenades UTM (cal la X i la Y, o cap de les dues).
 - **Fotografies**: es redueixen a 1.600 píxels i es desen amb les dades (`patrimoni/manteniment_fotos/<codi>_NN.jpg`). Des del mòbil es poden fer directament amb la càmera.
+- **Previsió de data**: quan es preveu fer la feina (no pot ser anterior a avui). Es pot canviar a «Gestiona».
+- **Documents**: Word (.doc, .docx), PDF o KML/KMZ, fins a 15 MB per fitxer. Es desen a `patrimoni/manteniment_documents/<codi>_DNN_<nom>` i a la tasca, a `documents[]` (nom, tipus, mida, data i qui l'ha adjuntat). Sense carpeta, van dins de les dades. A la fitxa, a l'apartat «Documents», es poden obrir o descarregar; a «Gestiona» se n'hi poden afegir més.
 - **Hores de dedicació estimades**. Si no s'indiquen, en gestionar la tasca es proposen 7 hores (`hores_per_defecte` a `variables.json`).
 - **Immoble relacionat** del mòdul de patrimoni. En marcar la ubicació, el programa proposa l'immoble més proper si n'hi ha un a menys de 500 m.
-- **Data proposada de realització**: no pot ser anterior a la data de creació de la tasca.
 - **Persones assignades**: una o diverses persones de les colles del parc (s'escriu el nom i «＋ Afegeix»). Si una persona és d'una colla, la tasca s'assigna també a aquella colla.
 - **Nom i correu del sol·licitant** (per defecte, els de la persona identificada).
 
@@ -254,11 +258,32 @@ El botó **⚙ Configuració dels parcs** permet definir, per a cada parc:
 - La **direcció**: nom, càrrec, correu i telèfon.
 - El **Responsable de brigades**: nom, correu i telèfon.
 
+**Avisos per correu.** Els correus d'avís (mailto) només s'adrecen a la **direcció del parc** i al **Responsable de brigades**. A la mateixa configuració, una taula permet marcar, per a cadascun, en quines situacions vol ser avisat: **tasca nova**, **tasca acceptada o rebutjada**, **tasca pendent de verificació** (la colla ha acabat la feina) i **tasca finalitzada** (resolta). L'avís de **«pendent de verificació» és automàtic**: el cap de colla no ha de fer res (vegeu «Avisos automàtics» més avall). La resta d'avisos s'envien amb un correu ja redactat (mailto) des del programa principal.
+
+**Tasques descartades.** Per descartar una tasca cal escriure una **justificació del descart** (camp propi a «Gestiona»; es desa a `descartada.motiu` i surt a la fitxa). El correu de descart s'adreça a **qui va crear la tasca** (el correu del sol·licitant o, si la va entrar una colla, el del membre amb aquell nom) i, si ho ha demanat a «Tasca acceptada o rebutjada», a la **direcció del parc**. Amb la carpeta connectada, l'avís va a la bústia automàtica; sense carpeta, es proposa el correu ja redactat.
+
+**Avisos automàtics (bústia de correu + Power Automate).** Un HTML no pot enviar correus sol. Quan una tasca queda **pendent de verificació** o es **descarta** (per a la pendent de verificació: la colla registra «Feina acabada» des de `brigada.html`, s'importa el fitxer d'una colla o el Responsable la hi passa a «Gestiona»), el programa deixa un fitxer a la bústia `patrimoni/avisos_correu/AVIS-<data>-<tasca>.json` de la carpeta de treball:
+
+```json
+{ "format": "motor-patrimoni.avis-correu", "situacio": "pendent", "tasca": "MANT-2026-0001", "unitat": "PNAE",
+  "per": "direccio@gencat.cat;responsable@gencat.cat", "assumpte": "[Manteniment PNAE] Pendent de verificar · …", "cos": "La colla … ha acabat la feina …" }
+```
+
+Un flux de **Power Automate** (amb el compte gencat) envia els correus:
+1. Desencadenador **SharePoint › «Quan es crea un fitxer en una carpeta»**: lloc i biblioteca de la carpeta de treball, carpeta `…/patrimoni/avisos_correu`.
+2. **SharePoint › «Obtén el contingut del fitxer»** del fitxer creat, i **«Analitza el JSON»** (`json(base64ToString(body('Obtén_el_contingut_del_fitxer')?['$content']))`).
+3. **Office 365 Outlook › «Envia un correu electrònic (V2)»**: Per a = `per`, Assumpte = `assumpte`, Cos = `cos` (amb `replace(…, '\n', '<br>')`).
+4. **SharePoint › «Mou el fitxer»** a `avisos_correu/enviats/`, perquè no es torni a enviar.
+
+Mentre el flux no estigui creat, els avisos s'acumulen a la bústia i no s'envien. Sense carpeta connectada no es pot deixar l'avís. Per defecte, totes. Es desa a `variables.json` (`per_parc.<UNITAT>.avisos`). Si en una situació ningú no ha demanat l'avís, el programa no el proposa. El botó «Envia un correu sobre aquesta tasca» de la fitxa s'adreça sempre a tots dos.
+
 A qui es poden assignar les tasques es gestiona des de **Colles**: ja no hi ha «responsables disponibles» per parc ni l'opció «Altres» (Forestal Catalana, empresa externa) a «Assignada a».
 
 Es desa a `variables.json`.
 
 El botó **👷 Colles** permet crear i mantenir les colles de cada parc. Cada colla té nom, cap de colla (nom, correu i telèfon), àmbit, membres i si està activa. Cada **membre** té nom, funció i **correu electrònic**; el correu es verifica (format vàlid i sense repetir dins de la colla) i no es pot desar si és incorrecte. Una persona pot ser membre de diverses colles. Els caps i els membres són les persones que es proposen en assignar una tasca a una persona concreta. Una colla amb tasques assignades no es pot esborrar, només desactivar. Es desa a `brigades.json`.
+
+**📋 Ordre de les colles.** El Responsable de brigades i la direcció del parc fixen en quin ordre ha de fer les tasques cada colla, que no sempre coincideix amb la prioritat. Es tria el parc i la colla i surten les tasques assignades i en pausa, numerades. L'ordre es canvia arrossegant-les o amb els botons **⤒** (la primera), **↑** i **↓**; el botó **Ordena per prioritat i data límit** en proposa un de partida. Es desa a `ordre_colles.json` (`{ <UNITAT>: { <colla>: { ordre: [ids], modificat, modificat_per } } }`), sense modificar les tasques. Les tasques assignades després de l'última ordenació surten al final amb la marca «nova a la llista»; les acabades o descartades en surten soles. A `brigada.html`, la colla veu les tasques en aquest ordre, numerades (1., 2., 3.…), i no el pot canviar.
 
 **Assignació a diverses colles i persones.** A «Assignada a» es poden marcar una o diverses colles, i a «Persones assignades», una o diverses persones. Es desen a `gestio.brigades[]` i `gestio.persones[]`; per compatibilitat, `gestio.brigada` i `gestio.persona` guarden la primera de cada llista. Al tauler agrupat per colla, la tasca surt a la columna de cada colla; en arrossegar-la d'una columna a una altra es canvia aquella colla i es mantenen les altres. A `brigada.html`, cada colla veu les tasques on està assignada.
 
@@ -284,7 +309,7 @@ Aplicació per al mòbil dels **caps de colla** i els **oficials**. S'obre amb `
   - Com queda la tasca: **✔ Feina acabada** (passarà a «Pendent de verificar»), **○ Continua** (si estava en pausa, **▶ Reprèn**) o **⏸ En pausa** (amb motiu).
   - Les tasques assignades a la persona identificada surten primer, amb la marca «👤 Assignada a tu».
   - Un registre es pot modificar fins que el Responsable de brigades el valida.
-- **📝 Nova tasca:** només són obligatoris el parc i la descripció. Opcionals: tipologia, ubicació (GPS del mòbil o toc al mapa), immoble relacionat (es proposa el més proper a menys de 500 m), fotografies, hores estimades i data proposada (no anterior a avui).
+- **📝 Nova tasca:** només són obligatoris el parc i la descripció. Opcionals: tipologia, ubicació (GPS del mòbil o toc al mapa), immoble relacionat (es proposa el més proper a menys de 500 m), fotografies, i hores estimades.
 - **Registres:** llista dels registres i de les tasques entrades, amb l'estat d'enviament, i botó **⬇ Exporta els pendents**, que genera un fitxer `equip_<equip>_<data>.json` per enviar (correu o compartir).
 
 **Al programa principal**, el Responsable de brigades o la direcció importen el fitxer amb el botó **📥 Importa de la colla**:
@@ -293,6 +318,20 @@ Aplicació per al mòbil dels **caps de colla** i els **oficials**. S'obre amb `
 - Tornar a importar el mateix fitxer no duplica res. Un registre modificat a la colla s'actualitza si encara no s'ha validat.
 - A la fitxa de la tasca, la secció **Registres de la colla** mostra els registres, el total d'hores i un botó **Valida** per a cadascun (o tots alhora). Un cop validat, la colla ja no el pot modificar.
 - Quan les dades es publiquen, la webapp marca com a «rebut» el que ja s'ha importat i hi mostra les validacions.
+
+**Connexió directa a la carpeta de treball (ordinador amb Chrome o Edge).** A la barra de dalt de `brigada.html`, el botó **Connecta la carpeta** permet triar la mateixa carpeta que el programa principal (la que conté la subcarpeta `patrimoni/`). Amb la carpeta connectada:
+- Les tasques, les colles i les tipologies es llegeixen de la carpeta, no del GitHub: la colla veu les tasques en el moment que s'assignen. Es tornen a llegir cada 2 minuts, en tornar a la pestanya i amb **↻ Actualitza**.
+- Cada registre o tasca nova s'envia **directament** a `manteniment.json` en desar-lo (el botó passa a ser **📤 Envia els pendents a la carpeta**). Fa el mateix que «📥 Importa de la colla»: els registres van a `registres_brigada[]` i canvien l'estat de la tasca, i les tasques noves entren com a **Nova** amb el codi `MANT-AAAA-NNNN`. Les fotografies es desen a `manteniment_fotos/`.
+- El fitxer es rellegeix just abans d'escriure-hi, per no trepitjar els canvis del programa principal. Els registres validats no es modifiquen.
+- Les validacions del Responsable de brigades es veuen a la webapp en actualitzar (🔒).
+- Si els dos programes s'obren des del mateix lloc, la carpeta triada en un es recorda també a l'altre. El navegador pot demanar de tornar a donar permís en obrir-los.
+- Als mòbils (Android i iPhone) els navegadors no permeten triar una carpeta: allà es continua fent servir **⬇ Exporta els pendents** i **📥 Importa de la colla**.
+
+**Avís al programa principal.** Amb la carpeta connectada, `index.html` rellegeix `manteniment.json` cada minut (i en tornar a la pestanya). Si les colles hi han enviat feina:
+- A la pestanya **GESTIÓ DE BRIGADES** surt el comptador **📥 N** (registres per validar i tasques noves de les colles).
+- Al mòdul, una capsa **«Feina de les colles pendent de revisar»** llista les tasques amb registres per validar i les tasques noves, amb l'enllaç a cadascuna.
+- Quan n'arriben de noves, surt un avís emergent.
+- Mentre s'edita un formulari, la llista no es refà; en desar, el control de versió de cada tasca evita trepitjar els canvis de la colla.
 
 ### 4.8. Pendents
 

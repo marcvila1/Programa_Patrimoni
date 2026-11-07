@@ -69,7 +69,7 @@ Fitxers a `data/` (i a `patrimoni/` de la carpeta de treball, que són els vigen
 - **`manteniment.json`:** llista d'incidències. Camps principals:
   - `id` (`MANT-AAAA-NNNN`), `versio`, `creat`, `modificat`, `modificat_per`.
   - `sollicitant{nom, email, unitat, font}`, `unitat` (codi del parc), `utm{x, y}` (ETRS89 / UTM 31N, EPSG:25831), `element` (id de l'immoble o `null`).
-  - `tipologia`, `descripcio`, `data_proposada`, `hores_estimades`.
+  - `tipologia`, `descripcio`, `hores_estimades`.
   - `fotografies[{fitxer, dades, fase: "peticio"|"seguiment", data, per{nom, email}, nota}]`. A la carpeta, `fitxer` = `manteniment_fotos/<id>_NN.jpg`. Sense carpeta, la imatge va a `dades` en dataURL JPEG.
   - `estat`: `nova` | `assignada` | `en_curs` | `resolta` | `verificada` | `descartada`.
   - `gestio{prioritat, data_limit, responsable, brigada, empresa, observacions, assignat_per, data_assignacio}`.

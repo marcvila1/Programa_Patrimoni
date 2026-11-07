@@ -1,2 +1,6 @@
 __pycache__/
 *.pyc
+
+# Dades malicioses generades per a les proves de seguretat
+_xss/
+tests/seguretat/p*.json

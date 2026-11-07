@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#088074">
 <title>Colla · Gestió de brigades</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: blob: https://geoserveis.icgc.cat https://raw.githubusercontent.com https://unpkg.com; connect-src 'self' data: blob: https://raw.githubusercontent.com; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'">
+<meta name="referrer" content="no-referrer">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
   :root {
     --color-primary-teal: #088074;
@@ -125,6 +127,9 @@
   nav.baix button.actiu { color: var(--color-primary-teal); border-top-color: var(--color-primary-teal); }
   nav.baix .n { background: var(--color-primary-teal); color: #fff; border-radius: 10px; padding: 0 7px; font-size: 12px; margin-left: 4px; }
 
+  .barra.carpeta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+  .barra.carpeta.ok { border-color: var(--color-success-green); background: #e8f5e9; }
+  .barra.carpeta button { min-height: 36px; padding: 4px 12px; border: 1px solid var(--color-primary-teal); background: #fff; color: var(--color-primary-teal); border-radius: 4px; cursor: pointer; font-weight: 600; }
   .toast { position: fixed; left: 14px; right: 14px; bottom: 76px; max-width: 532px; margin: 0 auto; background: #242424; color: #fff; padding: 12px 14px; z-index: 1100; border-left: 4px solid var(--color-accent-mint); }
   @media (min-width: 700px) { body { padding-bottom: 0; } nav.baix { position: static; max-width: 560px; margin: 0 auto; width: 100%; } }
 </style>
@@ -133,8 +138,9 @@
 
 <header class="cap">
   <div class="marca"><div class="logo">E</div><div class="qui"><b id="cap-brigada">Colla</b><small id="cap-parc">Gestió de brigades</small></div></div>
-  <button id="btn-canvia" type="button" hidden>Canvia</button>
+  <span><button id="btn-canvia" type="button" hidden>Canvia</button> <button id="btn-surt" type="button" hidden title="Esborra d'aquest dispositiu els registres ja enviats i les dades de la colla">Surt</button></span>
 </header>
+<div id="barra-carpeta" class="barra carpeta" hidden></div>
 <div id="barra" class="barra" hidden></div>
 
 <main>
@@ -238,9 +244,6 @@
         <label class="camp"><span>Hores estimades <span class="opc">(opc.)</span></span>
           <input type="number" id="p-hores" inputmode="decimal" min="0.25" step="0.25" placeholder="p. ex. 7">
           <div class="err" id="e-phores" hidden></div></label>
-        <label class="camp"><span>Data proposada <span class="opc">(opc.)</span></span>
-          <input type="date" id="p-data">
-          <div class="err" id="e-pdata" hidden></div></label>
       </div>
       <button class="btn btn-primary" type="submit">Desa la tasca</button>
     </form>
@@ -268,7 +271,7 @@
 </nav>
 <div class="toast" id="toast" hidden></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
 'use strict';
 // ════════════════════════════════════════════════════════════════════
@@ -280,12 +283,30 @@
 //   importa (opció C de l'encàrrec), fins que hi hagi SINATCAT.
 // ════════════════════════════════════════════════════════════════════
 const QS = new URLSearchParams(location.search);
-const DADES_URL = (QS.get('dades') || 'https://raw.githubusercontent.com/marcvila1/Programa_Patrimoni/main/data/').replace(/\/?$/, '/');
+// Seguretat (OWASP A10/A05): ?dades= només pot apuntar al mateix lloc o al repositori de la DGPAMN al GitHub
+const DADES_OFICIALS = 'https://raw.githubusercontent.com/marcvila1/Programa_Patrimoni/main/data/';
+let FONT_REBUTJADA = null;
+function fontSegura(v) {
+  if (!v) return DADES_OFICIALS;
+  try {
+    const u = new URL(v, location.href);
+    const ok = !u.username && !u.password && (
+      (location.protocol !== 'file:' && u.origin === location.origin) || (location.protocol === 'file:' && u.protocol === 'file:') ||
+      u.href.startsWith('https://raw.githubusercontent.com/marcvila1/'));
+    if (ok) return u.href;
+  } catch { /* adreça no vàlida */ }
+  FONT_REBUTJADA = v; return DADES_OFICIALS;
+}
+const DADES_URL = fontSegura(QS.get('dades')).replace(/\/?$/, '/');
 const LS_USUARI = 'motor-patrimoni.brigada.usuari';
 const FOTO_MAX = 1600, FOTO_Q = 0.82;
 const PERFILS = { brigada: 'Cap de colla', persona_manteniment: 'Oficial' };
 const ESTATS_EQUIP = ['assignada', 'en_pausa'];   // tasques que veu la colla (model d'estats 2 de l'index)
 const $ = s => document.querySelector(s);
+// Seguretat (OWASP A03): a src/href només imatges JPEG/PNG/WebP incrustades, blob:, https: o camins relatius
+const DATA_IMATGE = /^data:image\/(jpeg|png|webp|gif);base64,[a-z0-9+/=\s]+$/i;
+const imatgeSegura = u => { const t = String(u ?? '').trim(); return DATA_IMATGE.test(t) || /^(blob:|https:)/i.test(t) || (t && !/^[a-z][a-z0-9+.-]*:/i.test(t)) ? t : ''; };
+const camiSegur = c => /^manteniment_fotos\/[A-Za-z0-9._-]+$/.test(String(c || ''));
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const avui = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
 const fmtData = iso => iso ? iso.slice(0, 10).split('-').reverse().join('/') : '';
@@ -360,6 +381,189 @@ const Magatzem = (() => {
 })();
 
 // ════════════════════════════════════════════════════════════════════
+// CARPETA DE TREBALL (ordinador amb Chrome o Edge)
+// La mateixa carpeta que el programa principal (index.html), subcarpeta patrimoni/.
+// Si els dos programes s'obren des del mateix lloc, la carpeta triada en un
+// es recorda també a l'altre (mateixa base IndexedDB «motor-patrimoni»).
+// Amb la carpeta connectada, les tasques es llegeixen de la carpeta i els registres
+// i les tasques noves s'hi escriuen directament (sense exportar ni importar).
+// ════════════════════════════════════════════════════════════════════
+const Carpeta = (() => {
+  const DB = 'motor-patrimoni', STORE = 'carpeta', CLAU = 'arrel', SUB = 'patrimoni';
+  let arrel = null, pendent = null;
+  const disponible = () => typeof window.showDirectoryPicker === 'function';
+  function idb(mode, fn) {
+    return new Promise((ok, ko) => {
+      const r = indexedDB.open(DB, 1);
+      r.onupgradeneeded = () => r.result.createObjectStore(STORE);
+      r.onerror = () => ko(r.error);
+      r.onsuccess = () => { const tx = r.result.transaction(STORE, mode), q = fn(tx.objectStore(STORE)); tx.oncomplete = () => ok(q && q.result); tx.onerror = () => ko(tx.error); };
+    });
+  }
+  const sub = () => arrel.getDirectoryHandle(SUB, { create: false });
+  async function llegeix(nom) {
+    try { return JSON.parse(await (await (await (await sub()).getFileHandle(nom)).getFile()).text()); }
+    catch (e) { if (e.name === 'NotFoundError') return undefined; throw new Error(`No s'ha pogut llegir ${nom}: ${e.message}`); }
+  }
+  async function escriu(nom, obj) {
+    const w = await (await (await sub()).getFileHandle(nom, { create: true })).createWritable();
+    await w.write(JSON.stringify(obj, null, 2) + '\n'); await w.close();
+  }
+  async function escriuBlob(carpeta, nom, blob) {
+    const d = await (await sub()).getDirectoryHandle(carpeta, { create: true });
+    const w = await (await d.getFileHandle(nom, { create: true })).createWritable(); await w.write(blob); await w.close();
+  }
+  async function llegeixBlob(cami) {
+    try { let d = await sub(); const p = cami.split('/'); for (const x of p.slice(0, -1)) d = await d.getDirectoryHandle(x); return await (await d.getFileHandle(p.at(-1))).getFile(); }
+    catch { return null; }
+  }
+  async function valida(h) {
+    try { await (await h.getDirectoryHandle(SUB)).getFileHandle('manteniment.json'); return true; } catch { return false; }
+  }
+  /** En obrir: recupera la carpeta recordada (si el navegador encara hi dona permís). */
+  async function inicia() {
+    if (!disponible()) return 'noDisponible';
+    let h = null; try { h = await idb('readonly', s => s.get(CLAU)); } catch { /* sense IndexedDB */ }
+    if (!h) return 'cap';
+    if ((await h.queryPermission?.({ mode: 'readwrite' })) === 'granted' && await valida(h)) { arrel = h; return 'connectada'; }
+    pendent = h; return 'permis';
+  }
+  async function connecta() {
+    const h = await window.showDirectoryPicker({ id: 'motor-patrimoni', mode: 'readwrite' });
+    if (!(await valida(h))) throw new Error(`La carpeta «${h.name}» no té la subcarpeta ${SUB} amb les dades de manteniment. Tria la mateixa carpeta que fa servir el programa principal.`);
+    arrel = h; pendent = null; await idb('readwrite', s => s.put(h, CLAU)); return h.name;
+  }
+  async function reconnecta() {
+    if (!pendent) return connecta();
+    if ((await pendent.requestPermission({ mode: 'readwrite' })) !== 'granted') throw new Error('Cal permetre l\'accés a la carpeta.');
+    arrel = pendent; pendent = null; return arrel.name;
+  }
+  const desconnecta = () => { arrel = null; };
+  return { disponible, inicia, connecta, reconnecta, desconnecta, llegeix, escriu, escriuBlob, llegeixBlob, activa: () => !!arrel, nom: () => arrel?.name || pendent?.name || '' };
+})();
+
+function pintaCarpeta(estat) {
+  const b = $('#barra-carpeta'); S.estatCarpeta = estat = estat || S.estatCarpeta;
+  if (S.prova || estat === 'noDisponible') { b.hidden = true; return; }
+  b.hidden = false; b.classList.toggle('ok', estat === 'connectada');
+  b.innerHTML = estat === 'connectada'
+    ? `<span>📁 Connectada a la carpeta <b>${esc(Carpeta.nom())}</b>: les tasques i els registres s'envien directament al programa principal.</span><span><button type="button" data-carpeta="actualitza">↻ Actualitza</button> <button type="button" data-carpeta="desconnecta">Desconnecta</button></span>`
+    : estat === 'permis'
+      ? `<span>📁 Cal tornar a donar permís a la carpeta <b>${esc(Carpeta.nom())}</b>.</span><button type="button" data-carpeta="reconnecta">Permet l'accés</button>`
+      : `<span>📁 Les tasques es llegeixen del GitHub. Connecta la carpeta de treball (la mateixa que el programa principal) per veure-les al moment i enviar-hi la feina directament.</span><button type="button" data-carpeta="connecta">Connecta la carpeta</button>`;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ENVIAMENT DIRECTE A LA CARPETA
+// Fa el mateix que «📥 Importa de la colla» del programa principal: els registres van a
+// la tasca (registres_brigada[]) i en canvien l'estat; les tasques noves entren com a «Nova».
+// Es rellegeix manteniment.json just abans d'escriure-hi, per no trepitjar els canvis d'altres.
+// ════════════════════════════════════════════════════════════════════
+const dataURLaBlob = async d => (await fetch(d)).blob();
+const tancaPausa = (t, moment, qui) => (t.pauses || []).map((q, i, ll) => (i === ll.length - 1 && !q.fi ? { ...q, fi: moment, represa_per: qui } : q));
+let enviant = false;
+async function enviaCarpeta(silenciós) {
+  if (!Carpeta.activa() || S.prova || enviant) return null;
+  const registres = S.registres.filter(r => r.sync === 'pendent'), peticions = S.peticions.filter(p => p.sync === 'pendent');
+  if (!registres.length && !peticions.length) { if (!silenciós) toast('No hi ha res pendent d\'enviar.'); return null; }
+  enviant = true;
+  const u = S.usuari, moment = new Date().toISOString(), resum = { tasques: [], nous: 0, actualitzats: 0, bloquejats: 0, sensetasca: [], pendents: [], avisos: 0 };
+  try {
+    const llista = (await Carpeta.llegeix('manteniment.json')) || [];
+    const quiCol = { nom: u.nom || '', unitat: u.parc, font: 'brigada', equip: u.brigada, nom_equip: u.nomBrigada || null, perfil: u.perfil || null };
+    const desaFotos = async (t, dataURLs, meta) => {
+      t.fotografies = t.fotografies || [];
+      for (const d of dataURLs || []) {
+        const nom = `${t.id}_${String(t.fotografies.length + 1).padStart(2, '0')}.jpg`;
+        await Carpeta.escriuBlob('manteniment_fotos', nom, await dataURLaBlob(d));
+        t.fotografies.push({ fitxer: `manteniment_fotos/${nom}`, dades: null, ...meta });
+      }
+    };
+    // Tasques noves
+    for (const p of peticions) {
+      if (llista.some(t => t.origen?.peticio === p.id)) continue;
+      const any = new Date().getFullYear(), pre = `MANT-${any}-`;
+      const n = Math.max(0, ...llista.filter(t => t.id?.startsWith(pre)).map(t => +t.id.slice(pre.length) || 0));
+      const t = {
+        id: pre + String(n + 1).padStart(4, '0'), versio: 1, model_estats: 2, creat: p.creat || moment, modificat: moment, modificat_per: quiCol.nom,
+        sollicitant: { nom: quiCol.nom, email: null, unitat: u.parc, font: 'brigada', equip: u.brigada },
+        unitat: p.unitat, utm: p.utm?.x != null ? { x: p.utm.x, y: p.utm.y } : { x: null, y: null }, element: p.element || null, tipologia: p.tipologia || null, notificar: [],
+        titol: p.titol || null, descripcio: p.descripcio, hores_estimades: p.hores_estimades ?? null, fotografies: [], certificacions_hores: [],
+        estat: 'nova', data_resolucio: null,
+        origen: { peticio: p.id, equip: u.brigada, nom_equip: u.nomBrigada || null, directe: true, importat: moment, importat_per: quiCol.nom },
+        gestio: { prioritat: null, data_limit: null, responsable: null, brigada: null, brigades: [], persona: null, persones: [], empresa: null, observacions: null, assignat_per: null, data_assignacio: null },
+        historial: [{ data: moment, usuari: quiCol, accio: 'alta', canvis: [], nota: `Entrada des de la webapp de la colla ${u.nomBrigada || u.brigada}` }],
+      };
+      await desaFotos(t, p.fotos, { fase: 'peticio', data: p.creat || moment, per: { nom: quiCol.nom, email: null }, nota: null });
+      llista.push(t); resum.tasques.push(t.id);
+    }
+    // Registres de feina, agrupats per tasca
+    const perTasca = new Map();
+    registres.forEach(r => { if (!perTasca.has(r.tasca)) perTasca.set(r.tasca, []); perTasca.get(r.tasca).push(r); });
+    for (const [id, regs] of perTasca) {
+      const i = llista.findIndex(x => x.id === id);
+      if (i < 0) { resum.sensetasca.push(id); continue; }
+      if (llista[i].unitat !== u.parc || !collesDe(llista[i].gestio).includes(u.brigada)) { resum.sensetasca.push(id); continue; }  // OWASP A01
+      const t = llista[i], nou = JSON.parse(JSON.stringify(t)), canvis = [], ll = [...(t.registres_brigada || [])], n0 = ll.length;
+      let nous = 0, actualitzats = 0;
+      for (const r of regs.slice().sort((a, b) => (a.data + a.creat).localeCompare(b.data + b.creat))) {
+        const versio_local = r.modificat || r.creat, k = ll.findIndex(x => x.id === r.id);
+        const qui = { nom: r.usuari?.nom || quiCol.nom, perfil: r.usuari?.perfil || null, equip: u.brigada };
+        const entrada = { id: r.id, data: r.data, hores: r.hores, persones: r.persones, resultat: r.resultat || (r.finalitzada ? 'acabada' : 'continua'),
+          motiu_pausa: r.motiu_pausa || null, per: qui, fotos: (r.fotos || []).length, creat: r.creat, modificat: r.modificat || null, versio_local,
+          importat: moment, importat_per: quiCol.nom, directe: true, validacio: null };
+        if (k >= 0) {
+          if (ll[k].validacio) { resum.bloquejats++; continue; }
+          if (ll[k].versio_local === versio_local) continue;
+          ll[k] = { ...entrada, fotos: ll[k].fotos }; actualitzats++; continue;
+        }
+        ll.push(entrada); nous++;
+        await desaFotos(nou, r.fotos, { fase: 'seguiment', data: r.creat || moment, per: { nom: qui.nom, email: null }, nota: `Registre del ${fmtData(r.data)}` });
+        const abans = nou.estat;
+        if (entrada.resultat === 'acabada' && ['assignada', 'en_pausa'].includes(nou.estat)) {
+          if (nou.estat === 'en_pausa') nou.pauses = tancaPausa(nou, moment, qui);
+          nou.estat = 'pendent_verificacio'; nou.feina_acabada = { data: r.data, per: qui };
+        } else if (entrada.resultat === 'pausa' && nou.estat === 'assignada') {
+          nou.estat = 'en_pausa'; nou.pauses = [...(nou.pauses || []), { inici: r.data, per: qui, motiu: entrada.motiu_pausa, fi: null }];
+        } else if (entrada.resultat === 'continua' && nou.estat === 'en_pausa') {
+          nou.pauses = tancaPausa(nou, moment, qui); nou.estat = 'assignada';
+        }
+        if (nou.estat !== abans) canvis.push({ camp: 'estat', etiqueta: 'Estat', abans: NOM_ESTAT[abans] || abans, despres: NOM_ESTAT[nou.estat] || nou.estat });
+        if (nou.estat === 'pendent_verificacio' && abans !== nou.estat) resum.pendents.push(id);
+      }
+      if (!nous && !actualitzats) continue;
+      nou.registres_brigada = ll; nou.model_estats = 2;
+      canvis.unshift({ camp: 'registres_brigada', etiqueta: 'Registres de la colla', abans: n0, despres: ll.length });
+      nou.versio = (t.versio || 1) + 1; nou.modificat = moment; nou.modificat_per = quiCol.nom;
+      nou.historial = [...(t.historial || []), { data: moment, usuari: quiCol, accio: 'seguiment', canvis,
+        nota: `Enviat per la colla ${u.nomBrigada || u.brigada}: ${nous} ${nous === 1 ? 'registre nou' : 'registres nous'}${actualitzats ? `, ${actualitzats} actualitzats` : ''}` }];
+      llista[i] = nou; resum.nous += nous; resum.actualitzats += actualitzats;
+    }
+    await Carpeta.escriu('manteniment.json', llista);
+    for (const id of resum.pendents) {
+      const a = avisPendentCorreu(llista.find(x => x.id === id), u.nomBrigada || u.brigada);
+      if (a) { try { await Carpeta.escriuBlob('avisos_correu', a.id + '.json', new Blob([JSON.stringify(a, null, 2)], { type: 'application/json' })); resum.avisos++; } catch { /* l'avís no impedeix l'enviament */ } }
+    }
+    // Les tasques noves enviades passen a «enviat» i es vinculen al codi definitiu
+    for (const p of peticions) { const t = llista.find(x => x.origen?.peticio === p.id); if (t) await Magatzem.put({ ...p, sync: 'enviat', tasca: t.id, estat_tasca: t.estat }, 'peticions'); }
+    S.mant = llista.map(model2); filtraTasques();
+    await refresca();
+  } catch (e) { toast('No s\'ha pogut enviar a la carpeta: ' + e.message); enviant = false; return null; }
+  enviant = false;
+  const parts = [resum.nous && `${resum.nous} ${resum.nous === 1 ? 'registre' : 'registres'}`, resum.actualitzats && `${resum.actualitzats} ${resum.actualitzats === 1 ? 'modificació' : 'modificacions'}`,
+    resum.tasques.length && `${resum.tasques.length} ${resum.tasques.length === 1 ? 'tasca nova' : 'tasques noves'} (${resum.tasques.join(', ')})`].filter(Boolean);
+  if (resum.avisos) parts.push('avís per correu a la direcció i al Responsable de brigades');
+  toast(parts.length ? `Enviat al programa principal: ${parts.join(', ')}.` : 'Tot ja estava enviat.' + (resum.bloquejats ? ` ${resum.bloquejats} registres validats no s'han modificat.` : ''));
+  return resum;
+}
+/** Torna a llegir les tasques (de la carpeta o del GitHub) i actualitza les pantalles. */
+async function actualitza(silenciós) {
+  if (!S.usuari || S.prova) return;
+  await carregaDades(); await carregaTasques(); await refresca();
+  if (!silenciós) toast('Tasques actualitzades.');
+}
+
+// ════════════════════════════════════════════════════════════════════
 // DADES DE PROVA
 // ════════════════════════════════════════════════════════════════════
 function dadesProva() {
@@ -389,6 +593,7 @@ const lsGet = () => { try { return JSON.parse(localStorage.getItem(LS_USUARI)); 
 const lsSet = u => { try { localStorage.setItem(LS_USUARI, JSON.stringify(u)); } catch {} };
 
 async function jget(nom) {
+  if (Carpeta.activa()) { const v = await Carpeta.llegeix(nom); if (v === undefined) throw new Error(nom + ': no és a la carpeta'); return v; }
   const r = await fetch(DADES_URL + nom, { cache: 'no-cache' });
   if (!r.ok) throw new Error(nom + ': ' + r.status);
   return r.json();
@@ -426,7 +631,7 @@ const equipsParc = u => (S.brigades[u]?.brigades || []).filter(b => b.activa !==
 const persones = b => [...(b?.cap?.nom ? [b.cap.nom] : []), ...(b?.membres || []).map(m => m.nom)].filter(Boolean);
 
 function mostraAcces() {
-  $('#nav').hidden = true; $('#btn-canvia').hidden = true;
+  $('#nav').hidden = true; $('#btn-canvia').hidden = true; $('#btn-surt').hidden = true;
   $('#cap-brigada').textContent = 'Colla'; $('#cap-parc').textContent = 'Gestió de brigades';
   vista('acces');
   const parcs = Object.entries(S.brigades).filter(([k]) => equipsParc(k).length);
@@ -456,9 +661,11 @@ async function entra(u) {
   S.usuari = u; S.prova = !!u.prova;
   if (!u.prova) lsSet({ parc: u.parc, brigada: u.brigada, nom: u.nom, perfil: u.perfil });
   await carregaTasques();
-  $('#btn-canvia').hidden = false; $('#nav').hidden = false;
+  $('#btn-canvia').hidden = false; $('#btn-surt').hidden = false; $('#nav').hidden = false;
   $('#cap-brigada').textContent = u.nomBrigada || 'Colla';
   $('#cap-parc').textContent = (u.nomParc || u.parc) + (u.nom ? ' · ' + u.nom : '');
+  pintaCarpeta();
+  if (Carpeta.activa() && !S.prova) setTimeout(() => enviaCarpeta(true), 300);
   if (S.prova) avis('Mode prova: dades d\'exemple. Els registres i les tasques noves es desen només en aquest dispositiu.', 'prova');
   else if (!S.tasques.length) avis('El teva colla no té cap tasca assignada ara mateix. Pots entrar tasques noves.', '');
   else avis('', '');
@@ -477,8 +684,12 @@ async function carregaTasques() {
   let llista = [];
   try { llista = await jget('manteniment.json'); } catch (e) { avis('No s\'han pogut carregar les tasques: ' + e.message, 'error'); }
   S.mant = (Array.isArray(llista) ? llista : []).map(model2);
-  S.tasques = S.mant.filter(i => i.unitat === u.parc && ESTATS_EQUIP.includes(i.estat)
-    && collesDe(i.gestio).includes(u.brigada));
+  try { S.ordre = await jget('ordre_colles.json'); } catch { S.ordre = {}; }
+  filtraTasques();
+}
+function filtraTasques() {
+  const u = S.usuari;
+  S.tasques = S.mant.filter(i => i.unitat === u.parc && ESTATS_EQUIP.includes(i.estat) && collesDe(i.gestio).includes(u.brigada));
 }
 
 /**
@@ -520,14 +731,23 @@ const collesDe = g => g?.responsable === 'brigada_parc' || g?.brigades?.length ?
 const personesDe = g => g?.persones?.length ? g.persones : g?.persona ? [g.persona] : [];
 const esMeva = t => !!(S.usuari?.nom && personesDe(t.gestio).some(n => normal(n) === normal(S.usuari.nom)));
 function titol(t) {
+  if (t.titol) return t.titol;
   const tip = S.tipologies[t.tipologia] || t.tipologia || 'Tasca';
   const d = (t.descripcio || '').trim(); return d ? `${tip} — ${d.length > 48 ? d.slice(0, 47) + '…' : d}` : tip;
 }
+/** Posició de la tasca a l'ordre fixat pel Responsable de brigades (ordre_colles.json), o null. */
+const posicioOrdre = t => { const o = S.ordre?.[S.usuari?.parc]?.[S.usuari?.brigada]?.ordre || []; const i = o.indexOf(t.id); return i < 0 ? null : i; };
 function tasquesObertes() {
   const f = acabades();
-  return S.tasques.filter(t => !f.has(t.id)).sort((a, b) => (esMeva(b) - esMeva(a))
-    || (a.gestio?.data_limit || '9999').localeCompare(b.gestio?.data_limit || '9999')
-    || (ORD_PRIO[b.gestio?.prioritat] ?? 0) - (ORD_PRIO[a.gestio?.prioritat] ?? 0));
+  // Primer, les tasques en l'ordre que ha fixat el Responsable de brigades; després, les que encara no s'han ordenat
+  const l = S.tasques.filter(t => !f.has(t.id)).sort((a, b) => {
+    const pa = posicioOrdre(a), pb = posicioOrdre(b);
+    if (pa != null || pb != null) return pa == null ? 1 : pb == null ? -1 : pa - pb;
+    return (esMeva(b) - esMeva(a)) || (a.gestio?.data_limit || '9999').localeCompare(b.gestio?.data_limit || '9999')
+      || (ORD_PRIO[b.gestio?.prioritat] ?? 0) - (ORD_PRIO[a.gestio?.prioritat] ?? 0);
+  });
+  l.forEach((t, i) => { t._num = i + 1; });
+  return l;
 }
 function textVenc(t) {
   const dl = t.gestio?.data_limit; if (!dl) return '';
@@ -540,9 +760,16 @@ function textVenc(t) {
 function pintaSelectTasques() {
   const sel = $('#f-tasca'), actual = sel.value, l = tasquesObertes();
   sel.innerHTML = `<option value="">${l.length ? '— Tria una tasca —' : '— No hi ha tasques pendents —'}</option>` +
-    l.map(t => `<option value="${esc(t.id)}">${esMeva(t) ? '👤 ' : ''}${t.estat === 'en_pausa' ? '⏸ ' : ''}${esc(t.id)} · ${esc(titol(t))}</option>`).join('');
+    l.map(t => `<option value="${esc(t.id)}">${t._num}. ${esMeva(t) ? '👤 ' : ''}${t.estat === 'en_pausa' ? '⏸ ' : ''}${esc(t.id)} · ${esc(titol(t))}</option>`).join('');
   sel.value = l.some(t => t.id === actual) ? actual : '';
   pintaFitxa();
+}
+async function fotosCarpeta(box) {
+  for (const img of box.querySelectorAll('img[data-fitxer]')) {
+    if (!camiSegur(img.dataset.fitxer)) { img.remove(); continue; }
+    const b = await Carpeta.llegeixBlob(img.dataset.fitxer);
+    if (b) img.src = URL.createObjectURL(b); else img.remove();
+  }
 }
 function pintaFitxa() {
   const box = $('#fitxa-tasca'), t = S.tasques.find(x => x.id === $('#f-tasca').value);
@@ -551,7 +778,7 @@ function pintaFitxa() {
   if (!t) { box.hidden = true; box.innerHTML = ''; return; }
   const ll = t.utm?.x != null ? UTM.aLatLon(t.utm.x, t.utm.y) : null;
   const prev = S.registres.filter(r => r.tasca === t.id && r.id !== S.edit), h = prev.reduce((s, r) => s + r.hores, 0);
-  const fotos = (t.fotografies || []).map(f => f.dades || (f.fitxer ? DADES_URL + f.fitxer : '')).filter(Boolean);
+  const fotos = (t.fotografies || []).map(f => imatgeSegura(f.dades) || (f.fitxer && camiSegur(f.fitxer) ? (Carpeta.activa() ? 'carpeta:' + f.fitxer : DADES_URL + f.fitxer) : '')).filter(Boolean);
   const pausa = t.estat === 'en_pausa' ? (t.pauses || []).at(-1) : null;
   box.className = 'card tasca' + (t.estat === 'en_pausa' ? ' pausa' : '');
   box.innerHTML = `
@@ -564,13 +791,14 @@ function pintaFitxa() {
     <p>${textVenc(t)}</p>
     ${t.gestio?.observacions ? `<p class="petit muted">Observacions: ${esc(t.gestio.observacions)}</p>` : ''}
     ${prev.length ? `<p class="petit muted">Ja has registrat ${fmtNum(h)} h en ${prev.length} ${prev.length === 1 ? 'registre' : 'registres'}.</p>` : ''}
-    ${fotos.length ? `<div class="miniat">${fotos.map(s => `<img src="${esc(s)}" alt="Foto de la petició" loading="lazy" onerror="this.remove()">`).join('')}</div>` : ''}
+    ${fotos.length ? `<div class="miniat">${fotos.map(s => s.startsWith('carpeta:') ? `<img data-fitxer="${esc(s.slice(8))}" alt="Foto de la petició">` : `<img src="${esc(s)}" alt="Foto de la petició" loading="lazy" onerror="this.remove()">`).join('')}</div>` : ''}
     ${ll ? `<div style="display:flex;gap:8px;margin-top:10px">
       <button type="button" class="btn btn-sec btn-petit" id="btn-mapa">🗺 Mapa</button>
       <a class="btn btn-sec btn-petit" style="text-decoration:none;display:inline-flex;align-items:center" target="_blank" rel="noopener"
          href="https://www.google.com/maps/dir/?api=1&destination=${ll[0].toFixed(6)},${ll[1].toFixed(6)}">Com arribar-hi</a></div>
       <div id="mapa" hidden></div>` : '<p class="petit muted">Sense ubicació.</p>'}`;
   box.hidden = false;
+  if (Carpeta.activa()) fotosCarpeta(box);
   if (ll) $('#btn-mapa').onclick = () => {
     const m = $('#mapa'); if (!m.hidden) { m.hidden = true; if (S.mapa) { S.mapa.remove(); S.mapa = null; } return; }
     m.hidden = false;
@@ -665,7 +893,9 @@ async function desa(ev) {
     if (JSON.stringify(ant.fotos || []) !== JSON.stringify(dades.fotos)) canvis.push({ camp: 'fotos', abans: (ant.fotos || []).length, despres: dades.fotos.length });
     if (!canvis.length) { toast('No hi ha cap canvi.'); sortEdicio(); await refresca(); vista('llista'); return; }
     await Magatzem.put({ ...ant, ...dades, modificat: now, sync: 'pendent', historial: [...(ant.historial || []), { data: now, usuari: ant.usuari?.nom || '', canvis }] });
-    sortEdicio(); await refresca(); toast('Canvis desats.'); vista('llista'); return;
+    sortEdicio(); await refresca(); toast('Canvis desats.'); vista('llista');
+    if (Carpeta.activa()) await enviaCarpeta(true);
+    return;
   }
   const r = {
     id: nouId('REG-'), unitat: S.usuari.parc, brigada: S.usuari.brigada,
@@ -678,6 +908,27 @@ async function desa(ev) {
   await refresca();
   toast({ acabada: 'Registre desat. Feina acabada: queda pendent de verificar.', pausa: 'Registre desat. La tasca queda en pausa.', continua: 'Registre desat. La tasca continua oberta.' }[res]);
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (Carpeta.activa()) await enviaCarpeta(true);
+}
+
+/**
+ * Avís automàtic «Tasca pendent de verificació» a la direcció del parc i al Responsable de brigades
+ * (si l'han demanat a «Configuració dels parcs»). La webapp no pot enviar correus: deixa l'avís a la
+ * bústia patrimoni/avisos_correu/ de la carpeta, i un flux de Power Automate l'envia (vegeu el README).
+ */
+function avisPendentCorreu(t, colla) {
+  const c = S.variables?.per_parc?.[t.unitat] || {}, av = c.avisos || {};
+  const per = [av.direccio?.pendent !== false && c.direccio?.email, av.responsable?.pendent !== false && c.responsable_manteniment?.email].filter(Boolean);
+  if (!per.length) return null;
+  const fa = t.feina_acabada || {};
+  return {
+    format: 'motor-patrimoni.avis-correu', versio: 1, id: 'AVIS-' + new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14) + '-' + t.id,
+    creat: new Date().toISOString(), situacio: 'pendent', tasca: t.id, unitat: t.unitat,
+    per: per.join(';'), assumpte: `[Manteniment ${t.unitat}] Pendent de verificar · ${t.id} · ${titol(t)}`,
+    cos: [`La colla ${colla} ha acabat la feina de la tasca ${t.id}: queda pendent de verificar.`, '',
+      `Tasca: ${t.id} · ${titol(t)}`, `Espai natural: ${t.unitat}`, fa.data ? `Feina acabada el ${fmtData(fa.data)}${fa.per?.nom ? ' (' + fa.per.nom + ')' : ''}.` : '', '',
+      `Consulta-la al Motor de Patrimoni, mòdul de Gestió de brigades, amb el codi ${t.id}.`, '', '— Motor de Patrimoni · avís automàtic'].join('\n'),
+  };
 }
 
 // Modificació d'un registre: només mentre el responsable no l'ha validat
@@ -719,7 +970,6 @@ function preparaNova() {
   $('#p-parc').innerHTML = parcs.map(([k, n]) => `<option value="${esc(k)}">${esc(n)}</option>`).join('');
   $('#p-parc').value = S.usuari.parc;
   $('#p-tip').innerHTML = '<option value="">— La fixarà el Responsable de brigades —</option>' + Object.entries(S.tipologies).map(([k, n]) => `<option value="${esc(k)}">${esc(n)}</option>`).join('');
-  $('#p-data').min = avui();
   netejaPet();
 }
 async function obreNova() {
@@ -793,30 +1043,30 @@ function gps() {
   }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 30000 });
 }
 function netejaPet() {
-  $('#p-desc').value = ''; $('#p-tip').value = ''; $('#p-elem').value = ''; $('#p-hores').value = ''; $('#p-data').value = '';
+  $('#p-desc').value = ''; $('#p-tip').value = ''; $('#p-elem').value = ''; $('#p-hores').value = '';
   S.pet.fotos = []; $('#p-previ').innerHTML = ''; treuUbicacio();
-  ['pdesc', 'phores', 'pdata'].forEach(k => error(k, null, ''));
-  ['#p-desc', '#p-hores', '#p-data'].forEach(s => $(s).classList.remove('invalid'));
+  ['pdesc', 'phores'].forEach(k => error(k, null, ''));
+  ['#p-desc', '#p-hores'].forEach(s => $(s).classList.remove('invalid'));
 }
 async function desaPeticio(ev) {
   ev.preventDefault();
-  const desc = $('#p-desc').value.trim(), hRaw = $('#p-hores').value.replace(',', '.'), h = hRaw ? parseFloat(hRaw) : null, data = $('#p-data').value || null;
+  const desc = $('#p-desc').value.trim(), hRaw = $('#p-hores').value.replace(',', '.'), h = hRaw ? parseFloat(hRaw) : null;
   let ok = true;
   error('pdesc', $('#p-desc'), desc.length >= 5 ? '' : 'Descriu la tasca.'); ok = ok && desc.length >= 5;
   const hOk = h == null || (h > 0 && h <= 10000); error('phores', $('#p-hores'), hOk ? '' : 'Ha de ser més gran que 0, o deixa-ho en blanc.'); ok = ok && hOk;
-  const dOk = !data || data >= avui(); error('pdata', $('#p-data'), dOk ? '' : 'No pot ser anterior a avui.'); ok = ok && dOk;
   if (!ok) { document.querySelector('#form-pet .invalid')?.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
   const p = {
     id: nouId('PET-'), unitat: $('#p-parc').value, descripcio: desc, tipologia: $('#p-tip').value || null, utm: S.pet.utm ? { ...S.pet.utm } : null,
-    element: $('#p-elem').value || null, hores_estimades: h, data_proposada: data, fotos: S.pet.fotos.slice(),
+    element: $('#p-elem').value || null, hores_estimades: h, fotos: S.pet.fotos.slice(),
     sollicitant: { nom: S.usuari.nom || '', perfil: S.usuari.perfil || null, brigada: S.usuari.brigada, nom_brigada: S.usuari.nomBrigada || null, unitat: S.usuari.parc, font: S.prova ? 'prova' : 'brigada' },
     creat: new Date().toISOString(), sync: 'pendent',
   };
   await Magatzem.put(p, 'peticions');
   netejaPet(); $('#p-parc').value = S.usuari.parc; omplElements();
   await refresca();
-  toast('Tasca desada al mòbil. Envia-la amb «Exporta els pendents».');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (Carpeta.activa()) await enviaCarpeta(true);
+  else toast('Tasca desada en aquest dispositiu. Envia-la amb «Exporta els pendents».');
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -831,6 +1081,7 @@ const NOM_ESTAT = { nova: 'Nova', acceptada: 'Acceptada', assignada: 'Assignada'
 function pintaLlista() {
   const l = S.registres, pets = S.peticions, box = $('#llista');
   const pend = l.filter(r => r.sync === 'pendent').length + pets.filter(p => p.sync === 'pendent').length;
+  $('#btn-exporta').textContent = Carpeta.activa() ? '📤 Envia els pendents a la carpeta' : '⬇ Exporta els pendents';
   $('#resum-llista').textContent = `${l.length} ${l.length === 1 ? 'registre' : 'registres'} · ${pets.length} ${pets.length === 1 ? 'tasca nova' : 'tasques noves'} · ${pend} pendents d'enviar`
     + (Magatzem.persistent() ? '' : ' · ⚠ no es poden desar en aquest navegador (es perdran en tancar-lo)');
   $('#t-peticions').hidden = !pets.length;
@@ -857,6 +1108,7 @@ function pintaLlista() {
 
 /** Fitxer per al programa principal (Gestió de brigades › «📥 Importa de la colla»). */
 async function exporta() {
+  if (Carpeta.activa()) return enviaCarpeta(false);
   const registres = S.registres.filter(r => r.sync === 'pendent'), peticions = S.peticions.filter(p => p.sync === 'pendent');
   if (!registres.length && !peticions.length) { toast('No hi ha res pendent d\'enviar.'); return; }
   const pac = { format: 'motor-patrimoni.registres-brigada', versio: 2, generat: new Date().toISOString(),
@@ -913,6 +1165,21 @@ $('#llista-pet').onclick = async e => {
 };
 $('#btn-cancela').onclick = () => { sortEdicio(); vista('llista'); };
 $('#btn-exporta').onclick = exporta;
+$('#barra-carpeta').onclick = async e => {
+  const a = e.target.closest('[data-carpeta]')?.dataset.carpeta; if (!a) return;
+  try {
+    if (a === 'connecta' || a === 'reconnecta') {
+      await (a === 'connecta' ? Carpeta.connecta() : Carpeta.reconnecta());
+      pintaCarpeta('connectada');
+      if (S.usuari && !S.prova) { await actualitza(true); await enviaCarpeta(true); toast(`Carpeta connectada: ${Carpeta.nom()}.`); }
+      else { await carregaDades(); mostraAcces(); }
+    } else if (a === 'desconnecta') { Carpeta.desconnecta(); pintaCarpeta('cap'); await actualitza(true); }
+    else if (a === 'actualitza') { await actualitza(false); await enviaCarpeta(true); }
+  } catch (er) { if (er.name !== 'AbortError') toast(er.message); }
+};
+// Amb la carpeta connectada, les tasques es tornen a llegir cada 2 minuts i en tornar a la pestanya
+setInterval(() => { if (Carpeta.activa() && !S.edit && document.visibilityState === 'visible') actualitza(true); }, 120000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Carpeta.activa() && !S.edit) actualitza(true); });
 // Nova tasca
 $('#form-pet').addEventListener('submit', desaPeticio);
 $('#p-gps').onclick = gps;
@@ -931,6 +1198,18 @@ $('#p-fotos').onchange = async e => {
 };
 $('#p-previ').onclick = e => { const b = e.target.closest('button[data-i]'); if (b) { S.pet.fotos.splice(+b.dataset.i, 1); $('#p-previ').innerHTML = htmlPrevi(S.pet.fotos); } };
 // Accés
+// Seguretat (OWASP A02): en un ordinador o mòbil compartit, «Surt» esborra del dispositiu les dades de la colla.
+// Els registres encara no enviats es conserven (i s'avisa), per no perdre feina.
+$('#btn-surt').onclick = async () => {
+  const pend = [...S.registres, ...S.peticions].filter(x => x.sync === 'pendent').length;
+  if (!confirm(pend ? `Tens ${pend} elements pendents d'enviar: es conservaran en aquest dispositiu. Vols esborrar la resta de dades i sortir?` : 'S\'esborraran d\'aquest dispositiu les dades de la colla i els registres ja enviats. Vols sortir?')) return;
+  for (const r of S.registres) if (r.sync !== 'pendent') await Magatzem.del(r.id);
+  for (const p of S.peticions) if (p.sync !== 'pendent') await Magatzem.del(p.id, 'peticions');
+  try { localStorage.removeItem(LS_USUARI); } catch { /* res */ }
+  Carpeta.desconnecta(); S.usuari = null; S.mant = []; S.tasques = []; S.registres = []; S.peticions = [];
+  if (S.mapa) { S.mapa.remove(); S.mapa = null; }
+  pintaCarpeta('cap'); mostraAcces(); toast('Has sortit. Les dades de la colla s\'han esborrat d\'aquest dispositiu.');
+};
 $('#btn-canvia').onclick = () => { if (S.mapa) { S.mapa.remove(); S.mapa = null; } mostraAcces(); };
 $('#acc-entra').onclick = () => {
   const parc = $('#acc-parc').value, br = $('#acc-brigada').value, nom = $('#acc-nom').value.trim(); if (!parc || !br) return;
@@ -946,6 +1225,8 @@ $('#acc-prova').onclick = () => {
 (async function init() {
   $('#f-data').value = avui(); $('#f-data').max = avui();
   await Magatzem.init();
+  if (FONT_REBUTJADA) setTimeout(() => toast('S\'ha ignorat una font de dades no autoritzada a l\'adreça: es fan servir les dades oficials.'), 500);
+  if (QS.get('prova') !== '1') pintaCarpeta(await Carpeta.inicia());
   const ok = await carregaDades();
   if (QS.get('prova') === '1') return $('#acc-prova').click();
   const u = lsGet();
