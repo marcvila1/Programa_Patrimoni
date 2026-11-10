@@ -8,6 +8,21 @@ Revisió del 10/11/2026 (branca `canvis-gestio-brigades`): «Ordre de les colles
 
 En la mateixa branca: el **Responsable de brigades** pot passar una tasca assignada a «Pendent de verificar» (s'amplia el rol a la regla de `transicions`; la direcció del parc continua sense poder-ho fer, i la permissió es comprova igual que la resta de canvis d'estat), i es corregeix que la confirmació de treure la colla en arrossegar una targeta a «Sense assignar» no s'aplicava. Les proves de seguretat s'han tornat a passar amb els mateixos resultats.
 
+**Resultats de la bateria completa del 10/11/2026** (commit d'aquesta branca, Chromium amb Playwright, Leaflet 1.9.4 servit des del paquet oficial de npm amb el mateix SRI):
+
+| Prova | OWASP | Resultat |
+|---|---|---|
+| `xss_test.js`: càrregues XSS a tots els camps i totes les pantalles, incloses les noves (Pla de treball, nova tasca periòdica, formulari de periòdica, «Feina acabada») | A03 | 0 executades · 0 enllaços `javascript:` · 0 errors de recorregut |
+| `xss_test.js`: fonts de dades externes (`?dades=https://evil.example/…`) | A05, A10 | 0 peticions a `evil.example` |
+| `xss_test.js`: CSV amb fórmules | A03 | 0 cel·les amb fórmula |
+| `import_test.js`: fitxers de colla manipulats | A01, A08 | 3 de 3 rebutjats |
+| `perfils_test.js`: perfils no autoritzats, «Surt», CSP | A01, A02, A05, A07 | Correcte · 0 errors de CSP |
+| `transicions_test.js`: canvi d'estat forçat | A01, A04 | Direcció rebutjada · Responsable acceptat |
+| SRI de Leaflet comparat amb el paquet de npm | A06, A08 | Coincideix (`leaflet.js` i `leaflet.css`) |
+| Revisió de codi del canvi (llista de control, apartat 9) | — | Tot el text nou a `innerHTML` passa per `esc()`; cap `href`/`src` nou; cap domini nou a la CSP |
+
+Correcció afegida arran de la revisió: en desar «Gestiona», el programa comprova que el canvi d'estat estigui permès al perfil (abans només ho limitaven les opcions del desplegable). Els riscos residuals de l'apartat 6 no canvien: sense autenticació real ni servidor (A04, A07), el control efectiu continua sent els permisos de la carpeta de SharePoint.
+
 ---
 
 ## 1. Resum
@@ -72,7 +87,8 @@ Les proves són automàtiques (Playwright, Chromium) i es poden repetir (apartat
 5. **Camins de fitxer:** fotografies i documents amb camins `../../variables.json` i documents `data:text/html`.
 6. **Perfils:** algú no autoritzat que es declara Responsable de brigades o Director/a.
 7. **CSP:** es recorren els fluxos principals i es comprova que la política no bloqueja res legítim.
-8. **Regressió funcional:** es tornen a passar les proves de funcionament de les darreres setmanes. Cobreixen el circuit complet entre `index.html` i `brigada.html` amb la carpeta, la validació, els documents adjunts, el descart amb justificació, els avisos i l'ordre de les colles.
+8. **Canvis d'estat manipulats** (`transicions_test.js`, des del 10/11/2026): es força al desplegable de «Gestiona» el pas «Assignada → Pendent de verificar». Amb el perfil de direcció del parc s'ha de rebutjar; amb el de Responsable de brigades, s'ha d'acceptar.
+9. **Regressió funcional:** es tornen a passar les proves de funcionament de les darreres setmanes. Cobreixen el circuit complet entre `index.html` i `brigada.html` amb la carpeta, la validació, els documents adjunts, el descart amb justificació, els avisos i l'ordre de les colles.
 
 ---
 
@@ -109,6 +125,7 @@ Gravetat: 🔴 alta · 🟠 mitjana · 🟡 baixa · 🟢 correcte.
 | Diàleg d'identificació amb un perfil no autoritzat | Accepta | No deixa desar |
 | Errors de CSP en els fluxos normals | — | 0 |
 | Proves funcionals (circuit colla ↔ Responsable, documents, descart, avisos, ordre) | Correctes | **Correctes** |
+| Canvi d'estat forçat manipulant el formulari (direcció → «Pendent de verificar») | — | **Rebutjat** (10/11/2026) |
 
 ### 4.2. Valoració per àmbits (de 0 a 10)
 
@@ -263,6 +280,7 @@ python3 tests/seguretat/genera_malicios.py data _xss
 node tests/seguretat/xss_test.js        # XSS, enllaços javascript:, fonts externes, CSV
 cd tests/seguretat && node import_test.js && cd ../..   # fitxers de colla manipulats
 node tests/seguretat/perfils_test.js    # perfils autoritzats, «Surt» i CSP
+node tests/seguretat/transicions_test.js # canvis d'estat forçats (A01); ha de donar "correcte": true
 ```
 
 Resultat esperat de `xss_test.js`: `xss_executat: []`, `enllacos_javascript: []` i `csv_cel_les_amb_formula: 0`. A `peticions_a_origen_extern` només hi poden sortir les adreces de les mateixes pàgines de prova.
@@ -280,6 +298,7 @@ Esborreu `_xss/` en acabar.
 - [ ] Les dependències externes noves porten `integrity` (SRI) i el seu domini a la CSP.
 - [ ] Cap domini nou a `connect-src` sense revisar-ho.
 - [ ] No es publiquen dades personals al GitHub (apartat 6.2).
+- [ ] Tot canvi d'estat nou es comprova també en desar amb `estatsPermesos()`, no només amb les opcions del desplegable.
 - [ ] S'han passat les proves de l'apartat 8.
 - [ ] Leaflet i el navegador de referència estan actualitzats.
 

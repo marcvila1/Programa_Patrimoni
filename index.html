@@ -3910,6 +3910,9 @@ const Manteniment = (() => {
     if (est === 'descartada' && t.estat !== 'descartada' && (!justif || justif.length < 5)) err.push(marcaError('#mg-justif', 'Escriu una petita justificació (mínim 5 caràcters).') && 'Justificació del descart');
     if (t.estat === 'pendent_verificacio' && ['assignada', 'acceptada'].includes(est) && normal(v('#mg-obs')) === normal(t.gestio?.observacions)) err.push(marcaError('#mg-obs', 'Explica què falta per verificar-la.') && 'Observacions');
     if (est === 'en_pausa' && t.estat !== 'en_pausa' && (!v('#mg-obs') || normal(v('#mg-obs')) === normal(t.gestio?.observacions))) err.push(marcaError('#mg-obs', 'Explica el motiu de la pausa.') && 'Observacions');
+    // Defensa (A01): el canvi d'estat ha d'estar permès al perfil, encara que s'hagi manipulat el desplegable
+    if (est !== t.estat && !['acceptada', 'assignada'].includes(est) && !estatsPermesos(t, r).includes(est)) err.push(`no es pot passar de «${nomEstat(t.estat)}» a «${nomEstat(est)}» amb el teu perfil`);
+    if (!potGestionar(r)) err.push('només el Responsable de brigades i la direcció del parc poden gestionar tasques');
     if (err.length) { $('#mant-errors').innerHTML = `<div class="error-box" style="margin:12px 20px 0"><strong>Cal revisar:</strong> ${esc(err.join(', '))}.</div>`; $('#mant-errors').scrollIntoView({ block: 'center' }); return; }
     nou.estat = est; nou.model_estats = 2;
     const qui = { nom: S.usuari.nom, email: S.usuari.email || null, rols: [...r.rols].filter(k => !r.provisionals.has(k)) };
