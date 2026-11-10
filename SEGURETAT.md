@@ -6,6 +6,8 @@ Data de l'auditoria: 07/11/2026. Versió auditada: la de la branca `main` amb el
 
 Revisió del 10/11/2026 (branca `canvis-gestio-brigades`): «Ordre de les colles» passa a dir-se «Pla de treball» (el fitxer continua sent `ordre_colles.json`), la nova tasca admet prioritat, colles i persones i es pot marcar com a periòdica, i la direcció del parc ja no té el camp «Càrrec». No canvia cap control ni el format d'importació de `brigada.html`. La creació d'una tasca periòdica des de «Nova tasca» té la mateixa restricció que el botó «Tasques periòdiques»: només el Responsable de brigades o la direcció del parc (es comprova en mostrar l'opció i, de nou, en desar). Tots els textos nous es mostren escapats. S'han tornat a passar `xss_test.js`, `import_test.js` i `perfils_test.js` amb els resultats esperats (0 càrregues executades, 0 enllaços `javascript:`, fitxers de colla manipulats rebutjats, perfils i CSP correctes).
 
+En la mateixa branca: el **Responsable de brigades** pot passar una tasca assignada a «Pendent de verificar» (s'amplia el rol a la regla de `transicions`; la direcció del parc continua sense poder-ho fer, i la permissió es comprova igual que la resta de canvis d'estat), i es corregeix que la confirmació de treure la colla en arrossegar una targeta a «Sense assignar» no s'aplicava. Les proves de seguretat s'han tornat a passar amb els mateixos resultats.
+
 ---
 
 ## 1. Resum

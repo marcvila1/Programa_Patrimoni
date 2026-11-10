@@ -2599,6 +2599,9 @@ const Manteniment = (() => {
     // variables.json antic (abans del model d'estats 2): s'hi posen els estats i els canvis d'estat nous
     if (S.variables && S.variables.model_estats !== 2) Object.assign(S.variables, { model_estats: 2, estats: clone(ESTATS_DEFECTE), transicions: clone(TRANSICIONS_DEFECTE),
       estats_tancats: ['resolta', 'descartada'], estats_sense_avis: ['pendent_verificacio', 'resolta', 'descartada'] });
+    // 10/11/2026: el Responsable de brigades també pot passar una tasca assignada a «Pendent de verificar»
+    const fa = (S.variables?.transicions || []).find(x => x.a === 'pendent_verificacio' && x.de?.includes('assignada'));
+    if (fa && !fa.rols?.includes('manteniment')) { fa.rols = [...(fa.rols || []), 'manteniment']; fa.nota = 'Feina acabada (la colla o el Responsable de brigades).'; }
   }
   /**
    * Model d'estats 2 (01/11/2026): Nova → Acceptada / Descartada → Assignada (té colla) ⇄ En pausa → Pendent de verificar → Resolta.
@@ -2850,7 +2853,7 @@ const Manteniment = (() => {
     const linies = [
       motiu === 'alta' ? `S'ha registrat una nova tasca${tip} al ${nomUnitat(t.unitat)}.`
         : motiu === 'acceptacio' ? `La tasca ${t.id}${tip} s'ha acceptat${nomAssignacio(t) ? ' i s\'ha assignat a ' + nomAssignacio(t) : ''}.`
-        : motiu === 'pendent' ? `La colla ha acabat la feina de la tasca ${t.id}${tip}: queda pendent de verificar.${t.feina_acabada?.data ? ' Feina acabada el ' + fmtData(t.feina_acabada.data) + (t.feina_acabada.per?.nom ? ' (' + t.feina_acabada.per.nom + ')' : '') + '.' : ''}`
+        : motiu === 'pendent' ? `${t.feina_acabada?.per?.rols?.includes('brigada') || !t.feina_acabada?.per ? 'La colla ha acabat' : 'S\'ha donat per acabada'} la feina de la tasca ${t.id}${tip}: queda pendent de verificar.${t.feina_acabada?.data ? ' Feina acabada el ' + fmtData(t.feina_acabada.data) + (t.feina_acabada.per?.nom ? ' (' + t.feina_acabada.per.nom + ')' : '') + '.' : ''}`
         : motiu === 'rebuig' ? `La tasca ${t.id}${tip} que vas entrar s'ha descartat: no es farà.\n\nJustificació: ${t.descartada?.motiu || t.gestio?.observacions || '—'}`
         : motiu === 'tancament' ? `La tasca ${t.id}${tip} s'ha tancat: ${nomEstat(t.estat).toLowerCase()}.${t.estat === 'descartada' && t.gestio?.observacions ? ' Motiu: ' + t.gestio.observacions : ''}`
         : `Actualització de la tasca ${t.id}${tip}.`,
@@ -3159,7 +3162,7 @@ const Manteniment = (() => {
     if (!valor) {
       const ok = await finestra({ titol: `Treure les colles de ${esc(t.id)}`, cos: `<p>La tasca tornarà a «Acceptada», sense colla${t.estat === 'en_pausa' ? ', i es tancarà la pausa' : ''}.</p>`,
         botons: [{ text: 'Cancel·la', accio: 'no' }, { text: 'Confirma', accio: 'si', principal: true }] });
-      if (ok?.accio !== 'si') return;
+      if ((ok?.accio ?? ok) !== 'si') return;
     }
     const nou = clone(t), abansAss = nomAssignacio(t), abansEst = t.estat, abansPers = personesDe(t.gestio);
     // Es mantenen les persones que són d'alguna de les colles que queden (o que no són de cap colla del parc)
@@ -3292,9 +3295,12 @@ const Manteniment = (() => {
       .filter(([e]) => permesos.includes(e) && transicions().some(x => x.de.includes(t.estat) && x.a === e && x.rols.includes('brigada')))
       .map(([e, l]) => `<button type="button" class="btn ${e === 'en_pausa' ? 'btn-secondary' : 'btn-primary'}" data-equip="${e}">${l}</button>`).join('') : '';
     const botoAssigna = t.estat === 'acceptada' && potGestionar(r) ? '<button type="button" class="btn btn-primary" data-m="assigna">👷 Assigna</button>' : '';
+    // Responsable de brigades: pot donar la feina per acabada (Pendent de verificar) sense ser de la colla
+    const botoAcabada = !botoEquip.includes('data-equip="pendent_verificacio"') && r.rols.has('manteniment') && permesos.includes('pendent_verificacio')
+      ? '<button type="button" class="btn btn-primary" data-m="acabada">✓ Feina acabada</button>' : '';
     $('#mant-panell').innerHTML = `<div class="fitxa-cap"><div><h2>${esc(t.id)} · ${esc(titolDe(t))}</h2>
         <div class="id">${esc(nomUnitat(t.unitat))}</div><div class="xips" style="margin-top:6px"><span class="xip">${esc(t.unitat)}</span> ${htmlPrio(g.prioritat)} <span class="marca comp">${esc(nomEstat(t.estat))}</span></div></div>
-        <div class="botons">${botoAssigna}${botoEquip}${esTancada(t) || !gestor ? '' : `<button type="button" class="btn ${botoEquip || botoAssigna ? 'btn-secondary' : 'btn-primary'}" data-m="gestio">${t.estat === 'nova' ? '⚑ Accepta o descarta' : t.estat === 'pendent_verificacio' ? '✓ Verifica / gestiona' : '⚑ Gestiona'}</button>`}</div></div>
+        <div class="botons">${botoAssigna}${botoAcabada}${botoEquip}${esTancada(t) || !gestor ? '' : `<button type="button" class="btn ${botoEquip || botoAssigna || botoAcabada ? 'btn-secondary' : 'btn-primary'}" data-m="gestio">${t.estat === 'nova' ? '⚑ Accepta o descarta' : t.estat === 'pendent_verificacio' ? '✓ Verifica / gestiona' : '⚑ Gestiona'}</button>`}</div></div>
       ${a ? `<div class="avis-box" style="margin:12px 20px 0"><strong>⏰ ${a.tipus === 'vencuda' ? 'Data límit vençuda' : 'Data límit propera'}:</strong> ${esc(a.text)}</div>` : ''}
       ${t.estat === 'acceptada' ? '<div class="info-box text-small" style="margin:12px 20px 0">Tasca acceptada: falta assignar-la a una colla (botó «Assigna»).</div>' : ''}
       ${t.estat === 'en_pausa' ? `<div class="avis-box text-small" style="margin:12px 20px 0"><strong>⏸ En pausa</strong>${(t.pauses || []).at(-1)?.motiu ? ': ' + esc(t.pauses.at(-1).motiu) : ''}${(t.pauses || []).at(-1)?.inici ? ' (des del ' + esc(fmtData(t.pauses.at(-1).inici)) + ')' : ''}.</div>` : ''}
@@ -3346,6 +3352,7 @@ const Manteniment = (() => {
     $('#mant-panell [data-m="gestio"]')?.addEventListener('click', () => gestio(t));
     $$('#mant-panell [data-equip]').forEach(b => b.addEventListener('click', () => accioEquip(t, b.dataset.equip)));
     $('#mant-panell [data-m="assigna"]')?.addEventListener('click', () => assignaRapid(t));
+    $('#mant-panell [data-m="acabada"]')?.addEventListener('click', () => gestio(t, { estat: 'pendent_verificacio', missatge: 'La tasca passarà a «Pendent de verificar». Si cal, certifica ara les hores fetes.' }));
     $$('#mant-panell [data-valida-reg]').forEach(b => b.addEventListener('click', () => validaRegistres(t, [b.dataset.validaReg])));
     $('#mant-panell [data-valida-tots]')?.addEventListener('click', () => validaRegistres(t, (t.registres_brigada || []).filter(x => !x.validacio).map(x => x.id)));
     $('#mant-panell [data-obre-per]')?.addEventListener('click', e => formPeriodica(S.periodiques.find(q => q.id === e.target.dataset.obrePer)));
@@ -3637,7 +3644,7 @@ const Manteniment = (() => {
     { de: ['assignada', 'en_pausa'], a: 'acceptada', rols: GESTORS, nota: "S'aplica sola en treure la colla." },
     { de: ['assignada'], a: 'en_pausa', rols: [...GESTORS, 'brigada'], nota: 'Cal indicar-ne el motiu.' },
     { de: ['en_pausa'], a: 'assignada', rols: ['brigada', ...GESTORS], nota: "Reprendre la feina (la colla continua assignada)." },
-    { de: ['assignada'], a: 'pendent_verificacio', rols: ['brigada'], nota: 'Feina acabada.' },
+    { de: ['assignada'], a: 'pendent_verificacio', rols: ['brigada', 'manteniment'], nota: 'Feina acabada (la colla o el Responsable de brigades).' },
     { de: ['pendent_verificacio'], a: 'resolta', rols: GESTORS, nota: "Verificar: cal la certificació final d'hores." },
     { de: ['pendent_verificacio'], a: 'assignada', rols: GESTORS, nota: "No es verifica: torna a la colla (cal explicar-ne el motiu)." },
     { de: ['nova', 'acceptada', 'assignada', 'en_pausa'], a: 'descartada', rols: GESTORS, nota: 'Cal indicar-ne el motiu.' },
@@ -3772,7 +3779,7 @@ const Manteniment = (() => {
     const OPC = {
       nova: [['acceptada', 'Acceptada'], ['descartada', 'Descartada']],
       acceptada: [['acceptada', 'Acceptada (actual)'], ['descartada', '→ Descartada']],
-      assignada: [['assignada', 'Assignada (actual)'], ['en_pausa', '→ En pausa'], ['descartada', '→ Descartada']],
+      assignada: [['assignada', 'Assignada (actual)'], ['pendent_verificacio', '→ Pendent de verificar (feina acabada)'], ['en_pausa', '→ En pausa'], ['descartada', '→ Descartada']],
       en_pausa: [['en_pausa', 'En pausa (actual)'], ['repren', '→ Reprèn (Assignada, o Acceptada si es treu la colla)'], ['descartada', '→ Descartada']],
       pendent_verificacio: [['pendent_verificacio', 'Pendent de verificar (actual)'], ['resolta', '→ Resolta (verifica la feina)'], ['assignada', '→ Torna a la colla (no es verifica)']],
     };
@@ -3912,6 +3919,7 @@ const Manteniment = (() => {
       if (est === 'en_pausa') nou.pauses = [...(t.pauses || []), { inici: moment, per: qui, motiu: nou.gestio.observacions, fi: null }];
       if (t.estat === 'en_pausa') nou.pauses = tancaPausa(t, moment, qui);
       if (t.estat === 'pendent_verificacio' && est !== 'resolta') nou.feina_acabada = null;
+      if (est === 'pendent_verificacio') nou.feina_acabada = { data: moment, per: qui };
       if (est === 'resolta') { nou.verificacio = { data: moment, per: qui }; nou.data_resolucio = moment.slice(0, 10); }
       if (est === 'descartada') nou.descartada = { data: moment, per: qui, motiu: justif };
     }

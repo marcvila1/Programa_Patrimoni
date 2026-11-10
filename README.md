@@ -148,8 +148,8 @@ Recull les peticions i tasques de manteniment dels espais naturals. (Fins al nov
     - Acceptada → Assignada: s'obre l'assignació ràpida.
     - Assignada o En pausa → Acceptada: treu la colla.
     - Assignada → En pausa, i Pendent de verificar → Resolta: s'obre la gestió amb el canvi triat (motiu de la pausa o certificació d'hores).
-    - Assignada → Pendent de verificar: «Feina acabada» de la colla.
-    - Al tauler per colla, moure la targeta la reassigna a la colla de la columna (o la deixa sense colla).
+    - Assignada → Pendent de verificar: «Feina acabada» de la colla o, si l'arrossega el Responsable de brigades, s'obre la gestió amb «Pendent de verificar» triat.
+    - Al tauler per colla, moure la targeta la reassigna a la colla de la columna i **en canvia l'estat**: d'una colla a «Sense assignar», després de confirmar-ho, la tasca torna a «Acceptada» (i es tanca la pausa, si n'hi havia); de «Sense assignar» a una colla, passa a «Assignada»; d'una colla a una altra, continua «Assignada». Si la tasca té diverses colles, només es treu la de la columna d'origen.
     - Si el perfil no té permís per a aquell canvi, la targeta no es mou i el programa diu qui el pot fer.
   - Agrupat per prioritat, parc, persona o tipologia, el tauler és només de consulta.
   - En clicar una targeta, se n'obre la fitxa a sota, al costat del mapa.
@@ -201,12 +201,14 @@ En registrar-la, es crea un codi `MANT-AAAA-NNNN` i un botó obre un **correu ja
 | **Descartada** | No es farà. Cal el motiu a les observacions. Estat final | Responsable de brigades o direcció |
 | **Assignada** | Té una **colla** (o un altre responsable) per fer-la. Es posa sola en assignar la colla; si es treu la colla, torna a «Acceptada» | Responsable de brigades o direcció |
 | **En pausa** | La feina s'ha aturat per algun motiu (cal indicar-lo). Pot continuar assignada; en reprendre-la torna a «Assignada», o a «Acceptada» si es treu la colla | Colla, Responsable de brigades o direcció |
-| **Pendent de verificar** | La colla ha acabat la feina («Feina acabada») | Colla |
+| **Pendent de verificar** | La colla ha acabat la feina («Feina acabada») | Colla o Responsable de brigades |
 | **Resolta** | El Responsable de brigades o la direcció l'han verificada, amb la certificació final d'hores. Estat final | Responsable de brigades o direcció |
 
 En gestionar una tasca **nova**, només es pot passar a **Acceptada** o **Descartada**. Si en acceptar-la ja s'hi posa una colla, queda directament **Assignada**.
 
 **Assignació ràpida.** Les tasques acceptades tenen un botó **👷 Assigna** a la llista i a la fitxa, que obre una finestra per triar la colla i, si cal, una persona concreta.
+
+El **Responsable de brigades** també pot donar per acabada una tasca assignada (botó **✓ Feina acabada** de la fitxa, opció «→ Pendent de verificar» de «Gestiona», o arrossegant-la al tauler), per exemple quan la colla no ho ha registrat. Es desa a `feina_acabada` amb el seu nom i s'envia l'avís de «pendent de verificació» com quan ho fa la colla. Si `variables.json` de la carpeta tenia la regla antiga, el programa hi afegeix el Responsable de brigades en obrir-lo.
 
 Una feina pendent de verificar que no es verifica torna a la colla (**Assignada**), explicant-ne el motiu. Les pauses queden registrades a la tasca (`pauses[{inici, per, motiu, fi}]`), i també qui la va acceptar (`acceptacio`), qui la va assignar (`gestio.assignat_per`, `gestio.data_assignacio`), qui va acabar la feina (`feina_acabada`) i qui la va verificar (`verificacio`).
 
