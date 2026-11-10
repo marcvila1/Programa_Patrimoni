@@ -3964,8 +3964,8 @@ const Manteniment = (() => {
       const t = {
         id: null, versio: 1, model_estats: 2, creat: p.creat || moment, modificat: moment, modificat_per: S.usuari.nom,
         sollicitant: { nom: qui, email: null, unitat: p.sollicitant?.unitat || pac.unitat, font: 'brigada', equip: p.sollicitant?.brigada || pac.brigada },
-        unitat: p.unitat, utm: p.utm?.x != null ? { x: p.utm.x, y: p.utm.y } : { x: null, y: null }, element: p.element || null, tipologia: p.tipologia || null, notificar: [],
-        descripcio: p.descripcio, hores_estimades: p.hores_estimades ?? null, fotografies: [], certificacions_hores: [],
+        unitat: p.unitat, utm: p.utm?.x != null ? { x: p.utm.x, y: p.utm.y } : { x: null, y: null }, element: p.element || null, categoria: CATEGORIES.some(c => c[0] === p.categoria) ? p.categoria : null, tipologia: p.tipologia || null, notificar: [],
+        titol: String(p.titol || '').trim().slice(0, TITOL_MAX) || null, descripcio: p.descripcio, hores_estimades: p.hores_estimades ?? null, fotografies: [], certificacions_hores: [],
         estat: 'nova', data_resolucio: null,
         origen: { peticio: p.id, equip: pac.brigada, nom_equip: pac.nom_brigada || null, importat: moment, importat_per: S.usuari.nom },
         gestio: { prioritat: null, data_limit: null, responsable: null, brigada: null, persona: null, empresa: null, observacions: null, assignat_per: null, data_assignacio: null },

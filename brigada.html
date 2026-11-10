@@ -177,11 +177,11 @@
       </label>
 
       <div class="fila">
-        <label class="camp"><span>Hores dedicades</span>
+        <label class="camp"><span>Hores dedicades <span class="opc">(opc.)</span></span>
           <input type="number" id="f-hores" inputmode="decimal" min="0.25" max="24" step="0.25" placeholder="0,0">
           <div class="err" id="e-hores" hidden></div>
         </label>
-        <label class="camp"><span>Persones</span>
+        <label class="camp"><span>Persones <span class="opc">(opc.)</span></span>
           <input type="number" id="f-pers" inputmode="numeric" min="1" max="99" step="1" placeholder="0">
           <div class="err" id="e-pers" hidden></div>
         </label>
@@ -217,13 +217,18 @@
   <!-- Nova tasca -->
   <section id="vista-nova" hidden>
     <h1>Nova tasca</h1>
-    <p class="muted" style="margin-bottom:12px">Només cal el parc i la descripció. El Responsable de brigades la revisarà i l'acceptarà o la descartarà.</p>
+    <p class="muted" style="margin-bottom:12px">Només cal el parc, el títol i la descripció. El Responsable de brigades la revisarà i l'acceptarà o la descartarà.</p>
     <form id="form-pet" class="card" novalidate>
       <label class="camp"><span>Parc</span><select id="p-parc"></select></label>
+      <label class="camp"><span>Títol</span>
+        <input type="text" id="p-titol" maxlength="50" placeholder="p. ex. Reparar la barana del pont" autocomplete="off">
+        <div class="petit muted" style="margin-top:2px">Nom curt de l'actuació (màxim 50 caràcters).</div>
+        <div class="err" id="e-ptitol" hidden></div></label>
       <label class="camp"><span>Descripció</span>
         <textarea id="p-desc" rows="4" placeholder="Què passa, on exactament i què caldria fer"></textarea>
         <div class="err" id="e-pdesc" hidden></div></label>
-      <label class="camp"><span>Tipologia <span class="opc">(opcional)</span></span><select id="p-tip"></select></label>
+      <label class="camp"><span>Tipologia de la tasca <span class="opc">(opcional)</span></span><select id="p-tip"></select></label>
+      <label class="camp"><span>Categoria de petició <span class="opc">(opcional)</span></span><select id="p-cat"></select></label>
       <div class="camp">
         <span class="camp-t">Ubicació <span class="opc">(opcional)</span></span>
         <button type="button" class="btn btn-sec" id="p-gps">📍 Usa la meva ubicació</button>
@@ -310,6 +315,8 @@ const camiSegur = c => /^manteniment_fotos\/[A-Za-z0-9._-]+$/.test(String(c || '
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const avui = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
 const fmtData = iso => iso ? iso.slice(0, 10).split('-').reverse().join('/') : '';
+const CATEGORIES = [['incidencia', 'Incidència'], ['manteniment', 'Manteniment'], ['millora', 'Millora'], ['nova_actuacio', 'Nova actuació'], ['inspeccio', 'Inspecció o revisió'], ['altres', 'Altres']];
+const TITOL_MAX = 50;
 const fmtNum = n => String(n).replace('.', ',');
 const normal = s => String(s || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const nouId = pre => pre + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
@@ -487,7 +494,7 @@ async function enviaCarpeta(silenciós) {
       const t = {
         id: pre + String(n + 1).padStart(4, '0'), versio: 1, model_estats: 2, creat: p.creat || moment, modificat: moment, modificat_per: quiCol.nom,
         sollicitant: { nom: quiCol.nom, email: null, unitat: u.parc, font: 'brigada', equip: u.brigada },
-        unitat: p.unitat, utm: p.utm?.x != null ? { x: p.utm.x, y: p.utm.y } : { x: null, y: null }, element: p.element || null, tipologia: p.tipologia || null, notificar: [],
+        unitat: p.unitat, utm: p.utm?.x != null ? { x: p.utm.x, y: p.utm.y } : { x: null, y: null }, element: p.element || null, categoria: p.categoria || null, tipologia: p.tipologia || null, notificar: [],
         titol: p.titol || null, descripcio: p.descripcio, hores_estimades: p.hores_estimades ?? null, fotografies: [], certificacions_hores: [],
         estat: 'nova', data_resolucio: null,
         origen: { peticio: p.id, equip: u.brigada, nom_equip: u.nomBrigada || null, directe: true, importat: moment, importat_per: quiCol.nom },
@@ -777,7 +784,7 @@ function pintaFitxa() {
   pintaRes();
   if (!t) { box.hidden = true; box.innerHTML = ''; return; }
   const ll = t.utm?.x != null ? UTM.aLatLon(t.utm.x, t.utm.y) : null;
-  const prev = S.registres.filter(r => r.tasca === t.id && r.id !== S.edit), h = prev.reduce((s, r) => s + r.hores, 0);
+  const prev = S.registres.filter(r => r.tasca === t.id && r.id !== S.edit), h = prev.reduce((s, r) => s + (+r.hores || 0), 0);
   const fotos = (t.fotografies || []).map(f => imatgeSegura(f.dades) || (f.fitxer && camiSegur(f.fitxer) ? (Carpeta.activa() ? 'carpeta:' + f.fitxer : DADES_URL + f.fitxer) : '')).filter(Boolean);
   const pausa = t.estat === 'en_pausa' ? (t.pauses || []).at(-1) : null;
   box.className = 'card tasca' + (t.estat === 'en_pausa' ? ' pausa' : '');
@@ -861,10 +868,10 @@ function valida() {
   const t = tascaSel(); error('tasca', $('#f-tasca'), t ? '' : 'Tria la tasca.'); ok = ok && !!t;
   const d = $('#f-data').value;
   const dOk = d && d <= avui(); error('data', $('#f-data'), !d ? 'Indica la data.' : d > avui() ? 'La data no pot ser futura.' : ''); ok = ok && !!dOk;
-  const h = parseFloat($('#f-hores').value.replace(',', '.'));
-  const hOk = h > 0 && h <= 24; error('hores', $('#f-hores'), hOk ? '' : 'Entre 0,25 i 24 h.'); ok = ok && hOk;
-  const p = Number($('#f-pers').value);
-  const pOk = Number.isInteger(p) && p >= 1 && p <= 99; error('pers', $('#f-pers'), pOk ? '' : 'Mínim 1 persona.'); ok = ok && pOk;
+  const hRaw = $('#f-hores').value.trim().replace(',', '.'), h = hRaw === '' ? null : parseFloat(hRaw);
+  const hOk = h === null || (h > 0 && h <= 24); error('hores', $('#f-hores'), hOk ? '' : 'Entre 0,25 i 24 h, o deixa-ho en blanc.'); ok = ok && hOk;
+  const pRaw = $('#f-pers').value.trim(), p = pRaw === '' ? null : Number(pRaw);
+  const pOk = p === null || (Number.isInteger(p) && p >= 1 && p <= 99); error('pers', $('#f-pers'), pOk ? '' : 'Entre 1 i 99 persones, o deixa-ho en blanc.'); ok = ok && pOk;
   error('res', null, S.res === null ? 'Indica com queda la tasca.' : ''); ok = ok && S.res !== null;
   const mOk = S.res !== 'pausa' || t?.estat === 'en_pausa' || $('#f-motiu').value.trim().length >= 3;
   error('motiu', $('#f-motiu'), mOk ? '' : 'Explica per què s\'atura la feina.'); ok = ok && mOk;
@@ -880,8 +887,8 @@ async function desa(ev) {
   ev.preventDefault();
   if (!valida()) { const p = document.querySelector('.invalid, .err:not([hidden])'); p?.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
   const t = tascaSel(), now = new Date().toISOString();
-  const dades = { tasca: t.id, tasca_titol: titol(t), data: $('#f-data').value, hores: parseFloat($('#f-hores').value.replace(',', '.')),
-    persones: Number($('#f-pers').value), resultat: S.res, finalitzada: S.res === 'acabada', motiu_pausa: S.res === 'pausa' ? $('#f-motiu').value.trim() || null : null,
+  const dades = { tasca: t.id, tasca_titol: titol(t), data: $('#f-data').value, hores: $('#f-hores').value.trim() === '' ? null : parseFloat($('#f-hores').value.replace(',', '.')),
+    persones: $('#f-pers').value.trim() === '' ? null : Number($('#f-pers').value), resultat: S.res, finalitzada: S.res === 'acabada', motiu_pausa: S.res === 'pausa' ? $('#f-motiu').value.trim() || null : null,
     estat_tasca: t.estat, estat_proposat: estatProposat(S.res, t), fotos: S.fotos.slice() };
   if (S.edit) {
     const ant = (await Magatzem.all()).find(x => x.id === S.edit);
@@ -943,7 +950,7 @@ function iniciaEdicio(id) {
   if (r.validacio) { toast('Registre validat pel responsable: només el pot modificar ell.'); return; }
   if (!S.tasques.some(t => t.id === r.tasca)) { toast('La tasca ja no està assignada al teva colla: no es pot modificar.'); return; }
   S.edit = id; pintaSelectTasques();
-  $('#f-tasca').value = r.tasca; $('#f-data').value = r.data; $('#f-hores').value = r.hores; $('#f-pers').value = r.persones;
+  $('#f-tasca').value = r.tasca; $('#f-data').value = r.data; $('#f-hores').value = r.hores ?? ''; $('#f-pers').value = r.persones ?? '';
   S.fotos = (r.fotos || []).slice(); S.res = r.resultat || (r.finalitzada ? 'acabada' : 'continua'); $('#f-motiu').value = r.motiu_pausa || '';
   ['tasca', 'data', 'hores', 'pers', 'res', 'motiu'].forEach(k => error(k, $('#f-' + k) || null, ''));
   pintaPrevi(); pintaFitxa();
@@ -970,6 +977,7 @@ function preparaNova() {
   $('#p-parc').innerHTML = parcs.map(([k, n]) => `<option value="${esc(k)}">${esc(n)}</option>`).join('');
   $('#p-parc').value = S.usuari.parc;
   $('#p-tip').innerHTML = '<option value="">— La fixarà el Responsable de brigades —</option>' + Object.entries(S.tipologies).map(([k, n]) => `<option value="${esc(k)}">${esc(n)}</option>`).join('');
+  $('#p-cat').innerHTML = '<option value="">— La fixarà el Responsable de brigades —</option>' + CATEGORIES.map(([k, n]) => `<option value="${k}">${esc(n)}</option>`).join('');
   netejaPet();
 }
 async function obreNova() {
@@ -1043,20 +1051,22 @@ function gps() {
   }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 30000 });
 }
 function netejaPet() {
-  $('#p-desc').value = ''; $('#p-tip').value = ''; $('#p-elem').value = ''; $('#p-hores').value = '';
+  $('#p-titol').value = ''; $('#p-desc').value = ''; $('#p-tip').value = ''; $('#p-cat').value = ''; $('#p-elem').value = ''; $('#p-hores').value = '';
   S.pet.fotos = []; $('#p-previ').innerHTML = ''; treuUbicacio();
-  ['pdesc', 'phores'].forEach(k => error(k, null, ''));
-  ['#p-desc', '#p-hores'].forEach(s => $(s).classList.remove('invalid'));
+  ['ptitol', 'pdesc', 'phores'].forEach(k => error(k, null, ''));
+  ['#p-titol', '#p-desc', '#p-hores'].forEach(s => $(s).classList.remove('invalid'));
 }
 async function desaPeticio(ev) {
   ev.preventDefault();
   const desc = $('#p-desc').value.trim(), hRaw = $('#p-hores').value.replace(',', '.'), h = hRaw ? parseFloat(hRaw) : null;
+  const tit = $('#p-titol').value.trim().replace(/\s+/g, ' ');
   let ok = true;
+  const tOk = tit.length >= 3 && tit.length <= TITOL_MAX; error('ptitol', $('#p-titol'), tOk ? '' : tit.length > TITOL_MAX ? `Màxim ${TITOL_MAX} caràcters.` : 'Escriu un títol curt.'); ok = ok && tOk;
   error('pdesc', $('#p-desc'), desc.length >= 5 ? '' : 'Descriu la tasca.'); ok = ok && desc.length >= 5;
   const hOk = h == null || (h > 0 && h <= 10000); error('phores', $('#p-hores'), hOk ? '' : 'Ha de ser més gran que 0, o deixa-ho en blanc.'); ok = ok && hOk;
   if (!ok) { document.querySelector('#form-pet .invalid')?.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
   const p = {
-    id: nouId('PET-'), unitat: $('#p-parc').value, descripcio: desc, tipologia: $('#p-tip').value || null, utm: S.pet.utm ? { ...S.pet.utm } : null,
+    id: nouId('PET-'), unitat: $('#p-parc').value, titol: tit, descripcio: desc, tipologia: $('#p-tip').value || null, categoria: CATEGORIES.some(c => c[0] === $('#p-cat').value) ? $('#p-cat').value : null, utm: S.pet.utm ? { ...S.pet.utm } : null,
     element: $('#p-elem').value || null, hores_estimades: h, fotos: S.pet.fotos.slice(),
     sollicitant: { nom: S.usuari.nom || '', perfil: S.usuari.perfil || null, brigada: S.usuari.brigada, nom_brigada: S.usuari.nomBrigada || null, unitat: S.usuari.parc, font: S.prova ? 'prova' : 'brigada' },
     creat: new Date().toISOString(), sync: 'pendent',
@@ -1086,19 +1096,19 @@ function pintaLlista() {
     + (Magatzem.persistent() ? '' : ' · ⚠ no es poden desar en aquest navegador (es perdran en tancar-lo)');
   $('#t-peticions').hidden = !pets.length;
   $('#llista-pet').innerHTML = pets.map(p => `<div class="reg sol">
-      <div class="t">${esc(p.descripcio.length > 80 ? p.descripcio.slice(0, 79) + '…' : p.descripcio)}</div>
-      <div class="meta">${esc(p.unitat)} · ${fmtData(p.creat)}${p.tipologia ? ' · ' + esc(S.tipologies[p.tipologia] || p.tipologia) : ''}${p.utm ? ' · 📍' : ''}${p.fotos?.length ? ` · 📷 ${p.fotos.length}` : ''}</div>
+      <div class="t">${esc(p.titol || (p.descripcio.length > 80 ? p.descripcio.slice(0, 79) + '…' : p.descripcio))}</div>
+      <div class="meta">${esc(p.unitat)} · ${fmtData(p.creat)}${p.categoria ? ' · ' + esc(CATEGORIES.find(c => c[0] === p.categoria)?.[1] || p.categoria) : ''}${p.tipologia ? ' · ' + esc(S.tipologies[p.tipologia] || p.tipologia) : ''}${p.utm ? ' · 📍' : ''}${p.fotos?.length ? ` · 📷 ${p.fotos.length}` : ''}</div>
       <div style="margin-top:4px">${htmlSync(p)}${p.tasca ? ` <span class="petit">→ ${esc(p.tasca)} · ${esc(NOM_ESTAT[p.estat_tasca] || p.estat_tasca || '')}</span>` : ''}</div>
       ${p.sync === 'pendent' ? `<div style="margin-top:8px"><button type="button" class="btn btn-fant btn-petit" data-delpet="${esc(p.id)}">Esborra</button></div>` : ''}
     </div>`).join('');
   if (!l.length) { box.innerHTML = '<div class="card muted">Encara no has registrat cap feina.</div>'; return; }
   const perDia = {}; l.forEach(r => (perDia[r.data] ||= []).push(r));
   box.innerHTML = Object.keys(perDia).sort().reverse().map(d => {
-    const rs = perDia[d], h = rs.reduce((s, r) => s + r.hores, 0);
+    const rs = perDia[d], h = rs.reduce((s, r) => s + (+r.hores || 0), 0);
     return `<div class="dia"><span>${d === avui() ? 'Avui · ' : ''}${fmtData(d)}</span><span class="petit">${rs.length} ${rs.length === 1 ? 'tasca' : 'tasques'} · ${fmtNum(h)} h</span></div>` +
       rs.map(r => `<div class="reg">
         <div class="t">${esc(r.tasca_titol)}</div>
-        <div class="meta">${esc(r.tasca)} · ${fmtNum(r.hores)} h · ${r.persones} ${r.persones === 1 ? 'persona' : 'persones'}${r.fotos?.length ? ` · 📷 ${r.fotos.length}` : ''}</div>
+        <div class="meta">${esc(r.tasca)}${r.hores != null ? ` · ${fmtNum(r.hores)} h` : ''}${r.persones != null ? ` · ${r.persones} ${r.persones === 1 ? 'persona' : 'persones'}` : ''}${r.fotos?.length ? ` · 📷 ${r.fotos.length}` : ''}</div>
         <div style="margin-top:4px">${textRes(r)} ${htmlSync(r)}${r.modificat ? '<span class="pend" style="background:#eee;color:#444">modificat</span>' : ''}</div>
         ${r.validacio ? `<div class="petit" style="margin-top:4px;color:#00564d;font-weight:600">🔒 Validat el ${fmtData(r.validacio.data)}${r.validacio.per ? ' per ' + esc(r.validacio.per?.nom || r.validacio.per) : ''} · només el pot modificar el responsable</div>` : ''}
         ${accionsReg(r) ? `<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">${accionsReg(r)}</div>` : ''}
