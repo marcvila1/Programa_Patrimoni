@@ -185,10 +185,12 @@ Qualsevol persona pot entrar-ne una amb el botó **＋ Nova tasca**. També es p
 - **Documents**: Word (.doc, .docx), PDF o KML/KMZ, fins a 15 MB per fitxer. Es desen a `patrimoni/manteniment_documents/<codi>_DNN_<nom>` i a la tasca, a `documents[]` (nom, tipus, mida, data i qui l'ha adjuntat). Sense carpeta, van dins de les dades. A la fitxa, a l'apartat «Documents», es poden obrir o descarregar; a «Gestiona» se n'hi poden afegir més.
 - **Hores de dedicació estimades**. Si no s'indiquen, en gestionar la tasca es proposen 7 hores (`hores_per_defecte` a `variables.json`).
 - **Immoble relacionat** del mòdul de patrimoni. En marcar la ubicació, el programa proposa l'immoble més proper si n'hi ha un a menys de 500 m.
-- **Persones assignades**: una o diverses persones de les colles del parc (s'escriu el nom i «＋ Afegeix»). Si una persona és d'una colla, la tasca s'assigna també a aquella colla.
+- **Prioritat**: es pot proposar en entrar la tasca. Es desa a `gestio.prioritat` i queda a l'historial de l'alta. La tasca continua sent «Nova»: el Responsable de brigades la pot canviar en acceptar-la, i per acceptar-la continua calent la data límit.
+- **Persones i colles assignades**: un sol camp amb dues parts, les **colles** del parc (caselles) i les **persones** (s'escriu el nom i «＋ Afegeix»). Si una persona és d'una colla, es marca també aquella colla. La tasca continua sent «Nova» amb les colles proposades (`gestio.brigades[]`, `gestio.persones[]`) i queda «Assignada» quan el Responsable de brigades l'accepta.
+- **🔁 És una tasca periòdica** (només el Responsable de brigades o la direcció del parc del parc triat): mostra els camps **Periodicitat**, **Data de la primera execució** (per defecte, avui), **Avisa'm (dies abans)** i **Data de finalització**, i les properes execucions. En aquest cas són obligatòries la tipologia, una prioritat amb data límit i les hores estimades. En registrar-la es crea també la tasca periòdica `PER-NNNN` amb les mateixes dades (la descripció passa a les observacions), i la tasca entrada n'és la **primera execució**: queda «Assignada» si té colla o «Acceptada» si no en té, amb data límit la de la primera execució. Les execucions següents es generen com les de qualsevol tasca periòdica.
 - **Nom i correu del sol·licitant** (per defecte, els de la persona identificada).
 
-En registrar-la, es crea un codi `MANT-AAAA-NNNN` i un botó obre un **correu ja redactat** (mailto) per al sol·licitant, la direcció del parc i el Responsable de brigades. El correu descriu la tasca (codi, tipologia, immoble, coordenades, enllaç al mapa i descripció) i **no esmenta les fotografies**, que són a la base de dades.
+En registrar-la, es crea un codi `MANT-AAAA-NNNN` i un botó obre un **correu ja redactat** (mailto) per al sol·licitant, la direcció del parc i el Responsable de brigades. El correu descriu la tasca (codi, tipologia, immoble, coordenades, enllaç al mapa i descripció) i **no esmenta les fotografies**, que són a la base de dades. La primera línia de tots els avisos («S'ha registrat una nova tasca…», «La tasca MANT-… s'ha acceptat…») indica entre parèntesis el **tipus de tasca** (la tipologia) si se n'ha triat; si no, no hi surt res, i tampoc la línia «Tipologia».
 
 ### 4.3. Estats
 
@@ -238,11 +240,11 @@ Camps de cada tasca:
 - Parc i element (opcional).
 - Tasca, tipologia i **periodicitat**: setmanal, quinzenal, mensual, bimestral, trimestral, quadrimestral, semestral, anual o biennal.
 - Data de la primera execució i, si cal, data de finalització.
-- Hores estimades per execució, prioritat, «Assignada a» (colla o altre responsable) i, opcionalment, persona assignada.
+- Hores estimades per execució, prioritat i **persones i colles assignades** (un sol camp: les colles del parc i, opcionalment, persones concretes; en afegir una persona d'una colla, es marca també la seva colla).
 - **Avisa'm (dies abans):** quan es genera la tasca. En triar la periodicitat es proposa un valor (setmanal 2, quinzenal 4, mensual 7, bimestral 10, trimestral i quadrimestral 14, semestral 21, anual i biennal 30), que es pot canviar. Ha de ser menys que l'interval entre execucions.
 - **Observacions** i si està activa.
 
-Les creen i modifiquen el Responsable de brigades i la direcció del parc.
+Les creen i modifiquen el Responsable de brigades i la direcció del parc. També es pot crear una tasca periòdica marcant **«🔁 És una tasca periòdica»** en entrar una tasca nova (vegeu 4.2). La llista de tasques periòdiques té una columna **Colla**. En modificar-ne una, es detecta el canvi de qualsevol de les colles o persones (no només la primera) i queda a l'historial.
 
 **Com funcionen.** Cada execució genera una **tasca** els dies d'avís que té la tasca abans de la data. Les tasques antigues sense aquest camp fan servir els 14 dies generals de `variables.json`:
 - La data límit de la tasca és la data de l'execució.
@@ -255,7 +257,7 @@ Les creen i modifiquen el Responsable de brigades i la direcció del parc.
 ### 4.5. Configuració per parc i colles
 
 El botó **⚙ Configuració dels parcs** permet definir, per a cada parc:
-- La **direcció**: nom, càrrec, correu i telèfon.
+- La **direcció**: nom, correu i telèfon. (El camp «Càrrec» ja no surt al formulari; si `variables.json` en tenia un, es conserva.)
 - El **Responsable de brigades**: nom, correu i telèfon.
 
 **Avisos per correu.** Els correus d'avís (mailto) només s'adrecen a la **direcció del parc** i al **Responsable de brigades**. A la mateixa configuració, una taula permet marcar, per a cadascun, en quines situacions vol ser avisat: **tasca nova**, **tasca acceptada o rebutjada**, **tasca pendent de verificació** (la colla ha acabat la feina) i **tasca finalitzada** (resolta). L'avís de **«pendent de verificació» és automàtic**: el cap de colla no ha de fer res (vegeu «Avisos automàtics» més avall). La resta d'avisos s'envien amb un correu ja redactat (mailto) des del programa principal.
@@ -283,7 +285,7 @@ Es desa a `variables.json`.
 
 El botó **👷 Colles** permet crear i mantenir les colles de cada parc. Cada colla té nom, cap de colla (nom, correu i telèfon), àmbit, membres i si està activa. Cada **membre** té nom, funció i **correu electrònic**; el correu es verifica (format vàlid i sense repetir dins de la colla) i no es pot desar si és incorrecte. Una persona pot ser membre de diverses colles. Els caps i els membres són les persones que es proposen en assignar una tasca a una persona concreta. Una colla amb tasques assignades no es pot esborrar, només desactivar. Es desa a `brigades.json`.
 
-**📋 Ordre de les colles.** El Responsable de brigades i la direcció del parc fixen en quin ordre ha de fer les tasques cada colla, que no sempre coincideix amb la prioritat. Es tria el parc i la colla i surten les tasques assignades i en pausa, numerades. L'ordre es canvia arrossegant-les o amb els botons **⤒** (la primera), **↑** i **↓**; el botó **Ordena per prioritat i data límit** en proposa un de partida. Es desa a `ordre_colles.json` (`{ <UNITAT>: { <colla>: { ordre: [ids], modificat, modificat_per } } }`), sense modificar les tasques. Les tasques assignades després de l'última ordenació surten al final amb la marca «nova a la llista»; les acabades o descartades en surten soles. A `brigada.html`, la colla veu les tasques en aquest ordre, numerades (1., 2., 3.…), i no el pot canviar.
+**📋 Pla de treball** (abans «Ordre de les colles»). El Responsable de brigades i la direcció del parc fixen en quin ordre ha de fer les tasques cada colla, que no sempre coincideix amb la prioritat. Es tria el parc i la colla i surten les tasques assignades i en pausa, numerades. L'ordre es canvia arrossegant-les o amb els botons **⤒** (la primera), **↑** i **↓**; el botó **Ordena per prioritat i data límit** en proposa un de partida. Es desa a `ordre_colles.json` (`{ <UNITAT>: { <colla>: { ordre: [ids], modificat, modificat_per } } }`), sense modificar les tasques. Les tasques assignades després de l'última ordenació surten al final amb la marca «nova a la llista»; les acabades o descartades en surten soles. A `brigada.html`, la colla veu les tasques en aquest ordre, numerades (1., 2., 3.…), i no el pot canviar.
 
 **Assignació a diverses colles i persones.** A «Assignada a» es poden marcar una o diverses colles, i a «Persones assignades», una o diverses persones. Es desen a `gestio.brigades[]` i `gestio.persones[]`; per compatibilitat, `gestio.brigada` i `gestio.persona` guarden la primera de cada llista. Al tauler agrupat per colla, la tasca surt a la columna de cada colla; en arrossegar-la d'una columna a una altra es canvia aquella colla i es mantenen les altres. A `brigada.html`, cada colla veu les tasques on està assignada.
 
