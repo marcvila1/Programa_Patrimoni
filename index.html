@@ -2969,7 +2969,9 @@ const Manteniment = (() => {
     if (actResp && $('#mf-responsable').value !== actResp) $('#mf-responsable').value = '';
     const persones = [...new Set((S.mant || []).filter(t => !parcF || t.unitat === parcF).flatMap(t => personesDe(t.gestio)))].sort(ordCa);
     opcions('#mf-persona', 'Totes les persones', [['_', 'Sense persona assignada'], ...persones.map(n => [n, n])], v('#mf-persona'));
-    const municipis = [...new Set((S.mant || []).filter(t => !parcF || t.unitat === parcF).map(municipiDe).filter(Boolean))].sort(ordCa);
+    const mapMun = new Map();
+    (S.mant || []).filter(t => !parcF || t.unitat === parcF).map(municipiDe).filter(Boolean).forEach(m => { if (!mapMun.has(clauMun(m))) mapMun.set(clauMun(m), m); });
+    const municipis = [...mapMun.values()].sort(ordCa);
     opcions('#mf-municipi', 'Tots els municipis', [['_', 'Sense municipi'], ...municipis.map(m => [m, m])], v('#mf-municipi'));
   }
   function filtrades(ambTancades, senseEstat) {
@@ -2984,7 +2986,7 @@ const Manteniment = (() => {
       const [, u, c] = f.resp.split(':'); return t.unitat === u && collesDe(t.gestio).includes(c); };
     return (S.mant || []).filter(t => (!f.parc || t.unitat === f.parc) && (!f.estat || t.estat === f.estat)
       && (!f.prio || (f.prio === '_' ? !t.gestio?.prioritat : t.gestio?.prioritat === f.prio)) && (!f.tip || t.tipologia === f.tip) && (!f.cat || (f.cat === '_' ? !t.categoria : t.categoria === f.cat))
-      && okResp(t) && okData(t) && (!f.mun || (f.mun === '_' ? !municipiDe(t) : municipiDe(t) === f.mun)) && (!f.pers || (f.pers === '_' ? !personesDe(t.gestio).length : personesDe(t.gestio).includes(f.pers))) && (f.tancades || f.estat || !esTancada(t))
+      && okResp(t) && okData(t) && (!f.mun || (f.mun === '_' ? !municipiDe(t) : clauMun(municipiDe(t)) === clauMun(f.mun))) && (!f.pers || (f.pers === '_' ? !personesDe(t.gestio).length : personesDe(t.gestio).includes(f.pers))) && (f.tancades || f.estat || !esTancada(t))
       && (!f.q || [t.id, t.titol, t.descripcio, nomElement(t.element), municipiDe(t), t.sollicitant?.nom, nomTipologia(t.tipologia), nomCategoria(t.categoria), t.gestio?.observacions, personesDe(t.gestio).join(' '), nomBrigada(t)].join(' ').toLowerCase().includes(f.q)));
   }
   function ordena(ll) {
@@ -3308,7 +3310,7 @@ const Manteniment = (() => {
   const NOMS_DIM = { estat: 'estat', prioritat: 'prioritat', tipologia: 'tipologia', categoria: 'categoria de petició', equip: 'colla', persona: 'persona', municipi: 'municipi', parc: 'parc' };
   const dm = { tipus: (() => { try { return localStorage.getItem('motor-patrimoni.dm-tipus') || 'barres'; } catch { return 'barres'; } })() };
   function grupDm(t, per) {
-    if (per === 'municipi') { const m = municipiDe(t); return m ? { clau: m, nom: m, ordre: m } : { clau: '_', nom: 'Sense municipi', ordre: 'zzz' }; }
+    if (per === 'municipi') { const m = municipiDe(t); return m ? { clau: clauMun(m), nom: m, ordre: m } : { clau: '_', nom: 'Sense municipi', ordre: 'zzz' }; }
     if (per === 'categoria') return t.categoria ? { clau: t.categoria, nom: nomCategoria(t.categoria), ordre: nomCategoria(t.categoria) } : { clau: '_', nom: 'Sense categoria', ordre: 'zzz' };
     return grupDe(t, per);
   }
@@ -3596,8 +3598,9 @@ const Manteniment = (() => {
   function htmlCampMunicipi(prefix, u, valor, elementId, dis = '') {
     const delEl = elementId ? municipiElement(elementId) : null;
     return h(prefix + '-municipi', 'Municipi', `<input type="text" id="${prefix}-municipi" maxlength="${MUNICIPI_MAX}" list="${prefix}-municipi-llista" value="${esc(delEl || valor || '')}" ${delEl || dis ? 'disabled' : ''} placeholder="Tria'l o escriu-lo">
-      <datalist id="${prefix}-municipi-llista">${municipisDelParc(u).map(m => `<option value="${esc(m)}">`).join('')}</datalist>`,
-      { ajuda: 'Amb un immoble relacionat, és el municipi de l\'immoble. Sense immoble, tria\'l de la llista (municipis dels immobles del parc) o escriu-lo.' });
+      <datalist id="${prefix}-municipi-llista">${municipisDelParc(u).map(m => `<option value="${esc(m)}">`).join('')}</datalist>
+      <div class="text-small text-muted" id="${prefix}-municipi-nota" hidden>📍 Calculat a partir de les coordenades (límits municipals de l'ICGC). El pots canviar.</div>`,
+      { ajuda: 'Amb un immoble relacionat, és el municipi de l\'immoble. Sense immoble, s\'omple sol en posar la ubicació, o el pots triar de la llista o escriure.' });
   }
   /** En canviar l'immoble, el municipi es pren de l'immoble (i es bloqueja) o es torna a poder escriure */
   function lligaMunicipi(prefix, selElement, _u, dis = false) {
@@ -3606,8 +3609,60 @@ const Manteniment = (() => {
     camp.addEventListener('input', () => { escrit = camp.value; });
     sel.addEventListener('change', () => {
       const m = sel.value ? municipiElement(sel.value) : null;
-      if (m) { camp.value = m; camp.disabled = true; } else { camp.value = sel.value ? '' : escrit; camp.disabled = dis; }
+      if (m) { camp.value = m; camp.disabled = true; delete camp.dataset.auto; const n = $(`#${prefix}-municipi-nota`); if (n) n.hidden = true; }
+      else { camp.value = sel.value ? '' : escrit; camp.disabled = dis; if (!dis) autoMunicipi(prefix, () => $(`#${prefix}-parc`)?.value || ''); }
     });
+  }
+  // ---------- Municipi a partir de les coordenades UTM: límits municipals de l'ICGC (data/municipis.json, CC BY 4.0) ----------
+  const clauMun = m => String(m || '').toLocaleLowerCase('ca').replace(/[’`´]/g, "'").replace(/\s+/g, ' ').trim();
+  let municipisPromesa = null;
+  /** Llegeix data/municipis.json una sola vegada (primer de la carpeta de treball, si n'hi ha una còpia; si no, de les dades publicades) */
+  function carregaMunicipis() {
+    if (!municipisPromesa) municipisPromesa = (async () => {
+      let d;
+      try { if (Carpeta.activa()) d = await Carpeta.llegeixFitxer('municipis.json'); } catch { /* es llegeix de les dades publicades */ }
+      if (!d) d = await fetchJSON(CONFIG.DADES_URL + 'municipis.json', null);
+      // Seguretat (A08): només s'accepten municipis amb nom de text curt, bbox numèric i polígons de números
+      const num = v => typeof v === 'number' && Number.isFinite(v);
+      const ok = m => m && typeof m.nom === 'string' && m.nom.length <= MUNICIPI_MAX && Array.isArray(m.bbox) && m.bbox.length === 4 && m.bbox.every(num)
+        && Array.isArray(m.poligons) && m.poligons.every(pol => Array.isArray(pol) && pol.every(an => Array.isArray(an) && an.every(pt => Array.isArray(pt) && pt.length >= 2 && num(pt[0]) && num(pt[1]))));
+      return Array.isArray(d?.municipis) ? d.municipis.filter(ok) : [];
+    })();
+    return municipisPromesa;
+  }
+  const dinsAnell = (x, y, an) => { let dins = false; for (let i = 0, j = an.length - 1; i < an.length; j = i++) { const [xi, yi] = an[i], [xj, yj] = an[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) dins = !dins; } return dins; };
+  const distSegment = (x, y, [x1, y1], [x2, y2]) => { const dx = x2 - x1, dy = y2 - y1, l = dx * dx + dy * dy, t = l ? Math.max(0, Math.min(1, ((x - x1) * dx + (y - y1) * dy) / l)) : 0; return Math.hypot(x - x1 - t * dx, y - y1 - t * dy); };
+  /** Municipi (nom oficial de l'ICGC) on cau un punt UTM; si no cau dins de cap terme (simplificació del límit o punt just a la costa), el més proper a menys de 250 m */
+  async function municipiPerUTM(x, y) {
+    const mm = await carregaMunicipis();
+    const cand = mm.filter(m => x >= m.bbox[0] - 250 && x <= m.bbox[2] + 250 && y >= m.bbox[1] - 250 && y <= m.bbox[3] + 250);
+    const dins = cand.find(m => m.poligons.some(pol => dinsAnell(x, y, pol[0]) && !pol.slice(1).some(forat => dinsAnell(x, y, forat))));
+    if (dins) return dins.nom;
+    let millor = null, dMin = 250;
+    cand.forEach(m => m.poligons.forEach(pol => pol.forEach(an => { for (let i = 1; i < an.length; i++) { const d = distSegment(x, y, an[i - 1], an[i]); if (d < dMin) { dMin = d; millor = m.nom; } } })));
+    return millor;
+  }
+  /** Omple el municipi a partir de la UTM si no hi ha immoble i el camp és buit o l'havia omplert el programa */
+  async function autoMunicipi(prefix, u) {
+    const camp = $(`#${prefix}-municipi`), nota = $(`#${prefix}-municipi-nota`); if (!camp) return;
+    if ($(`#${prefix}-element`)?.value && municipiElement($(`#${prefix}-element`).value)) { if (nota) nota.hidden = true; return; }
+    if (camp.value.trim() && !camp.dataset.auto) return;
+    const x = Number($(`#${prefix}-x`)?.value), y = Number($(`#${prefix}-y`)?.value);
+    if (!(x >= 250000 && x <= 540000 && y >= 4480000 && y <= 4760000)) return;
+    let nom = await municipiPerUTM(x, y);
+    if (!nom) { if (camp.dataset.auto) { camp.value = ''; delete camp.dataset.auto; } if (nota) nota.hidden = true; return; }
+    // Si els immobles del parc ja fan servir el mateix nom amb una altra grafia (majúscules), es manté la dels immobles
+    nom = municipisDelParc(u ? u() : '').find(m => clauMun(m) === clauMun(nom)) || nom;
+    if ($(`#${prefix}-element`)?.value && municipiElement($(`#${prefix}-element`).value)) return;   // mentrestant s'ha triat un immoble
+    camp.value = nom; camp.dataset.auto = '1';
+    if (nota) nota.hidden = false;
+  }
+  /** Escolta els canvis de coordenades (camps o mapa) per omplir el municipi */
+  function lligaMunicipiUTM(prefix, u) {
+    const f = () => autoMunicipi(prefix, u);
+    [`#${prefix}-x`, `#${prefix}-y`].forEach(id => { $(id)?.addEventListener('change', f); $(id)?.addEventListener('utm', f); });
+    $(`#${prefix}-municipi`)?.addEventListener('input', e => { delete e.target.dataset.auto; const n = $(`#${prefix}-municipi-nota`); if (n) n.hidden = true; });
+    return f;
   }
   /** Valor a desar: sense immoble amb municipi, el text escrit; amb immoble, null (es calcula) */
   const municipiADesar = (prefix, elementId) => (elementId && municipiElement(elementId)) ? null : ((v => v ? v.slice(0, MUNICIPI_MAX) : null)($(`#${prefix}-municipi`)?.value.trim()));
@@ -3663,6 +3718,7 @@ const Manteniment = (() => {
     omplElements();
     if (preset.element) $('#mn-element').value = preset.element;
     lligaMunicipi('mn', '#mn-element');
+    lligaMunicipiUTM('mn', () => $('#mn-parc').value);
     // Mapa
     if (mapaForm) { mapaForm.remove(); mapaForm = null; }
     let marca = null;
@@ -3675,7 +3731,7 @@ const Manteniment = (() => {
         else marca.setLatLng(p);
         if (centra) mapaForm.setView(p, Math.max(mapaForm.getZoom(), 14));
       };
-      const escriuXY = (lat, lng) => { const [x, y] = UTM.aUTM(lat, lng); $('#mn-x').value = x; $('#mn-y').value = y; proposaProper(); };
+      const escriuXY = (lat, lng) => { const [x, y] = UTM.aUTM(lat, lng); $('#mn-x').value = x; $('#mn-y').value = y; $('#mn-x').dispatchEvent(new Event('utm')); proposaProper(); };
       mapaForm.on('click', ev => { posa(ev.latlng); escriuXY(ev.latlng.lat, ev.latlng.lng); });
       const deXY = () => { const x = +$('#mn-x').value, y = +$('#mn-y').value; if (x >= 250000 && x <= 540000 && y >= 4480000 && y <= 4760000) { posa(UTM.aLatLon(x, y), true); proposaProper(); } };
       $('#mn-x').addEventListener('change', deXY); $('#mn-y').addEventListener('change', deXY);
@@ -3964,7 +4020,7 @@ const Manteniment = (() => {
     mapaForm = L.map(idMapa, { scrollWheelZoom: false, layers: [capes['Topogràfic (ICGC)']] }).setView(CENTRE_CAT, 8);
     L.control.layers(capes, null, { collapsed: true }).addTo(mapaForm);
     let marca = null;
-    const escriu = (lat, lng) => { const [x, y] = UTM.aUTM(lat, lng); $('#' + idX).value = x; $('#' + idY).value = y; };
+    const escriu = (lat, lng) => { const [x, y] = UTM.aUTM(lat, lng); $('#' + idX).value = x; $('#' + idY).value = y; $('#' + idX).dispatchEvent(new Event('utm')); };
     const posa = (p, centra) => {
       if (!marca) { marca = L.marker(p, { draggable: true }).addTo(mapaForm); marca.on('dragend', () => { const q = marca.getLatLng(); escriu(q.lat, q.lng); }); }
       else marca.setLatLng(p);
@@ -4064,6 +4120,7 @@ const Manteniment = (() => {
     });
     const m = mapaUbicacio('mg-mapa', 'mg-x', 'mg-y', u);
     lligaMunicipi('mg', '#mg-element');
+    lligaMunicipiUTM('mg', () => t.unitat);
     $('#mg-element').addEventListener('change', e => { const el = S.perId.get(e.target.value), ll = el && latLonDe(el); if (ll && !$('#mg-x').value && m) { m.posa(ll, true); m.escriu(ll[0], ll[1]); } });
     const pintaPrev = () => { $('#mg-foto-prev').innerHTML = st.form.fotos.map((f, i) => `<figure><img src="${f.dataURL}" alt="Fotografia ${i + 1}"><button type="button" class="treu" data-treu-foto="${i}" title="Treu">✕</button></figure>`).join(''); };
     lligaDocs('mg');
@@ -4777,6 +4834,7 @@ const Manteniment = (() => {
       };
       ['#pf-element', '#pf-periodicitat', '#pf-inici', '#pf-fi', '#pf-antelacio'].forEach(s => $(s).addEventListener('change', sincr));
       lligaMunicipi('pf', '#pf-element', null, !!dis);
+      if (!dis) lligaMunicipiUTM('pf', () => $('#pf-parc').value);
       // En canviar la periodicitat, es proposa l'antelació que li correspon (si no s'ha escrit a mà)
       $('#pf-antelacio').addEventListener('input', e => { e.target.dataset.manual = '1'; });
       $('#pf-periodicitat').addEventListener('change', e => { const a = $('#pf-antelacio'); if (!a.dataset.manual) { a.value = antelacioProposada(e.target.value); sincr(); } });

@@ -29,6 +29,8 @@ Ampliació del mateix dia: **filtre per data** (entrada, límit o tancament; cam
 
 Ampliació del mateix dia: **municipi** de les tasques (calculat a partir de l'immoble o, sense immoble, camp de text opcional `municipi` de màxim 80 caràcters) i **filtre per municipi**. El valor es mostra sempre escapat (fitxa, llista, filtre, llista desplegable `datalist`, gràfic, taula i tooltip) i passa per `aCSV()` a les exportacions. `genera_malicios.py` posa càrregues XSS al municipi de les tasques i de les tasques periòdiques: 0 executades; la resta de proves, amb els mateixos resultats. El format d'importació de `brigada.html` no canvia.
 
+Ampliació del mateix dia: **municipi calculat a partir de la UTM** amb els límits municipals de l'ICGC (`data/municipis.json`, CC BY 4.0). El càlcul es fa al navegador (punt dins de polígon), sense cap servei extern ni canvi a la CSP; el fitxer es llegeix de la mateixa font que la resta de dades. En llegir-lo, el programa només accepta municipis amb nom de text de com a molt 80 caràcters, `bbox` de 4 números i polígons formats només per números (A08); la resta es descarta. El nom calculat s'escriu com a valor d'un camp de text (no com a HTML) i després es tracta com qualsevol altre municipi escrit a mà. Prova amb `municipis.json` enverinat: els noms maliciosos es rebutgen i 0 càrregues executades; la resta de proves, amb els mateixos resultats.
+
 ---
 
 ## 1. Resum
