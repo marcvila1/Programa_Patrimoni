@@ -323,6 +323,8 @@
   .mant-filtres { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
   .mant-filtres select, .mant-filtres input[type=search] { padding: 7px 8px; border: 1px solid var(--color-border); font: inherit; font-size: 13px; background: #fff; max-width: 240px; }
   .mant-filtres input[type=search] { flex: 1; min-width: 180px; }
+  .mant-filtres .mf-dates { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .mant-filtres input[type=date] { padding: 6px 8px; border: 1px solid var(--color-border); font: inherit; font-size: 13px; background: #fff; }
   .mant-mapa { height: 240px; }
   .mant-layout { display: grid; grid-template-columns: minmax(380px, 5fr) minmax(0, 6fr); gap: 20px; align-items: start; margin-top: 16px; }
   .mant-col-llista { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
@@ -577,6 +579,12 @@
       <select id="mf-responsable" aria-label="Colla"></select>
       <select id="mf-persona" aria-label="Persona assignada"></select>
       <input type="search" id="mf-cerca" placeholder="Cerca (codi, descripció, immoble, persona…)" aria-label="Cerca">
+      <span class="mf-dates" role="group" aria-label="Filtre per data">
+        <select id="mf-tipusdata" aria-label="Tipus de data"><option value="creat">Data d'entrada</option><option value="limit">Data límit</option><option value="tancament" title="Data en què es va resoldre (verificar) o descartar">Data de tancament</option></select>
+        <label class="text-small">des del <input type="date" id="mf-des" aria-label="Des del"></label>
+        <label class="text-small">fins al <input type="date" id="mf-fins" aria-label="Fins al"></label>
+        <button type="button" class="btn-link text-small" id="mf-dates-neteja" title="Treu el filtre de dates" hidden>✕ Treu les dates</button>
+      </span>
       <label class="text-small"><input type="checkbox" id="mf-tancades"> Mostra les verificades i descartades</label>
     </div></div>
     <div class="mant-layout">
@@ -609,10 +617,14 @@
         <h1 id="t-dadesmant">Dades de brigades</h1>
         <p>Indicadors i gràfics de les tasques de les brigades. Els filtres són els mateixos de «Gestió de brigades»: el que triïs aquí també s'aplica al tauler, i a l'inrevés.</p>
       </div>
+      <div class="accions-modul">
+        <button type="button" class="btn btn-secondary" id="dm-csv-resum" title="Filtres aplicats, indicadors i dades del gràfic">⬇ Descarrega les dades (CSV)</button>
+        <button type="button" class="btn btn-secondary" id="dm-csv-tasques" title="Totes les tasques que compleixen els filtres, amb tots els camps">⬇ Descarrega les tasques (CSV)</button>
+      </div>
     </div>
     <div id="dm-filtres-lloc"></div>
     <div id="mant-kpis" class="kpis"></div>
-    <p class="text-small text-muted" style="margin:6px 0 0">Els indicadors compten les tasques obertes amb els filtres de parc, prioritat, categoria, tipologia, colla, persona i cerca (no tenen en compte el filtre d'estat).</p>
+    <p class="text-small text-muted" style="margin:6px 0 0">Els indicadors compten les tasques obertes amb els filtres de parc, prioritat, categoria, tipologia, colla, persona, dates i cerca (no tenen en compte el filtre d'estat).</p>
     <div class="targeta dm-grafic">
       <div class="targeta-cap"><h2 id="dm-titol">Tasques per estat</h2>
         <span class="mant-cap-controls">
@@ -2956,11 +2968,16 @@ const Manteniment = (() => {
   function filtrades(ambTancades, senseEstat) {
     const f = { parc: $('#mf-parc').value, estat: senseEstat ? '' : $('#mf-estat').value, prio: $('#mf-prioritat').value, tip: $('#mf-tipologia').value, cat: $('#mf-categoria').value,
       resp: $('#mf-responsable').value, pers: $('#mf-persona').value, q: $('#mf-cerca').value.trim().toLowerCase(), tancades: $('#mf-tancades').checked || !!ambTancades };
+    const des = $('#mf-des').value, fins = $('#mf-fins').value, tipusData = $('#mf-tipusdata').value;
+    const dataDe = t => (tipusData === 'limit' ? t.gestio?.data_limit : tipusData === 'tancament' ? (t.verificacio?.data || t.descartada?.data) : t.creat || '')?.slice(0, 10) || '';
+    // Amb un rang de dates, una tasca sense aquesta data queda fora; amb «Data de tancament» es mostren també les tancades
+    const okData = t => { if (!des && !fins) return true; const d = dataDe(t); return !!d && (!des || d >= des) && (!fins || d <= fins); };
+    if (tipusData === 'tancament' && (des || fins) && !senseEstat) f.tancades = true;   // els indicadors només compten tasques obertes
     const okResp = t => { if (!f.resp) return true; if (f.resp === '_') return !collesDe(t.gestio).length; if (!f.resp.startsWith('eq:')) return t.gestio?.responsable === f.resp;
       const [, u, c] = f.resp.split(':'); return t.unitat === u && collesDe(t.gestio).includes(c); };
     return (S.mant || []).filter(t => (!f.parc || t.unitat === f.parc) && (!f.estat || t.estat === f.estat)
       && (!f.prio || (f.prio === '_' ? !t.gestio?.prioritat : t.gestio?.prioritat === f.prio)) && (!f.tip || t.tipologia === f.tip) && (!f.cat || (f.cat === '_' ? !t.categoria : t.categoria === f.cat))
-      && okResp(t) && (!f.pers || (f.pers === '_' ? !personesDe(t.gestio).length : personesDe(t.gestio).includes(f.pers))) && (f.tancades || f.estat || !esTancada(t))
+      && okResp(t) && okData(t) && (!f.pers || (f.pers === '_' ? !personesDe(t.gestio).length : personesDe(t.gestio).includes(f.pers))) && (f.tancades || f.estat || !esTancada(t))
       && (!f.q || [t.id, t.titol, t.descripcio, nomElement(t.element), t.sollicitant?.nom, nomTipologia(t.tipologia), nomCategoria(t.categoria), t.gestio?.observacions, personesDe(t.gestio).join(' '), nomBrigada(t)].join(' ').toLowerCase().includes(f.q)));
   }
   function ordena(ll) {
@@ -3027,6 +3044,10 @@ const Manteniment = (() => {
     if (badge) { badge.hidden = !ll.length; badge.textContent = ll.length; badge.title = `${ll.length} tasques amb la data límit propera o vençuda`; }
   }
   function pintaKPIs() {
+    const k = valorsKPIs();
+    $('#mant-kpis').innerHTML = k.map(([e, v, s]) => `<div class="kpi"><div class="et">${esc(e)}</div><div class="v">${fmtNum(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
+  }
+  function valorsKPIs() {
     const obertes = filtrades(false, true);
     const k = [
       ['Tasques obertes', obertes.length, $('#mf-parc').value ? nomUnitat($('#mf-parc').value) : 'Tots els espais'],
@@ -3038,7 +3059,7 @@ const Manteniment = (() => {
       [`Data límit en ${diesAvis()} dies`, obertes.filter(t => avisLimit(t)?.tipus === 'propera').length, 'Avís previ'],
       ['Vençudes', obertes.filter(t => avisLimit(t)?.tipus === 'vencuda').length, 'Data límit superada'],
     ];
-    $('#mant-kpis').innerHTML = k.map(([e, v, s]) => `<div class="kpi"><div class="et">${esc(e)}</div><div class="v">${fmtNum(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
+    return k;
   }
   function iniciaMapa() {
     if (mapa || !window.L) return;
@@ -3305,7 +3326,7 @@ const Manteniment = (() => {
     const per = $('#dm-dim').value, ll = filtrades(), tot = ll.length, grups = grupsDm(ll, per);
     $('#dm-titol').textContent = `Tasques per ${NOMS_DIM[per]}`;
     $$('#dm-tipus button').forEach(b => b.setAttribute('aria-pressed', b.dataset.tipus === dm.tipus ? 'true' : 'false'));
-    const tancades = $('#mf-tancades').checked || !!$('#mf-estat').value;
+    const tancades = $('#mf-tancades').checked || !!$('#mf-estat').value || ($('#mf-tipusdata').value === 'tancament' && !!($('#mf-des').value || $('#mf-fins').value));
     $('#dm-nota').textContent = `${fmtNum(tot)} ${tot === 1 ? 'tasca' : 'tasques'} amb els filtres actuals${tancades ? '' : ' (no inclou les verificades ni les descartades)'}.`
       + (per === 'equip' ? ' Una tasca amb diverses colles compta en el grup de la combinació («Colla A + Colla B»).' : '');
     const zona = $('#dm-grafic');
@@ -3335,11 +3356,30 @@ const Manteniment = (() => {
       <tbody>${grups.map(g => `<tr><td>${esc(g.nom)}</td><td class="num">${fmtNum(g.n)}</td><td class="num">${pc(g.n, tot)}</td></tr>`).join('')}</tbody>
       <tfoot><tr><th>Total</th><th class="num">${fmtNum(tot)}</th><th class="num">100 %</th></tr></tfoot></table></div>`;
   }
+  /** Text dels filtres actius (per al CSV de resum) */
+  function filtresActius() {
+    const r = [];
+    [['#mf-parc', 'Espai'], ['#mf-estat', 'Estat'], ['#mf-prioritat', 'Prioritat'], ['#mf-categoria', 'Categoria de petició'], ['#mf-tipologia', 'Tipologia'], ['#mf-responsable', 'Colla'], ['#mf-persona', 'Persona']]
+      .forEach(([id, nom]) => { const s = $(id); if (s.value) r.push([nom, s.selectedOptions[0]?.textContent || s.value]); });
+    if ($('#mf-cerca').value.trim()) r.push(['Cerca', $('#mf-cerca').value.trim()]);
+    if ($('#mf-des').value || $('#mf-fins').value) r.push([$('#mf-tipusdata').selectedOptions[0].textContent, `${$('#mf-des').value ? 'des del ' + fmtData($('#mf-des').value) : ''}${$('#mf-des').value && $('#mf-fins').value ? ' ' : ''}${$('#mf-fins').value ? 'fins al ' + fmtData($('#mf-fins').value) : ''}`]);
+    r.push(['Verificades i descartades', $('#mf-tancades').checked || !!$('#mf-estat').value || ($('#mf-tipusdata').value === 'tancament' && ($('#mf-des').value || $('#mf-fins').value)) ? 'incloses' : 'no incloses']);
+    return r;
+  }
+  function descarregaResum() {
+    const per = $('#dm-dim').value, ll = filtrades(), tot = ll.length, grups = grupsDm(ll, per);
+    const files = [['Dades de brigades', `Descarregat el ${fmtData(avui())} per ${S.usuari?.nom || ''}`], [], ['FILTRES'], ...filtresActius(), [],
+      ['INDICADORS (tasques obertes)', 'Valor', 'Descripció'], ...valorsKPIs().map(([e, v, d]) => [e, v, d]), [],
+      [`TASQUES PER ${NOMS_DIM[per].toUpperCase()}`, 'Tasques', '%'], ...grups.map(g => [g.nom, g.n, tot ? +(g.n / tot * 100).toFixed(1) : 0]), ['Total', tot, tot ? 100 : 0]];
+    descarrega(`dades_brigades_${per}_${avui()}.csv`, aCSV(files), 'text/csv;charset=utf-8');
+  }
   /** Tooltip del gràfic: barra o porció sota el ratolí */
   function iniciaDades() {
     if (st.dadesIniciat) return;
     st.dadesIniciat = true;
     $('#dm-dim').addEventListener('change', pintaDades);
+    $('#dm-csv-resum').addEventListener('click', descarregaResum);
+    $('#dm-csv-tasques').addEventListener('click', exportaCSV);
     $$('#dm-tipus button').forEach(b => b.addEventListener('click', () => { dm.tipus = b.dataset.tipus; try { localStorage.setItem('motor-patrimoni.dm-tipus', dm.tipus); } catch {} pintaDades(); }));
     const tip = $('#dm-tip'), zona = $('#dm-grafic');
     zona.addEventListener('mousemove', e => {
@@ -3381,6 +3421,9 @@ const Manteniment = (() => {
       iniciaArrossegar();
       $('#mant-plega').addEventListener('click', () => { const obre = !$$('#mant-llista details.mant-grup[open]').length; $$('#mant-llista details.mant-grup').forEach(d => { d.open = obre; }); });
       $('#mf-cerca').addEventListener('input', actualitza);
+      const datesVisibles = () => { $('#mf-dates-neteja').hidden = !($('#mf-des').value || $('#mf-fins').value); };
+      ['#mf-tipusdata', '#mf-des', '#mf-fins'].forEach(s => $(s).addEventListener('change', () => { datesVisibles(); actualitza(); }));
+      $('#mf-dates-neteja').addEventListener('click', () => { $('#mf-des').value = ''; $('#mf-fins').value = ''; datesVisibles(); actualitza(); });
       $('#mant-llista').addEventListener('click', e => {
         const q = e.target.closest('[data-assigna]'); if (q) { const t = S.mant.find(x => x.id === q.dataset.assigna); if (t) assignaRapid(t); return; }
         const b = e.target.closest('[data-mant]'); if (b) obre(b.dataset.mant); });

@@ -342,12 +342,17 @@ Aplicació per al mòbil dels **caps de colla** i els **oficials**. S'obre amb `
 Pestanya pròpia (des del novembre de 2026) amb les dades de les tasques de les brigades:
 
 - Els **filtres** són els mateixos de «Gestió de brigades» (un sol bloc que es mou a la pestanya que es veu): el que es tria en una pestanya s'aplica també a l'altra.
-- Els **indicadors** (tasques obertes, noves per acceptar, urgents, per assignar, en pausa, pendents de verificar, data límit propera i vençudes) compten les tasques obertes amb els filtres de parc, prioritat, categoria, tipologia, colla, persona i cerca. No tenen en compte el filtre d'estat ni «Mostra les verificades i descartades», perquè ja són recomptes per estat. (Abans només tenien en compte el parc i eren a la pantalla del tauler.)
+- **Filtre per data** (al mateix bloc de filtres, i per tant també al tauler): es tria quina data es mira (**data d'entrada**, **data límit** o **data de tancament**, és a dir, la de verificació o descart) i el rang «des del» / «fins al» (es pot deixar un dels dos buit). Les tasques sense aquella data queden fora. Amb «Data de tancament» es mostren també les tasques verificades i descartades, encara que no estigui marcada la casella. «✕ Treu les dates» buida el rang.
+- Els **indicadors** (tasques obertes, noves per acceptar, urgents, per assignar, en pausa, pendents de verificar, data límit propera i vençudes) compten les tasques obertes amb els filtres de parc, prioritat, categoria, tipologia, colla, persona, dates i cerca. No tenen en compte el filtre d'estat ni «Mostra les verificades i descartades», perquè ja són recomptes per estat. (Abans només tenien en compte el parc i eren a la pantalla del tauler.)
 - A sota, un **gràfic** de les tasques filtrades (aquí sí que compten l'estat i «Mostra les verificades i descartades»):
   - **Per**: estat, prioritat, tipologia, categoria de petició, colla, persona o parc. Estat i prioritat surten en el seu ordre; la resta, de més a menys tasques. A «Colla», una tasca amb diverses colles compta en el grup de la combinació («Colla A + Colla B»), de manera que el total quadra.
   - **Barres** o **Formatges** (es recorda l'última tria en aquest navegador). Les barres mostren totes les categories amb el nombre i el percentatge. Els formatges en mostren com a molt 7 amb color propi i agrupen la resta a «Altres»; el color de cada categoria no canvia en filtrar.
   - En passar el ratolí per sobre d'una barra o porció surt el detall, i «Mostra les dades en taula» dona els mateixos valors en una taula, amb el total.
 - El gràfic es dibuixa amb el mateix codi de la pàgina (SVG i HTML), sense cap llibreria externa nova.
+- **Descàrregues en CSV** (separat per punt i coma, s'obre directament a l'Excel):
+  - **⬇ Descarrega les dades**: un resum amb els filtres aplicats, els indicadors i les dades del gràfic (la dimensió triada a «Per», amb el nombre de tasques, el percentatge i el total). Fitxer `dades_brigades_<dimensió>_<data>.csv`.
+  - **⬇ Descarrega les tasques**: totes les tasques que compleixen els filtres, amb tots els camps (el mateix fitxer que «Exporta a CSV» de «Gestió de brigades»).
+  - Com a la resta d'exportacions, cap cel·la no pot començar per una fórmula (`=`, `+`, `-`, `@`).
 
 ### 4.8. Pendents
 

@@ -47,7 +47,7 @@ const BASE = process.env.BASE || 'http://localhost:8776';
   await pas('mant.periodiques', async () => { await p.click('#mant-periodiques'); await p.waitForTimeout(400); await p.locator('#mant-panell [data-pf], #mant-panell li button').first().click().catch(() => {}); });
   await pas('mant.nova', async () => { await p.click('#mant-nova'); await p.waitForTimeout(400); });
   // CSV (A03 - injecció de fórmules)
-  let csv = '';
+  let csv = '', csvResum = null;
   await pas('mant.csv', async () => { const [d] = await Promise.all([p.waitForEvent('download', { timeout: 4000 }), p.click('#mant-csv')]); csv = require('fs').readFileSync(await d.path(), 'utf8'); });
   // Pantalles noves (10/11/2026): formulari de tasca periòdica, nova tasca amb parc, colles i opció periòdica, «Feina acabada» del Responsable
   const descarta = async () => { const f = p.locator('.finestra-fons:has-text("sense desar") [data-accio=si]'); if (await f.count()) { await f.click(); await p.waitForTimeout(300); } };
@@ -58,7 +58,11 @@ const BASE = process.env.BASE || 'http://localhost:8776';
   // Pestanya «Dades brigades» (11/11/2026): indicadors, barres i formatges per a totes les dimensions
   await pas('dadesmant', async () => { await obre('.nav-button[data-modul=dadesmant]'); await p.check('#mf-tancades').catch(() => {});
     for (const tipus of ['barres', 'formatge']) { await p.click(`#dm-tipus [data-tipus=${tipus}]`); for (const d of await p.$$eval('#dm-dim option', x => x.map(o => o.value))) { await p.selectOption('#dm-dim', d); await p.waitForTimeout(150); await p.hover('#dm-grafic [data-i]').catch(() => {}); } }
-    await p.click('.dm-taula summary'); await p.waitForTimeout(150); });
+    await p.click('.dm-taula summary'); await p.waitForTimeout(150);
+    await p.fill('#mf-des', '2020-01-01'); await p.dispatchEvent('#mf-des', 'change'); await p.waitForTimeout(150); });
+  // CSV de resum de «Dades brigades» (A03): cap cel·la ha de començar per una fórmula
+  await pas('dadesmant.csv', async () => { const [d] = await Promise.all([p.waitForEvent('download', { timeout: 4000 }), p.click('#dm-csv-resum')]);
+    const t = require('fs').readFileSync(await d.path(), 'utf8'); csvResum = t.split(/\r\n/).flatMap(l => l.split(';')).filter(c => /^"?[=+\-@]/.test(c)).length; });
   // Webapp de la colla
   const q = await ctx.newPage(); q.on('pageerror', e => errs.push('brigada: ' + e.message)); q.on('dialog', d => d.dismiss());
   await q.goto(`${BASE}/brigada.html?dades=${BASE}/_xss/`); await q.waitForTimeout(1500); await recull(q, 'brigada.acces');
@@ -78,6 +82,6 @@ const BASE = process.env.BASE || 'http://localhost:8776';
   await ext2.goto(`${BASE}/brigada.html?dades=https://evil.example/data/`); await ext2.waitForTimeout(1500);
   // Informe
   const csvFormules = csv.split('\n').filter(l => /(^|;|,)"?[=+\-@]/.test(l)).length;
-  console.log(JSON.stringify({ xss_executat: [...hits], enllacos_javascript: [...jsLinks], peticions_a_origen_extern: [...new Set(pet)].slice(0, 6), csv_cel_les_amb_formula: csvFormules, errors: errs.slice(0, 15) }, null, 1));
+  console.log(JSON.stringify({ xss_executat: [...hits], enllacos_javascript: [...jsLinks], peticions_a_origen_extern: [...new Set(pet)].slice(0, 6), csv_cel_les_amb_formula: csvFormules, csv_resum_dades_brigades_amb_formula: csvResum, errors: errs.slice(0, 15) }, null, 1));
   await b.close();
 })();

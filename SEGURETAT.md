@@ -25,6 +25,8 @@ Correcció afegida arran de la revisió: en desar «Gestiona», el programa comp
 
 Revisió de l'11/11/2026: nova pestanya **«Dades brigades»** amb els indicadors i un gràfic de barres o de formatges. Els noms de les categories (colles, persones, tipologies, parcs) es mostren sempre escapats a les barres, a la llegenda, a la taula i al tooltip; el gràfic es dibuixa amb SVG i HTML propis, sense cap llibreria ni domini nou a la CSP; l'única dada que es desa al navegador és el tipus de gràfic triat (`motor-patrimoni.dm-tipus`, amb `try/catch`). `xss_test.js` recorre ara aquesta pestanya amb totes les dimensions en barres i en formatges: 0 càrregues executades, i la resta de proves amb els mateixos resultats.
 
+Ampliació del mateix dia: **filtre per data** (entrada, límit o tancament; camps `type="date"`, comparats com a text AAAA-MM-DD, sense cap valor inserit a l'HTML) i dos botons de **descàrrega en CSV** a «Dades brigades». Tots dos fitxers passen per `aCSV()`, que neutralitza les fórmules (A03); el resum inclou el text dels filtres i el nom de l'usuari, que ja són a la pantalla. `xss_test.js` descarrega també el CSV de resum amb les dades malicioses: **0 cel·les amb fórmula**.
+
 ---
 
 ## 1. Resum
