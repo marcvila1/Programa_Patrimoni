@@ -23,6 +23,8 @@ En la mateixa branca: el **Responsable de brigades** pot passar una tasca assign
 
 Correcció afegida arran de la revisió: en desar «Gestiona», el programa comprova que el canvi d'estat estigui permès al perfil (abans només ho limitaven les opcions del desplegable). Els riscos residuals de l'apartat 6 no canvien: sense autenticació real ni servidor (A04, A07), el control efectiu continua sent els permisos de la carpeta de SharePoint.
 
+Revisió de l'11/11/2026: nova pestanya **«Dades manteniment»** amb els indicadors i un gràfic de barres o de formatges. Els noms de les categories (colles, persones, tipologies, parcs) es mostren sempre escapats a les barres, a la llegenda, a la taula i al tooltip; el gràfic es dibuixa amb SVG i HTML propis, sense cap llibreria ni domini nou a la CSP; l'única dada que es desa al navegador és el tipus de gràfic triat (`motor-patrimoni.dm-tipus`, amb `try/catch`). `xss_test.js` recorre ara aquesta pestanya amb totes les dimensions en barres i en formatges: 0 càrregues executades, i la resta de proves amb els mateixos resultats.
+
 ---
 
 ## 1. Resum
@@ -80,7 +82,7 @@ Correcció afegida arran de la revisió: en desar «Gestiona», el programa comp
 
 Les proves són automàtiques (Playwright, Chromium) i es poden repetir (apartat 8):
 
-1. **Injecció (XSS):** es genera un conjunt de dades on **cada camp de text** (més de 4.500, de tots els fitxers JSON: immobles, tasques, colles, configuració, tipologies, ordre, periòdiques) porta una càrrega que crida una funció trampa si s'executa: `"'><img src=x onerror=…><svg onload=…>`. Els camps d'adreça porten `javascript:…`. Es recorren totes les pantalles dels dos programes: llista i fitxa d'immobles, edició, registre de canvis, Gestió de dades, tauler i llista de tasques en totes les agrupacions, mapa, fitxa i gestió de cada estat de tasca, Configuració dels parcs, Colles, Pla de treball (abans «Ordre de les colles»), Tasques periòdiques, Nova tasca (també marcada com a periòdica) i la webapp de la colla. Es comprova si s'executa alguna càrrega i si queda algun enllaç o imatge amb `javascript:`.
+1. **Injecció (XSS):** es genera un conjunt de dades on **cada camp de text** (més de 4.500, de tots els fitxers JSON: immobles, tasques, colles, configuració, tipologies, ordre, periòdiques) porta una càrrega que crida una funció trampa si s'executa: `"'><img src=x onerror=…><svg onload=…>`. Els camps d'adreça porten `javascript:…`. Es recorren totes les pantalles dels dos programes: llista i fitxa d'immobles, edició, registre de canvis, Gestió de dades, tauler i llista de tasques en totes les agrupacions, mapa, fitxa i gestió de cada estat de tasca, Dades manteniment (indicadors i gràfics), Configuració dels parcs, Colles, Pla de treball (abans «Ordre de les colles»), Tasques periòdiques, Nova tasca (també marcada com a periòdica) i la webapp de la colla. Es comprova si s'executa alguna càrrega i si queda algun enllaç o imatge amb `javascript:`.
 2. **Fonts de dades:** s'obren tots dos programes amb `?dades=https://evil.example/…` i es comprova si fan peticions a aquell servidor.
 3. **Importació manipulada:** tres fitxers de colla falsos: un registre amb hores no numèriques, una foto `data:text/html` i una tasca nova en un altre parc; una foto SVG; i un registre en una tasca d'una altra colla.
 4. **CSV:** s'exporta una tasca amb el títol `=HYPERLINK(…)` i la descripció `+cmd|…`, i es compta quantes cel·les comencen per un caràcter de fórmula.

@@ -55,6 +55,10 @@ const BASE = process.env.BASE || 'http://localhost:8776';
   await pas('mant.periodica.form', async () => { await obre('#mant-periodiques'); await p.locator('#mant-panell [data-per]').first().click(); await p.waitForTimeout(400); });
   await pas('mant.nova.periodica', async () => { await obre('#mant-nova'); const o = await p.$$eval('#mn-parc option', x => x.map(i => i.value).filter(Boolean)); await p.selectOption('#mn-parc', o[0]); await p.waitForTimeout(300); await p.check('#mn-periodica').catch(() => {}); await p.waitForTimeout(300); });
   await pas('mant.acabada', async () => { await obre('#mant-periodiques'); let fet = false; for (const id of await p.$$eval('#mant-llista [data-mant]', x => [...new Set(x.map(e => e.dataset.mant))])) { await p.evaluate(id => document.querySelector(`#mant-llista [data-mant="${id}"]`)?.click(), id); await p.waitForTimeout(250); await descarta(); const b = p.locator('#mant-panell [data-m="acabada"]'); if (await b.count()) { await b.click(); await p.waitForTimeout(400); fet = true; break; } } if (!fet) throw new Error('cap tasca amb «Feina acabada»'); });
+  // Pestanya «Dades manteniment» (11/11/2026): indicadors, barres i formatges per a totes les dimensions
+  await pas('dadesmant', async () => { await obre('.nav-button[data-modul=dadesmant]'); await p.check('#mf-tancades').catch(() => {});
+    for (const tipus of ['barres', 'formatge']) { await p.click(`#dm-tipus [data-tipus=${tipus}]`); for (const d of await p.$$eval('#dm-dim option', x => x.map(o => o.value))) { await p.selectOption('#dm-dim', d); await p.waitForTimeout(150); await p.hover('#dm-grafic [data-i]').catch(() => {}); } }
+    await p.click('.dm-taula summary'); await p.waitForTimeout(150); });
   // Webapp de la colla
   const q = await ctx.newPage(); q.on('pageerror', e => errs.push('brigada: ' + e.message)); q.on('dialog', d => d.dismiss());
   await q.goto(`${BASE}/brigada.html?dades=${BASE}/_xss/`); await q.waitForTimeout(1500); await recull(q, 'brigada.acces');

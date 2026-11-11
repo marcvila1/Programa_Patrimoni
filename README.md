@@ -137,7 +137,7 @@ Recull les peticions i tasques de manteniment dels espais naturals. (Fins al nov
 ### 4.0. Pantalla principal
 
 - A dalt, els **filtres**: espai, estat, prioritat, tipologia, **colla** (els responsables generals i cada colla del parc), **persona assignada** i una cerca lliure.
-- A sota, els indicadors (tasques obertes, noves per acceptar, urgents, per assignar, en pausa, pendents de verificar, data límit propera i vençudes) i, a l'esquerra, la **llista de tasques en gran**, **agrupada en desplegables** segons el criteri triat a «Agrupa per»: estat (per defecte), prioritat, parc, colla, persona o tipologia, o sense agrupar. Cada grup mostra quantes tasques té i quantes tenen la data límit propera o vençuda. Es poden plegar i desplegar tots alhora.
+- A sota (els indicadors són a la pestanya **Dades manteniment**, apartat 4.9), a l'esquerra, la **llista de tasques en gran**, **agrupada en desplegables** segons el criteri triat a «Agrupa per»: estat (per defecte), prioritat, parc, colla, persona o tipologia, o sense agrupar. Cada grup mostra quantes tasques té i quantes tenen la data límit propera o vençuda. Es poden plegar i desplegar tots alhora.
 - El **mapa** de les tasques filtrades és petit, a sota de la llista. La fitxa de la tasca seleccionada surt a la dreta.
 - **Vista Tauler o Llista** (botons «▦ Tauler» i «☰ Llista»; el programa recorda l'última triada, i per defecte obre el tauler):
   - El **tauler** mostra les tasques en **dipòsits** (columnes), com al Microsoft Planner, segons «Agrupa per». Cada targeta porta el codi, la tipologia, la descripció, la colla i la persona, la prioritat (color de la vora), la data límit i l'avís ⏰. Les tasques acceptades hi tenen el botó «👷 Assigna».
@@ -336,6 +336,18 @@ Aplicació per al mòbil dels **caps de colla** i els **oficials**. S'obre amb `
 - Al mòdul, una capsa **«Feina de les colles pendent de revisar»** llista les tasques amb registres per validar i les tasques noves, amb l'enllaç a cadascuna.
 - Quan n'arriben de noves, surt un avís emergent.
 - Mentre s'edita un formulari, la llista no es refà; en desar, el control de versió de cada tasca evita trepitjar els canvis de la colla.
+
+### 4.9. Pestanya «Dades manteniment»
+
+Pestanya pròpia (des del novembre de 2026) amb les dades de les tasques de les brigades:
+
+- Els **filtres** són els mateixos de «Gestió de brigades» (un sol bloc que es mou a la pestanya que es veu): el que es tria en una pestanya s'aplica també a l'altra.
+- Els **indicadors** (tasques obertes, noves per acceptar, urgents, per assignar, en pausa, pendents de verificar, data límit propera i vençudes) compten les tasques obertes amb els filtres de parc, prioritat, categoria, tipologia, colla, persona i cerca. No tenen en compte el filtre d'estat ni «Mostra les verificades i descartades», perquè ja són recomptes per estat. (Abans només tenien en compte el parc i eren a la pantalla del tauler.)
+- A sota, un **gràfic** de les tasques filtrades (aquí sí que compten l'estat i «Mostra les verificades i descartades»):
+  - **Per**: estat, prioritat, tipologia, categoria de petició, colla, persona o parc. Estat i prioritat surten en el seu ordre; la resta, de més a menys tasques. A «Colla», una tasca amb diverses colles compta en el grup de la combinació («Colla A + Colla B»), de manera que el total quadra.
+  - **Barres** o **Formatges** (es recorda l'última tria en aquest navegador). Les barres mostren totes les categories amb el nombre i el percentatge. Els formatges en mostren com a molt 7 amb color propi i agrupen la resta a «Altres»; el color de cada categoria no canvia en filtrar.
+  - En passar el ratolí per sobre d'una barra o porció surt el detall, i «Mostra les dades en taula» dona els mateixos valors en una taula, amb el total.
+- El gràfic es dibuixa amb el mateix codi de la pàgina (SVG i HTML), sense cap llibreria externa nova.
 
 ### 4.8. Pendents
 

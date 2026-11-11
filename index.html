@@ -258,6 +258,24 @@
   .barra .pista { height: 14px; background: #f3f2f1; position: relative; }
   .barra .ple { position: absolute; inset: 0 auto 0 0; border-radius: 0 4px 4px 0; min-width: 2px; }
   .barra .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--color-text-secondary); }
+  /* Dades manteniment: gràfic de barres o de formatges */
+  .dm-grafic { margin-top: 16px; }
+  .dm-zona .barra { grid-template-columns: minmax(140px, 32%) 1fr 96px; }
+  .dm-zona .barra .pista { background: transparent; }
+  .dm-zona .barra .ple { background: var(--color-primary-teal); }
+  .dm-zona .barra:hover .t { color: var(--color-text-strong); }
+  .dm-formatge { display: flex; gap: 28px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  .dm-formatge svg { flex: 0 0 auto; }
+  .dm-formatge path, .dm-formatge circle { stroke: #fff; stroke-width: 2px; }
+  .dm-formatge [data-i]:hover { opacity: .85; }
+  .dm-llegenda { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 13px; min-width: 260px; }
+  .dm-llegenda li { display: grid; grid-template-columns: 12px 1fr auto 52px; gap: 8px; align-items: center; color: var(--color-text-primary); }
+  .dm-llegenda .mostra { width: 12px; height: 12px; border-radius: 2px; }
+  .dm-llegenda .n, .dm-llegenda .pc { text-align: right; font-variant-numeric: tabular-nums; color: var(--color-text-secondary); }
+  .dm-taula { margin-top: 12px; }
+  .dm-tip { position: fixed; z-index: 2000; pointer-events: none; background: #fff; border: 1px solid var(--color-border); box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    padding: 6px 9px; font-size: 12px; color: var(--color-text-primary); max-width: 280px; }
+  .dm-tip strong { color: var(--color-text-strong); }
   .llegenda-mapa { background: rgba(255,255,255,.95); padding: 8px 10px; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,.25);
     font-size: 12px; line-height: 1.7; }
   .llegenda-mapa .estat { font-size: 12px; }
@@ -438,6 +456,7 @@
   <button type="button" class="nav-button active" data-modul="patrimoni">GESTIÓ DEL PATRIMONI</button>
   <button type="button" class="nav-button" data-modul="dades">GESTIÓ DE DADES</button>
   <button type="button" class="nav-button" data-modul="manteniment">GESTIÓ DE BRIGADES<span id="nav-mant-badge" class="nav-badge" hidden></span><span id="nav-colla-badge" class="nav-badge colla" hidden></span></button>
+  <button type="button" class="nav-button" data-modul="dadesmant">DADES MANTENIMENT</button>
 </nav>
 <div id="barra-carpeta" class="barra-carpeta"></div>
 
@@ -549,7 +568,7 @@
     </div>
     <div id="mant-colla" class="info-box mant-colla" hidden></div>
     <div id="mant-avisos" class="avis-box" hidden></div>
-    <div class="mant-filtres">
+    <div id="mant-filtres-lloc"><div class="mant-filtres" id="mant-filtres">
       <select id="mf-parc" aria-label="Parc"></select>
       <select id="mf-estat" aria-label="Estat"></select>
       <select id="mf-prioritat" aria-label="Prioritat"></select>
@@ -559,8 +578,7 @@
       <select id="mf-persona" aria-label="Persona assignada"></select>
       <input type="search" id="mf-cerca" placeholder="Cerca (codi, descripció, immoble, persona…)" aria-label="Cerca">
       <label class="text-small"><input type="checkbox" id="mf-tancades"> Mostra les verificades i descartades</label>
-    </div>
-    <div id="mant-kpis" class="kpis"></div>
+    </div></div>
     <div class="mant-layout">
       <div class="mant-col-llista">
         <div class="panell-llista mant-panell-llista">
@@ -580,6 +598,32 @@
       </div>
       <div id="mant-panell" class="panell-fitxa"><div class="fitxa-buida">Selecciona una tasca o crea'n una de nova.</div></div>
     </div>
+  </section>
+
+  <!-- ============================================================
+       MÒDUL 4: DADES MANTENIMENT (indicadors i gràfics de les tasques)
+       ============================================================ -->
+  <section id="module-dadesmant" class="module" aria-labelledby="t-dadesmant">
+    <div class="cap-modul">
+      <div>
+        <h1 id="t-dadesmant">Dades de manteniment</h1>
+        <p>Indicadors i gràfics de les tasques de les brigades. Els filtres són els mateixos de «Gestió de brigades»: el que triïs aquí també s'aplica al tauler, i a l'inrevés.</p>
+      </div>
+    </div>
+    <div id="dm-filtres-lloc"></div>
+    <div id="mant-kpis" class="kpis"></div>
+    <p class="text-small text-muted" style="margin:6px 0 0">Els indicadors compten les tasques obertes amb els filtres de parc, prioritat, categoria, tipologia, colla, persona i cerca (no tenen en compte el filtre d'estat).</p>
+    <div class="targeta dm-grafic">
+      <div class="targeta-cap"><h2 id="dm-titol">Tasques per estat</h2>
+        <span class="mant-cap-controls">
+          <label class="text-small">Per <select id="dm-dim" aria-label="Distribució per"><option value="estat">Estat</option><option value="prioritat">Prioritat</option><option value="tipologia">Tipologia</option><option value="categoria">Categoria de petició</option><option value="equip">Colla</option><option value="persona">Persona</option><option value="parc">Parc</option></select></label>
+          <span class="mant-vista" id="dm-tipus" role="group" aria-label="Tipus de gràfic"><button type="button" data-tipus="barres" aria-pressed="true">Barres</button><button type="button" data-tipus="formatge" aria-pressed="false">Formatges</button></span>
+        </span></div>
+      <div id="dm-nota" class="text-small text-muted"></div>
+      <div id="dm-grafic" class="dm-zona"></div>
+      <details class="dm-taula"><summary class="text-small">Mostra les dades en taula</summary><div id="dm-taula"></div></details>
+    </div>
+    <div id="dm-tip" class="dm-tip" role="status" hidden></div>
   </section>
 </main>
 
@@ -1474,6 +1518,7 @@ async function mostraModul(id) {
   $$('.module-nav button').forEach(b => b.classList.toggle('active', b.dataset.modul === id));
   if (id === 'dades') Dades.mostra();
   if (id === 'manteniment') Manteniment.mostra();
+  if (id === 'dadesmant') Manteniment.mostraDades();
   window.scrollTo({ top: 0 });
 }
 $$('[data-modul]').forEach(b => b.addEventListener('click', () => mostraModul(b.dataset.modul)));
@@ -2908,8 +2953,8 @@ const Manteniment = (() => {
     const persones = [...new Set((S.mant || []).filter(t => !parcF || t.unitat === parcF).flatMap(t => personesDe(t.gestio)))].sort(ordCa);
     opcions('#mf-persona', 'Totes les persones', [['_', 'Sense persona assignada'], ...persones.map(n => [n, n])], v('#mf-persona'));
   }
-  function filtrades(ambTancades) {
-    const f = { parc: $('#mf-parc').value, estat: $('#mf-estat').value, prio: $('#mf-prioritat').value, tip: $('#mf-tipologia').value, cat: $('#mf-categoria').value,
+  function filtrades(ambTancades, senseEstat) {
+    const f = { parc: $('#mf-parc').value, estat: senseEstat ? '' : $('#mf-estat').value, prio: $('#mf-prioritat').value, tip: $('#mf-tipologia').value, cat: $('#mf-categoria').value,
       resp: $('#mf-responsable').value, pers: $('#mf-persona').value, q: $('#mf-cerca').value.trim().toLowerCase(), tancades: $('#mf-tancades').checked || !!ambTancades };
     const okResp = t => { if (!f.resp) return true; if (f.resp === '_') return !collesDe(t.gestio).length; if (!f.resp.startsWith('eq:')) return t.gestio?.responsable === f.resp;
       const [, u, c] = f.resp.split(':'); return t.unitat === u && collesDe(t.gestio).includes(c); };
@@ -2981,8 +3026,8 @@ const Manteniment = (() => {
     const badge = $('#nav-mant-badge');
     if (badge) { badge.hidden = !ll.length; badge.textContent = ll.length; badge.title = `${ll.length} tasques amb la data límit propera o vençuda`; }
   }
-  function pintaKPIs(ll) {
-    const obertes = (S.mant || []).filter(t => !esTancada(t) && (!$('#mf-parc').value || t.unitat === $('#mf-parc').value));
+  function pintaKPIs() {
+    const obertes = filtrades(false, true);
     const k = [
       ['Tasques obertes', obertes.length, $('#mf-parc').value ? nomUnitat($('#mf-parc').value) : 'Tots els espais'],
       ['Noves per acceptar', obertes.filter(t => t.estat === 'nova').length, 'Pendents del Responsable de brigades'],
@@ -3209,7 +3254,7 @@ const Manteniment = (() => {
     if (vistaActual() === 'tauler') {
       box.innerHTML = htmlTauler(per).html;
       $('#mant-plega').hidden = true;
-      pintaKPIs(ll); pintaMapa(ll);
+      pintaMapa(ll);
       return;
     }
     if (!ll.length) box.innerHTML = '<div class="buida">Cap tasca amb aquests filtres.</div>';
@@ -3227,31 +3272,115 @@ const Manteniment = (() => {
     }
     $('#mant-plega').hidden = !per || !ll.length;
     $('#mant-plega').textContent = $$('#mant-llista details.mant-grup[open]').length ? 'Plega-ho tot' : 'Desplega-ho tot';
-    pintaKPIs(ll);
     pintaMapa(ll);
   }
+  // ---------- Dades manteniment: indicadors i gràfic (barres o formatges) ----------
+  // Paleta categòrica validada (dataviz: ordre fix, sense cicles); la resta de categories es pleguen a «Altres»
+  const PALETA_DM = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6'], COLOR_ALTRES = '#9a9893';
+  const NOMS_DIM = { estat: 'estat', prioritat: 'prioritat', tipologia: 'tipologia', categoria: 'categoria de petició', equip: 'colla', persona: 'persona', parc: 'parc' };
+  const dm = { tipus: (() => { try { return localStorage.getItem('motor-patrimoni.dm-tipus') || 'barres'; } catch { return 'barres'; } })() };
+  function grupDm(t, per) {
+    if (per === 'categoria') return t.categoria ? { clau: t.categoria, nom: nomCategoria(t.categoria), ordre: nomCategoria(t.categoria) } : { clau: '_', nom: 'Sense categoria', ordre: 'zzz' };
+    return grupDe(t, per);
+  }
+  /** Grups de la dimensió triada amb el recompte de les tasques filtrades */
+  function grupsDm(ll, per) {
+    const m = new Map();
+    ll.forEach(t => { const g = grupDm(t, per); if (!m.has(g.clau)) m.set(g.clau, { ...g, n: 0 }); m.get(g.clau).n++; });
+    const v = [...m.values()];
+    // Estat i prioritat tenen un ordre natural; la resta, de més a menys tasques
+    return ['estat', 'prioritat'].includes(per)
+      ? v.sort((a, b) => (typeof a.ordre === 'number' && typeof b.ordre === 'number') ? a.ordre - b.ordre : ordCa(String(a.ordre), String(b.ordre)))
+      : v.sort((a, b) => b.n - a.n || ordCa(String(a.nom), String(b.nom)));
+  }
+  /** Color estable de cada categoria: segons el total de totes les tasques (no canvia en filtrar); més enllà de 7, «Altres» */
+  function colorsDm(per) {
+    const tot = grupsDm(S.mant || [], per), ordre = ['estat', 'prioritat'].includes(per) ? tot : [...tot].sort((a, b) => b.n - a.n || ordCa(String(a.nom), String(b.nom)));
+    return new Map(ordre.slice(0, PALETA_DM.length).map((g, i) => [g.clau, PALETA_DM[i]]));
+  }
+  const pc = (n, tot) => tot ? (n / tot * 100).toLocaleString('ca-ES', { maximumFractionDigits: n / tot < 0.1 ? 1 : 0 }) + ' %' : '—';
+  function pintaDades() {
+    if (!S.mant) return;
+    pintaKPIs();
+    const per = $('#dm-dim').value, ll = filtrades(), tot = ll.length, grups = grupsDm(ll, per);
+    $('#dm-titol').textContent = `Tasques per ${NOMS_DIM[per]}`;
+    $$('#dm-tipus button').forEach(b => b.setAttribute('aria-pressed', b.dataset.tipus === dm.tipus ? 'true' : 'false'));
+    const tancades = $('#mf-tancades').checked || !!$('#mf-estat').value;
+    $('#dm-nota').textContent = `${fmtNum(tot)} ${tot === 1 ? 'tasca' : 'tasques'} amb els filtres actuals${tancades ? '' : ' (no inclou les verificades ni les descartades)'}.`
+      + (per === 'equip' ? ' Una tasca amb diverses colles compta en el grup de la combinació («Colla A + Colla B»).' : '');
+    const zona = $('#dm-grafic');
+    if (!tot) { zona.innerHTML = '<div class="buida">Cap tasca amb aquests filtres.</div>'; $('#dm-taula').innerHTML = ''; return; }
+    if (dm.tipus === 'formatge') {
+      // Formatges: com a molt 7 porcions amb color propi; la resta es pleguen a «Altres»
+      const col = colorsDm(per), dins = grups.filter(g => col.has(g.clau)), fora = grups.filter(g => !col.has(g.clau));
+      const porcions = [...dins.map(g => ({ ...g, color: col.get(g.clau) })), ...(fora.length ? [{ clau: '__altres', nom: `Altres (${fora.length})`, n: fora.reduce((a, g) => a + g.n, 0), color: COLOR_ALTRES, detall: fora }] : [])];
+      const R = 110, C = 120;
+      let ang = -Math.PI / 2;
+      const peces = porcions.map((g, i) => {
+        if (g.n === tot) return `<circle data-i="${i}" cx="${C}" cy="${C}" r="${R}" fill="${g.color}"></circle>`;
+        const a1 = ang, a2 = ang + g.n / tot * 2 * Math.PI; ang = a2;
+        const p = a => `${(C + R * Math.cos(a)).toFixed(2)} ${(C + R * Math.sin(a)).toFixed(2)}`;
+        return `<path data-i="${i}" d="M ${C} ${C} L ${p(a1)} A ${R} ${R} 0 ${a2 - a1 > Math.PI ? 1 : 0} 1 ${p(a2)} Z" fill="${g.color}"></path>`;
+      }).join('');
+      zona.innerHTML = `<div class="dm-formatge"><svg width="240" height="240" viewBox="0 0 240 240" role="img" aria-label="${esc($('#dm-titol').textContent)}">${peces}</svg>
+        <ul class="dm-llegenda">${porcions.map((g, i) => `<li data-i="${i}"><span class="mostra" style="background:${g.color}"></span><span>${esc(g.nom)}</span><span class="n">${fmtNum(g.n)}</span><span class="pc">${pc(g.n, tot)}</span></li>`).join('')}</ul></div>`;
+      zona.dataset.items = JSON.stringify(porcions.map(g => ({ nom: g.nom, n: g.n, detall: g.detall ? g.detall.map(d => `${d.nom}: ${d.n}`).join(' · ') : '' })));
+    } else {
+      const max = Math.max(...grups.map(g => g.n));
+      zona.innerHTML = `<div class="barres">${grups.map((g, i) => `<div class="barra" data-i="${i}"><span class="t">${esc(g.nom)}</span><span class="pista"><span class="ple" style="width:${(g.n / max * 100).toFixed(1)}%"></span></span><span class="n">${fmtNum(g.n)} · ${pc(g.n, tot)}</span></div>`).join('')}</div>`;
+      zona.dataset.items = JSON.stringify(grups.map(g => ({ nom: g.nom, n: g.n, detall: '' })));
+    }
+    zona.dataset.tot = tot;
+    $('#dm-taula').innerHTML = `<div class="taula-wrap"><table class="taula"><thead><tr><th>${esc(NOMS_DIM[per][0].toUpperCase() + NOMS_DIM[per].slice(1))}</th><th class="num">Tasques</th><th class="num">%</th></tr></thead>
+      <tbody>${grups.map(g => `<tr><td>${esc(g.nom)}</td><td class="num">${fmtNum(g.n)}</td><td class="num">${pc(g.n, tot)}</td></tr>`).join('')}</tbody>
+      <tfoot><tr><th>Total</th><th class="num">${fmtNum(tot)}</th><th class="num">100 %</th></tr></tfoot></table></div>`;
+  }
+  /** Tooltip del gràfic: barra o porció sota el ratolí */
+  function iniciaDades() {
+    if (st.dadesIniciat) return;
+    st.dadesIniciat = true;
+    $('#dm-dim').addEventListener('change', pintaDades);
+    $$('#dm-tipus button').forEach(b => b.addEventListener('click', () => { dm.tipus = b.dataset.tipus; try { localStorage.setItem('motor-patrimoni.dm-tipus', dm.tipus); } catch {} pintaDades(); }));
+    const tip = $('#dm-tip'), zona = $('#dm-grafic');
+    zona.addEventListener('mousemove', e => {
+      const el = e.target.closest('[data-i]'); if (!el) { tip.hidden = true; return; }
+      let items = []; try { items = JSON.parse(zona.dataset.items || '[]'); } catch { /* sense dades */ }
+      const it = items[+el.dataset.i]; if (!it) { tip.hidden = true; return; }
+      tip.innerHTML = `<strong>${esc(it.nom)}</strong><br>${fmtNum(it.n)} ${it.n === 1 ? 'tasca' : 'tasques'} · ${pc(it.n, +zona.dataset.tot)}${it.detall ? `<br><span class="text-muted">${esc(it.detall)}</span>` : ''}`;
+      tip.hidden = false;
+      const x = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8), y = Math.min(e.clientY + 14, window.innerHeight - tip.offsetHeight - 8);
+      tip.style.left = x + 'px'; tip.style.top = y + 'px';
+    });
+    zona.addEventListener('mouseleave', () => { tip.hidden = true; });
+  }
+  /** Els filtres són un sol bloc: es posen a la pestanya activa */
+  function mouFiltres(lloc) { const f = $('#mant-filtres'), l = $(lloc); if (f && l && f.parentElement !== l) l.appendChild(f); }
+  /** Repinta la pestanya que es veu quan canvia un filtre */
+  function actualitza() { if (modulActual === 'dadesmant') pintaDades(); else pintaLlista(); }
   function refresca() {
     if (!S.mant) return;
     actualitzaEtiquetes();
     pintaAvisos();
     if (!st.iniciat) return;
     pintaFiltres();
+    if (modulActual === 'dadesmant') { pintaDades(); return; }
     pintaLlista();
     if (st.mode === 'fitxa' && st.sel) pintaFitxa(st.sel);
   }
-  function mostra() {
+  function inicia() {
     actualitzaEtiquetes();
     if (!st.iniciat) {
       st.iniciat = true;
       pintaFiltres();
-      ['#mf-estat', '#mf-prioritat', '#mf-categoria', '#mf-tipologia', '#mf-responsable', '#mf-persona', '#mf-tancades', '#mf-ordre', '#mf-agrupa'].forEach(s => $(s).addEventListener('change', pintaLlista));
-      $('#mf-parc').addEventListener('change', () => { pintaFiltres(); pintaLlista(); });   // les colles i les persones depenen del parc
+      ['#mf-estat', '#mf-prioritat', '#mf-categoria', '#mf-tipologia', '#mf-responsable', '#mf-persona', '#mf-tancades'].forEach(s => $(s).addEventListener('change', actualitza));
+      ['#mf-ordre', '#mf-agrupa'].forEach(s => $(s).addEventListener('change', pintaLlista));
+      $('#mf-parc').addEventListener('change', () => { pintaFiltres(); actualitza(); });   // les colles i les persones depenen del parc
       $('#mant-llista').addEventListener('toggle', e => { const d = e.target; if (!d.dataset?.grup) return; d.open ? plegats.delete(d.dataset.grup) : plegats.add(d.dataset.grup);
         $('#mant-plega').textContent = $$('#mant-llista details.mant-grup[open]').length ? 'Plega-ho tot' : 'Desplega-ho tot'; }, true);
       $$('#mant-vista button').forEach(b => b.addEventListener('click', () => { desaVista(b.dataset.vista); pintaLlista(); setTimeout(() => mapa?.invalidateSize(), 60); }));
       iniciaArrossegar();
       $('#mant-plega').addEventListener('click', () => { const obre = !$$('#mant-llista details.mant-grup[open]').length; $$('#mant-llista details.mant-grup').forEach(d => { d.open = obre; }); });
-      $('#mf-cerca').addEventListener('input', pintaLlista);
+      $('#mf-cerca').addEventListener('input', actualitza);
       $('#mant-llista').addEventListener('click', e => {
         const q = e.target.closest('[data-assigna]'); if (q) { const t = S.mant.find(x => x.id === q.dataset.assigna); if (t) assignaRapid(t); return; }
         const b = e.target.closest('[data-mant]'); if (b) obre(b.dataset.mant); });
@@ -3265,6 +3394,15 @@ const Manteniment = (() => {
       $('#mant-csv').addEventListener('click', exportaCSV);
       $('#mant-importa').addEventListener('click', importaEquip);
     }
+  }
+  function mostraDades() {
+    inicia(); iniciaDades();
+    mouFiltres('#dm-filtres-lloc');
+    if (S.mant) { pintaFiltres(); pintaDades(); }
+  }
+  function mostra() {
+    inicia();
+    mouFiltres('#mant-filtres-lloc');
     iniciaMapa();
     setTimeout(() => { mapa?.invalidateSize(); pintaLlista(); }, 50);
   }
@@ -4640,7 +4778,7 @@ const Manteniment = (() => {
 
   const obrePeriodica = async id => formPeriodica(S.periodiques.find(q => q.id === id));
   const novaPeriodica = async (element) => formPeriodica(null, { element, unitat: S.perId.get(element)?.unitat });
-  return { migraTasques, mostra, refresca, nova, obre: obreDesDe, htmlGrupFitxa, potSortir, avisLimit, generaPeriodiques, obrePeriodica, novaPeriodica };
+  return { migraTasques, mostra, mostraDades, refresca, nova, obre: obreDesDe, htmlGrupFitxa, potSortir, avisLimit, generaPeriodiques, obrePeriodica, novaPeriodica };
 })();
 
 function refrescaTot() {
