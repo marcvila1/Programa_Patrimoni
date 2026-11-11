@@ -4,6 +4,29 @@ Aquest document recull l'auditoria de seguretat feta seguint l'**OWASP Top 10 (2
 
 Data de l'auditoria: 07/11/2026. Versió auditada: la de la branca `main` amb els canvis de títol, categoria, documents, avisos, ordre de les colles i connexió de `brigada.html` a la carpeta de treball.
 
+Revisió del 10/11/2026 (branca `canvis-gestio-brigades`): «Ordre de les colles» passa a dir-se «Pla de treball» (el fitxer continua sent `ordre_colles.json`), la nova tasca admet prioritat, colles i persones i es pot marcar com a periòdica, i la direcció del parc ja no té el camp «Càrrec». No canvia cap control ni el format d'importació de `brigada.html`. La creació d'una tasca periòdica des de «Nova tasca» té la mateixa restricció que el botó «Tasques periòdiques»: només el Responsable de brigades o la direcció del parc (es comprova en mostrar l'opció i, de nou, en desar). Tots els textos nous es mostren escapats. S'han tornat a passar `xss_test.js`, `import_test.js` i `perfils_test.js` amb els resultats esperats (0 càrregues executades, 0 enllaços `javascript:`, fitxers de colla manipulats rebutjats, perfils i CSP correctes).
+
+En la mateixa branca: el **Responsable de brigades** pot passar una tasca assignada a «Pendent de verificar» (s'amplia el rol a la regla de `transicions`; la direcció del parc continua sense poder-ho fer, i la permissió es comprova igual que la resta de canvis d'estat), i es corregeix que la confirmació de treure la colla en arrossegar una targeta a «Sense assignar» no s'aplicava. Les proves de seguretat s'han tornat a passar amb els mateixos resultats.
+
+**Resultats de la bateria completa del 10/11/2026** (commit d'aquesta branca, Chromium amb Playwright, Leaflet 1.9.4 servit des del paquet oficial de npm amb el mateix SRI):
+
+| Prova | OWASP | Resultat |
+|---|---|---|
+| `xss_test.js`: càrregues XSS a tots els camps i totes les pantalles, incloses les noves (Pla de treball, nova tasca periòdica, formulari de periòdica, «Feina acabada») | A03 | 0 executades · 0 enllaços `javascript:` · 0 errors de recorregut |
+| `xss_test.js`: fonts de dades externes (`?dades=https://evil.example/…`) | A05, A10 | 0 peticions a `evil.example` |
+| `xss_test.js`: CSV amb fórmules | A03 | 0 cel·les amb fórmula |
+| `import_test.js`: fitxers de colla manipulats | A01, A08 | 3 de 3 rebutjats |
+| `perfils_test.js`: perfils no autoritzats, «Surt», CSP | A01, A02, A05, A07 | Correcte · 0 errors de CSP |
+| `transicions_test.js`: canvi d'estat forçat | A01, A04 | Direcció rebutjada · Responsable acceptat |
+| SRI de Leaflet comparat amb el paquet de npm | A06, A08 | Coincideix (`leaflet.js` i `leaflet.css`) |
+| Revisió de codi del canvi (llista de control, apartat 9) | — | Tot el text nou a `innerHTML` passa per `esc()`; cap `href`/`src` nou; cap domini nou a la CSP |
+
+Correcció afegida arran de la revisió: en desar «Gestiona», el programa comprova que el canvi d'estat estigui permès al perfil (abans només ho limitaven les opcions del desplegable). Els riscos residuals de l'apartat 6 no canvien: sense autenticació real ni servidor (A04, A07), el control efectiu continua sent els permisos de la carpeta de SharePoint.
+
+Revisió de l'11/11/2026: nova pestanya **«Dades brigades»** amb els indicadors i un gràfic de barres o de formatges. Els noms de les categories (colles, persones, tipologies, parcs) es mostren sempre escapats a les barres, a la llegenda, a la taula i al tooltip; el gràfic es dibuixa amb SVG i HTML propis, sense cap llibreria ni domini nou a la CSP; l'única dada que es desa al navegador és el tipus de gràfic triat (`motor-patrimoni.dm-tipus`, amb `try/catch`). `xss_test.js` recorre ara aquesta pestanya amb totes les dimensions en barres i en formatges: 0 càrregues executades, i la resta de proves amb els mateixos resultats.
+
+Ampliació del mateix dia: **filtre per data** (entrada, límit o tancament; camps `type="date"`, comparats com a text AAAA-MM-DD, sense cap valor inserit a l'HTML) i dos botons de **descàrrega en CSV** a «Dades brigades». Tots dos fitxers passen per `aCSV()`, que neutralitza les fórmules (A03); el resum inclou el text dels filtres i el nom de l'usuari, que ja són a la pantalla. `xss_test.js` descarrega també el CSV de resum amb les dades malicioses: **0 cel·les amb fórmula**.
+
 ---
 
 ## 1. Resum
@@ -61,14 +84,15 @@ Data de l'auditoria: 07/11/2026. Versió auditada: la de la branca `main` amb el
 
 Les proves són automàtiques (Playwright, Chromium) i es poden repetir (apartat 8):
 
-1. **Injecció (XSS):** es genera un conjunt de dades on **cada camp de text** (més de 4.500, de tots els fitxers JSON: immobles, tasques, colles, configuració, tipologies, ordre, periòdiques) porta una càrrega que crida una funció trampa si s'executa: `"'><img src=x onerror=…><svg onload=…>`. Els camps d'adreça porten `javascript:…`. Es recorren totes les pantalles dels dos programes: llista i fitxa d'immobles, edició, registre de canvis, Gestió de dades, tauler i llista de tasques en totes les agrupacions, mapa, fitxa i gestió de cada estat de tasca, Configuració dels parcs, Colles, Ordre de les colles, Tasques periòdiques, Nova tasca i la webapp de la colla. Es comprova si s'executa alguna càrrega i si queda algun enllaç o imatge amb `javascript:`.
+1. **Injecció (XSS):** es genera un conjunt de dades on **cada camp de text** (més de 4.500, de tots els fitxers JSON: immobles, tasques, colles, configuració, tipologies, ordre, periòdiques) porta una càrrega que crida una funció trampa si s'executa: `"'><img src=x onerror=…><svg onload=…>`. Els camps d'adreça porten `javascript:…`. Es recorren totes les pantalles dels dos programes: llista i fitxa d'immobles, edició, registre de canvis, Gestió de dades, tauler i llista de tasques en totes les agrupacions, mapa, fitxa i gestió de cada estat de tasca, Dades brigades (indicadors i gràfics), Configuració dels parcs, Colles, Pla de treball (abans «Ordre de les colles»), Tasques periòdiques, Nova tasca (també marcada com a periòdica) i la webapp de la colla. Es comprova si s'executa alguna càrrega i si queda algun enllaç o imatge amb `javascript:`.
 2. **Fonts de dades:** s'obren tots dos programes amb `?dades=https://evil.example/…` i es comprova si fan peticions a aquell servidor.
 3. **Importació manipulada:** tres fitxers de colla falsos: un registre amb hores no numèriques, una foto `data:text/html` i una tasca nova en un altre parc; una foto SVG; i un registre en una tasca d'una altra colla.
 4. **CSV:** s'exporta una tasca amb el títol `=HYPERLINK(…)` i la descripció `+cmd|…`, i es compta quantes cel·les comencen per un caràcter de fórmula.
 5. **Camins de fitxer:** fotografies i documents amb camins `../../variables.json` i documents `data:text/html`.
 6. **Perfils:** algú no autoritzat que es declara Responsable de brigades o Director/a.
 7. **CSP:** es recorren els fluxos principals i es comprova que la política no bloqueja res legítim.
-8. **Regressió funcional:** es tornen a passar les proves de funcionament de les darreres setmanes. Cobreixen el circuit complet entre `index.html` i `brigada.html` amb la carpeta, la validació, els documents adjunts, el descart amb justificació, els avisos i l'ordre de les colles.
+8. **Canvis d'estat manipulats** (`transicions_test.js`, des del 10/11/2026): es força al desplegable de «Gestiona» el pas «Assignada → Pendent de verificar». Amb el perfil de direcció del parc s'ha de rebutjar; amb el de Responsable de brigades, s'ha d'acceptar.
+9. **Regressió funcional:** es tornen a passar les proves de funcionament de les darreres setmanes. Cobreixen el circuit complet entre `index.html` i `brigada.html` amb la carpeta, la validació, els documents adjunts, el descart amb justificació, els avisos i l'ordre de les colles.
 
 ---
 
@@ -105,6 +129,7 @@ Gravetat: 🔴 alta · 🟠 mitjana · 🟡 baixa · 🟢 correcte.
 | Diàleg d'identificació amb un perfil no autoritzat | Accepta | No deixa desar |
 | Errors de CSP en els fluxos normals | — | 0 |
 | Proves funcionals (circuit colla ↔ Responsable, documents, descart, avisos, ordre) | Correctes | **Correctes** |
+| Canvi d'estat forçat manipulant el formulari (direcció → «Pendent de verificar») | — | **Rebutjat** (10/11/2026) |
 
 ### 4.2. Valoració per àmbits (de 0 a 10)
 
@@ -259,6 +284,7 @@ python3 tests/seguretat/genera_malicios.py data _xss
 node tests/seguretat/xss_test.js        # XSS, enllaços javascript:, fonts externes, CSV
 cd tests/seguretat && node import_test.js && cd ../..   # fitxers de colla manipulats
 node tests/seguretat/perfils_test.js    # perfils autoritzats, «Surt» i CSP
+node tests/seguretat/transicions_test.js # canvis d'estat forçats (A01); ha de donar "correcte": true
 ```
 
 Resultat esperat de `xss_test.js`: `xss_executat: []`, `enllacos_javascript: []` i `csv_cel_les_amb_formula: 0`. A `peticions_a_origen_extern` només hi poden sortir les adreces de les mateixes pàgines de prova.
@@ -276,6 +302,7 @@ Esborreu `_xss/` en acabar.
 - [ ] Les dependències externes noves porten `integrity` (SRI) i el seu domini a la CSP.
 - [ ] Cap domini nou a `connect-src` sense revisar-ho.
 - [ ] No es publiquen dades personals al GitHub (apartat 6.2).
+- [ ] Tot canvi d'estat nou es comprova també en desar amb `estatsPermesos()`, no només amb les opcions del desplegable.
 - [ ] S'han passat les proves de l'apartat 8.
 - [ ] Leaflet i el navegador de referència estan actualitzats.
 

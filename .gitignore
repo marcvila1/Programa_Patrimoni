@@ -4,3 +4,4 @@ __pycache__/
 # Dades malicioses generades per a les proves de seguretat
 _xss/
 tests/seguretat/p*.json
+_trans/
