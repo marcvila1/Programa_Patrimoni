@@ -137,7 +137,7 @@ Recull les peticions i tasques de manteniment dels espais naturals. (Fins al nov
 ### 4.0. Pantalla principal
 
 - A dalt, els **filtres**: espai, estat, prioritat, tipologia, **colla** (els responsables generals i cada colla del parc), **persona assignada** i una cerca lliure.
-- A sota (els indicadors són a la pestanya **Dades manteniment**, apartat 4.9), a l'esquerra, la **llista de tasques en gran**, **agrupada en desplegables** segons el criteri triat a «Agrupa per»: estat (per defecte), prioritat, parc, colla, persona o tipologia, o sense agrupar. Cada grup mostra quantes tasques té i quantes tenen la data límit propera o vençuda. Es poden plegar i desplegar tots alhora.
+- A sota (els indicadors són a la pestanya **Dades brigades**, apartat 4.9), a l'esquerra, la **llista de tasques en gran**, **agrupada en desplegables** segons el criteri triat a «Agrupa per»: estat (per defecte), prioritat, parc, colla, persona o tipologia, o sense agrupar. Cada grup mostra quantes tasques té i quantes tenen la data límit propera o vençuda. Es poden plegar i desplegar tots alhora.
 - El **mapa** de les tasques filtrades és petit, a sota de la llista. La fitxa de la tasca seleccionada surt a la dreta.
 - **Vista Tauler o Llista** (botons «▦ Tauler» i «☰ Llista»; el programa recorda l'última triada, i per defecte obre el tauler):
   - El **tauler** mostra les tasques en **dipòsits** (columnes), com al Microsoft Planner, segons «Agrupa per». Cada targeta porta el codi, la tipologia, la descripció, la colla i la persona, la prioritat (color de la vora), la data límit i l'avís ⏰. Les tasques acceptades hi tenen el botó «👷 Assigna».
@@ -337,7 +337,7 @@ Aplicació per al mòbil dels **caps de colla** i els **oficials**. S'obre amb `
 - Quan n'arriben de noves, surt un avís emergent.
 - Mentre s'edita un formulari, la llista no es refà; en desar, el control de versió de cada tasca evita trepitjar els canvis de la colla.
 
-### 4.9. Pestanya «Dades manteniment»
+### 4.9. Pestanya «Dades brigades»
 
 Pestanya pròpia (des del novembre de 2026) amb les dades de les tasques de les brigades:
 

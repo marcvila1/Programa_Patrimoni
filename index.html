@@ -258,7 +258,7 @@
   .barra .pista { height: 14px; background: #f3f2f1; position: relative; }
   .barra .ple { position: absolute; inset: 0 auto 0 0; border-radius: 0 4px 4px 0; min-width: 2px; }
   .barra .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--color-text-secondary); }
-  /* Dades manteniment: gràfic de barres o de formatges */
+  /* Dades brigades: gràfic de barres o de formatges */
   .dm-grafic { margin-top: 16px; }
   .dm-zona .barra { grid-template-columns: minmax(140px, 32%) 1fr 96px; }
   .dm-zona .barra .pista { background: transparent; }
@@ -456,7 +456,7 @@
   <button type="button" class="nav-button active" data-modul="patrimoni">GESTIÓ DEL PATRIMONI</button>
   <button type="button" class="nav-button" data-modul="dades">GESTIÓ DE DADES</button>
   <button type="button" class="nav-button" data-modul="manteniment">GESTIÓ DE BRIGADES<span id="nav-mant-badge" class="nav-badge" hidden></span><span id="nav-colla-badge" class="nav-badge colla" hidden></span></button>
-  <button type="button" class="nav-button" data-modul="dadesmant">DADES MANTENIMENT</button>
+  <button type="button" class="nav-button" data-modul="dadesmant">DADES BRIGADES</button>
 </nav>
 <div id="barra-carpeta" class="barra-carpeta"></div>
 
@@ -601,12 +601,12 @@
   </section>
 
   <!-- ============================================================
-       MÒDUL 4: DADES MANTENIMENT (indicadors i gràfics de les tasques)
+       MÒDUL 4: DADES BRIGADES (indicadors i gràfics de les tasques)
        ============================================================ -->
   <section id="module-dadesmant" class="module" aria-labelledby="t-dadesmant">
     <div class="cap-modul">
       <div>
-        <h1 id="t-dadesmant">Dades de manteniment</h1>
+        <h1 id="t-dadesmant">Dades de brigades</h1>
         <p>Indicadors i gràfics de les tasques de les brigades. Els filtres són els mateixos de «Gestió de brigades»: el que triïs aquí també s'aplica al tauler, i a l'inrevés.</p>
       </div>
     </div>
@@ -3274,7 +3274,7 @@ const Manteniment = (() => {
     $('#mant-plega').textContent = $$('#mant-llista details.mant-grup[open]').length ? 'Plega-ho tot' : 'Desplega-ho tot';
     pintaMapa(ll);
   }
-  // ---------- Dades manteniment: indicadors i gràfic (barres o formatges) ----------
+  // ---------- Dades brigades: indicadors i gràfic (barres o formatges) ----------
   // Paleta categòrica validada (dataviz: ordre fix, sense cicles); la resta de categories es pleguen a «Altres»
   const PALETA_DM = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6'], COLOR_ALTRES = '#9a9893';
   const NOMS_DIM = { estat: 'estat', prioritat: 'prioritat', tipologia: 'tipologia', categoria: 'categoria de petició', equip: 'colla', persona: 'persona', parc: 'parc' };
