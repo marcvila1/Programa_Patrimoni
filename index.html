@@ -578,6 +578,7 @@
       <select id="mf-tipologia" aria-label="Tipologia"></select>
       <select id="mf-responsable" aria-label="Colla"></select>
       <select id="mf-persona" aria-label="Persona assignada"></select>
+      <select id="mf-municipi" aria-label="Municipi"></select>
       <input type="search" id="mf-cerca" placeholder="Cerca (codi, descripció, immoble, persona…)" aria-label="Cerca">
       <span class="mf-dates" role="group" aria-label="Filtre per data">
         <select id="mf-tipusdata" aria-label="Tipus de data"><option value="creat">Data d'entrada</option><option value="limit">Data límit</option><option value="tancament" title="Data en què es va resoldre (verificar) o descartar">Data de tancament</option></select>
@@ -624,11 +625,11 @@
     </div>
     <div id="dm-filtres-lloc"></div>
     <div id="mant-kpis" class="kpis"></div>
-    <p class="text-small text-muted" style="margin:6px 0 0">Els indicadors compten les tasques obertes amb els filtres de parc, prioritat, categoria, tipologia, colla, persona, dates i cerca (no tenen en compte el filtre d'estat).</p>
+    <p class="text-small text-muted" style="margin:6px 0 0">Els indicadors compten les tasques obertes amb els filtres de parc, prioritat, categoria, tipologia, colla, persona, municipi, dates i cerca (no tenen en compte el filtre d'estat).</p>
     <div class="targeta dm-grafic">
       <div class="targeta-cap"><h2 id="dm-titol">Tasques per estat</h2>
         <span class="mant-cap-controls">
-          <label class="text-small">Per <select id="dm-dim" aria-label="Distribució per"><option value="estat">Estat</option><option value="prioritat">Prioritat</option><option value="tipologia">Tipologia</option><option value="categoria">Categoria de petició</option><option value="equip">Colla</option><option value="persona">Persona</option><option value="parc">Parc</option></select></label>
+          <label class="text-small">Per <select id="dm-dim" aria-label="Distribució per"><option value="estat">Estat</option><option value="prioritat">Prioritat</option><option value="tipologia">Tipologia</option><option value="categoria">Categoria de petició</option><option value="equip">Colla</option><option value="persona">Persona</option><option value="municipi">Municipi</option><option value="parc">Parc</option></select></label>
           <span class="mant-vista" id="dm-tipus" role="group" aria-label="Tipus de gràfic"><button type="button" data-tipus="barres" aria-pressed="true">Barres</button><button type="button" data-tipus="formatge" aria-pressed="false">Formatges</button></span>
         </span></div>
       <div id="dm-nota" class="text-small text-muted"></div>
@@ -2756,6 +2757,9 @@ const Manteniment = (() => {
   const htmlPrio = c => `<span class="prio prio-${esc(c || 'cap')}">${esc(c ? nomPrioritat(c) : 'Sense prioritat')}</span>`;
   const latLonT = t => (t.utm?.x != null && t.utm?.y != null ? UTM.aLatLon(t.utm.x, t.utm.y) : null);
   const nomElement = id => (id ? S.perId?.get(id)?.identificacio?.nom || id : null);
+  const municipiElement = id => (id ? S.perId?.get(id)?.localitzacio?.municipi || null : null);
+  /** Municipi d'una tasca o d'una tasca periòdica */
+  const municipiDe = t => municipiElement(t.element) || t.municipi || null;
   const incidenciesDe = idElement => (S.mant || []).filter(t => t.element === idElement);
 
   function nouId(llista) {
@@ -2916,6 +2920,7 @@ const Manteniment = (() => {
         : `Actualització de la tasca ${t.id}${tip}.`,
       '', `Codi: ${t.id}`, t.titol ? `Títol: ${t.titol}` : '', `Espai natural: ${nomUnitat(t.unitat)} (${t.unitat})`, ...(t.categoria ? [`Categoria de petició: ${nomCategoria(t.categoria)}`] : []), ...(t.tipologia ? [`Tipologia: ${nomTipologia(t.tipologia)}`] : []),
       t.element ? `Immoble relacionat: ${nomElement(t.element)} (${t.element})` : 'Immoble relacionat: cap',
+      ...(municipiDe(t) ? [`Municipi: ${municipiDe(t)}`] : []),
       `Coordenades UTM (ETRS89 31N): X ${t.utm?.x ?? '—'} · Y ${t.utm?.y ?? '—'}`,
       ll ? `Mapa: https://www.openstreetmap.org/?mlat=${ll[0].toFixed(6)}&mlon=${ll[1].toFixed(6)}#map=17/${ll[0].toFixed(6)}/${ll[1].toFixed(6)}` : '',
       '', 'Descripció:', t.descripcio || '', '',
@@ -2964,10 +2969,12 @@ const Manteniment = (() => {
     if (actResp && $('#mf-responsable').value !== actResp) $('#mf-responsable').value = '';
     const persones = [...new Set((S.mant || []).filter(t => !parcF || t.unitat === parcF).flatMap(t => personesDe(t.gestio)))].sort(ordCa);
     opcions('#mf-persona', 'Totes les persones', [['_', 'Sense persona assignada'], ...persones.map(n => [n, n])], v('#mf-persona'));
+    const municipis = [...new Set((S.mant || []).filter(t => !parcF || t.unitat === parcF).map(municipiDe).filter(Boolean))].sort(ordCa);
+    opcions('#mf-municipi', 'Tots els municipis', [['_', 'Sense municipi'], ...municipis.map(m => [m, m])], v('#mf-municipi'));
   }
   function filtrades(ambTancades, senseEstat) {
     const f = { parc: $('#mf-parc').value, estat: senseEstat ? '' : $('#mf-estat').value, prio: $('#mf-prioritat').value, tip: $('#mf-tipologia').value, cat: $('#mf-categoria').value,
-      resp: $('#mf-responsable').value, pers: $('#mf-persona').value, q: $('#mf-cerca').value.trim().toLowerCase(), tancades: $('#mf-tancades').checked || !!ambTancades };
+      resp: $('#mf-responsable').value, pers: $('#mf-persona').value, mun: $('#mf-municipi').value, q: $('#mf-cerca').value.trim().toLowerCase(), tancades: $('#mf-tancades').checked || !!ambTancades };
     const des = $('#mf-des').value, fins = $('#mf-fins').value, tipusData = $('#mf-tipusdata').value;
     const dataDe = t => (tipusData === 'limit' ? t.gestio?.data_limit : tipusData === 'tancament' ? (t.verificacio?.data || t.descartada?.data) : t.creat || '')?.slice(0, 10) || '';
     // Amb un rang de dates, una tasca sense aquesta data queda fora; amb «Data de tancament» es mostren també les tancades
@@ -2977,8 +2984,8 @@ const Manteniment = (() => {
       const [, u, c] = f.resp.split(':'); return t.unitat === u && collesDe(t.gestio).includes(c); };
     return (S.mant || []).filter(t => (!f.parc || t.unitat === f.parc) && (!f.estat || t.estat === f.estat)
       && (!f.prio || (f.prio === '_' ? !t.gestio?.prioritat : t.gestio?.prioritat === f.prio)) && (!f.tip || t.tipologia === f.tip) && (!f.cat || (f.cat === '_' ? !t.categoria : t.categoria === f.cat))
-      && okResp(t) && okData(t) && (!f.pers || (f.pers === '_' ? !personesDe(t.gestio).length : personesDe(t.gestio).includes(f.pers))) && (f.tancades || f.estat || !esTancada(t))
-      && (!f.q || [t.id, t.titol, t.descripcio, nomElement(t.element), t.sollicitant?.nom, nomTipologia(t.tipologia), nomCategoria(t.categoria), t.gestio?.observacions, personesDe(t.gestio).join(' '), nomBrigada(t)].join(' ').toLowerCase().includes(f.q)));
+      && okResp(t) && okData(t) && (!f.mun || (f.mun === '_' ? !municipiDe(t) : municipiDe(t) === f.mun)) && (!f.pers || (f.pers === '_' ? !personesDe(t.gestio).length : personesDe(t.gestio).includes(f.pers))) && (f.tancades || f.estat || !esTancada(t))
+      && (!f.q || [t.id, t.titol, t.descripcio, nomElement(t.element), municipiDe(t), t.sollicitant?.nom, nomTipologia(t.tipologia), nomCategoria(t.categoria), t.gestio?.observacions, personesDe(t.gestio).join(' '), nomBrigada(t)].join(' ').toLowerCase().includes(f.q)));
   }
   function ordena(ll) {
     const o = $('#mf-ordre').value;
@@ -3107,7 +3114,7 @@ const Manteniment = (() => {
     return `<li class="${rapid ? 'amb-assigna' : ''}"><button type="button" data-mant="${esc(t.id)}" class="${t.id === st.sel ? 'sel' : ''}">
       <span class="nom">${t.periodica ? '<span title="Tasca periòdica">🔁</span> ' : ''}${esc(titolDe(t))}<span class="codi">${esc(t.id)}</span></span>
       <span class="desc">${esc((t.descripcio || '').slice(0, 160))}${(t.descripcio || '').length > 160 ? '…' : ''}</span>
-      <span class="sub">${esc([nomCategoria(t.categoria), t.titol ? nomTipologia(t.tipologia) : '', nomElement(t.element), 'entrada ' + fmtData(t.creat)].filter(Boolean).join(' · '))}</span>
+      <span class="sub">${esc([nomCategoria(t.categoria), t.titol ? nomTipologia(t.tipologia) : '', nomElement(t.element), municipiDe(t), 'entrada ' + fmtData(t.creat)].filter(Boolean).join(' · '))}</span>
       ${equip || pp.length ? `<span class="sub">👷 ${esc([equip, pp.length ? '👤 ' + pp.join(', ') : null].filter(Boolean).join(' · '))}</span>` : ''}
       <span class="linia">${htmlPrio(g.prioritat)} <span class="marca comp">${esc(nomEstat(t.estat))}</span>
         ${g.data_limit ? `<span class="text-small text-muted">límit ${esc(fmtData(g.data_limit))}</span>` : ''}
@@ -3298,9 +3305,10 @@ const Manteniment = (() => {
   // ---------- Dades brigades: indicadors i gràfic (barres o formatges) ----------
   // Paleta categòrica validada (dataviz: ordre fix, sense cicles); la resta de categories es pleguen a «Altres»
   const PALETA_DM = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6'], COLOR_ALTRES = '#9a9893';
-  const NOMS_DIM = { estat: 'estat', prioritat: 'prioritat', tipologia: 'tipologia', categoria: 'categoria de petició', equip: 'colla', persona: 'persona', parc: 'parc' };
+  const NOMS_DIM = { estat: 'estat', prioritat: 'prioritat', tipologia: 'tipologia', categoria: 'categoria de petició', equip: 'colla', persona: 'persona', municipi: 'municipi', parc: 'parc' };
   const dm = { tipus: (() => { try { return localStorage.getItem('motor-patrimoni.dm-tipus') || 'barres'; } catch { return 'barres'; } })() };
   function grupDm(t, per) {
+    if (per === 'municipi') { const m = municipiDe(t); return m ? { clau: m, nom: m, ordre: m } : { clau: '_', nom: 'Sense municipi', ordre: 'zzz' }; }
     if (per === 'categoria') return t.categoria ? { clau: t.categoria, nom: nomCategoria(t.categoria), ordre: nomCategoria(t.categoria) } : { clau: '_', nom: 'Sense categoria', ordre: 'zzz' };
     return grupDe(t, per);
   }
@@ -3359,7 +3367,7 @@ const Manteniment = (() => {
   /** Text dels filtres actius (per al CSV de resum) */
   function filtresActius() {
     const r = [];
-    [['#mf-parc', 'Espai'], ['#mf-estat', 'Estat'], ['#mf-prioritat', 'Prioritat'], ['#mf-categoria', 'Categoria de petició'], ['#mf-tipologia', 'Tipologia'], ['#mf-responsable', 'Colla'], ['#mf-persona', 'Persona']]
+    [['#mf-parc', 'Espai'], ['#mf-estat', 'Estat'], ['#mf-prioritat', 'Prioritat'], ['#mf-categoria', 'Categoria de petició'], ['#mf-tipologia', 'Tipologia'], ['#mf-responsable', 'Colla'], ['#mf-persona', 'Persona'], ['#mf-municipi', 'Municipi']]
       .forEach(([id, nom]) => { const s = $(id); if (s.value) r.push([nom, s.selectedOptions[0]?.textContent || s.value]); });
     if ($('#mf-cerca').value.trim()) r.push(['Cerca', $('#mf-cerca').value.trim()]);
     if ($('#mf-des').value || $('#mf-fins').value) r.push([$('#mf-tipusdata').selectedOptions[0].textContent, `${$('#mf-des').value ? 'des del ' + fmtData($('#mf-des').value) : ''}${$('#mf-des').value && $('#mf-fins').value ? ' ' : ''}${$('#mf-fins').value ? 'fins al ' + fmtData($('#mf-fins').value) : ''}`]);
@@ -3412,7 +3420,7 @@ const Manteniment = (() => {
     if (!st.iniciat) {
       st.iniciat = true;
       pintaFiltres();
-      ['#mf-estat', '#mf-prioritat', '#mf-categoria', '#mf-tipologia', '#mf-responsable', '#mf-persona', '#mf-tancades'].forEach(s => $(s).addEventListener('change', actualitza));
+      ['#mf-estat', '#mf-prioritat', '#mf-categoria', '#mf-tipologia', '#mf-responsable', '#mf-persona', '#mf-municipi', '#mf-tancades'].forEach(s => $(s).addEventListener('change', actualitza));
       ['#mf-ordre', '#mf-agrupa'].forEach(s => $(s).addEventListener('change', pintaLlista));
       $('#mf-parc').addEventListener('change', () => { pintaFiltres(); actualitza(); });   // les colles i les persones depenen del parc
       $('#mant-llista').addEventListener('toggle', e => { const d = e.target; if (!d.dataset?.grup) return; d.open ? plegats.delete(d.dataset.grup) : plegats.add(d.dataset.grup);
@@ -3493,6 +3501,7 @@ const Manteniment = (() => {
         ${camp('Categoria de petició', t.categoria ? txt(nomCategoria(t.categoria)) : '<span class="buit">Sense categoria</span>')}
         ${camp('Tipologia', txt(nomTipologia(t.tipologia)))}
         ${camp('Immoble relacionat', t.element ? `<button type="button" class="btn-link" data-ves="${esc(t.element)}">${esc(nomElement(t.element))}</button>` : '<span class="buit">Cap</span>')}
+        ${camp('Municipi', municipiDe(t) ? esc(municipiDe(t)) : '<span class="buit">Sense municipi</span>')}
         ${camp('Coordenades UTM', t.utm?.x != null ? `X ${esc(t.utm.x)} · Y ${esc(t.utm.y)}` : '<span class="buit">—</span>')}
         ${camp('Sol·licitant', `${txt(t.sollicitant?.nom)}${t.sollicitant?.email ? ` · <a href="mailto:${esc(t.sollicitant.email)}">${esc(t.sollicitant.email)}</a>` : ''}`)}
         ${t.origen?.peticio ? camp('Origen', `Webapp de la colla ${esc(t.origen.nom_equip || t.origen.equip || '')} · importada el ${esc(fmtData(t.origen.importat))} per ${esc(t.origen.importat_per || '')}`) : ''}
@@ -3579,6 +3588,29 @@ const Manteniment = (() => {
   // ---------- Formulari d'entrada ----------
   const h = (id, et, inp, x = {}) => `<div class="camp ${x.ample ? 'ample' : ''}"><label for="${id}" class="${x.req ? 'required' : ''}">${esc(et)}</label>${inp}${x.ajuda ? `<div class="ajuda">${esc(x.ajuda)}</div>` : ''}<div class="camp-error" hidden></div></div>`;
   const ordenElements = u => elementsDe(u).filter(e => e.estat_execucio?.estat !== 'suprimit').sort((a, b) => ordCa(a.identificacio?.nom, b.identificacio?.nom));
+  // ---------- Municipi de la tasca: el de l'immoble relacionat (calculat) o, sense immoble, el camp «municipi» ----------
+  const MUNICIPI_MAX = 80;
+  /** Municipis dels immobles d'un parc (per a la llista desplegable) */
+  const municipisDelParc = u => [...new Set(elementsDe(u || '').map(e => e.localitzacio?.municipi).filter(Boolean))].sort(ordCa);
+  /** Camp «Municipi»: amb immoble, es pren de l'immoble i queda bloquejat; sense, s'escriu o es tria de la llista */
+  function htmlCampMunicipi(prefix, u, valor, elementId, dis = '') {
+    const delEl = elementId ? municipiElement(elementId) : null;
+    return h(prefix + '-municipi', 'Municipi', `<input type="text" id="${prefix}-municipi" maxlength="${MUNICIPI_MAX}" list="${prefix}-municipi-llista" value="${esc(delEl || valor || '')}" ${delEl || dis ? 'disabled' : ''} placeholder="Tria'l o escriu-lo">
+      <datalist id="${prefix}-municipi-llista">${municipisDelParc(u).map(m => `<option value="${esc(m)}">`).join('')}</datalist>`,
+      { ajuda: 'Amb un immoble relacionat, és el municipi de l\'immoble. Sense immoble, tria\'l de la llista (municipis dels immobles del parc) o escriu-lo.' });
+  }
+  /** En canviar l'immoble, el municipi es pren de l'immoble (i es bloqueja) o es torna a poder escriure */
+  function lligaMunicipi(prefix, selElement, _u, dis = false) {
+    const camp = $(`#${prefix}-municipi`), sel = $(selElement); if (!camp || !sel) return;
+    let escrit = camp.disabled ? '' : camp.value;
+    camp.addEventListener('input', () => { escrit = camp.value; });
+    sel.addEventListener('change', () => {
+      const m = sel.value ? municipiElement(sel.value) : null;
+      if (m) { camp.value = m; camp.disabled = true; } else { camp.value = sel.value ? '' : escrit; camp.disabled = dis; }
+    });
+  }
+  /** Valor a desar: sense immoble amb municipi, el text escrit; amb immoble, null (es calcula) */
+  const municipiADesar = (prefix, elementId) => (elementId && municipiElement(elementId)) ? null : ((v => v ? v.slice(0, MUNICIPI_MAX) : null)($(`#${prefix}-municipi`)?.value.trim()));
   async function nova(preset = {}) {
     if (modulActual !== 'manteniment') await mostraModul('manteniment');
     if (!(await potSortir())) return;
@@ -3600,6 +3632,7 @@ const Manteniment = (() => {
         ${htmlTriaPersonesColles('mn', parc, [], [], '', 'Persones i colles assignades (opcional)', 'Pots proposar una o diverses colles i, si cal, persones concretes. En afegir una persona d\'una colla, es marca també la seva colla. La tasca queda «Assignada» quan el Responsable de brigades l\'accepta.')}
         ${h('mn-element', 'Immoble relacionat del mòdul de patrimoni', '<select id="mn-element"></select>', { ample: true, ajuda: 'Si la tasca és en un immoble o al seu voltant. En marcar el punt al mapa es proposa l\'immoble més proper.' })}
         <div id="mn-proper" class="ample text-small" hidden></div>
+        ${htmlCampMunicipi('mn', parc, '', preset.element || null)}
       </div></div>
       <div class="mant-seccio" id="mn-per-seccio" ${parc && gestorDelParc(parc) ? '' : 'hidden'}>
         <label><input type="checkbox" id="mn-periodica"> <strong>🔁 És una tasca periòdica</strong></label>
@@ -3629,6 +3662,7 @@ const Manteniment = (() => {
     };
     omplElements();
     if (preset.element) $('#mn-element').value = preset.element;
+    lligaMunicipi('mn', '#mn-element');
     // Mapa
     if (mapaForm) { mapaForm.remove(); mapaForm = null; }
     let marca = null;
@@ -3664,10 +3698,12 @@ const Manteniment = (() => {
       box.dataset.proper = millor.e.id + '|' + Math.round(millor.d);
       box.innerHTML = `Immoble més proper: <strong>${esc(millor.e.identificacio?.nom)}</strong>, a ${fmtNum(Math.round(millor.d))} m. <button type="button" class="btn-link" data-proper="${esc(millor.e.id)}">Vincula-hi la tasca</button>`;
     }
-    $('#mn-proper').addEventListener('click', e => { const b = e.target.closest('[data-proper]'); if (b) { $('#mn-element').value = b.dataset.proper; $('#mn-proper').hidden = true; } });
+    $('#mn-proper').addEventListener('click', e => { const b = e.target.closest('[data-proper]'); if (b) { $('#mn-element').value = b.dataset.proper; $('#mn-element').dispatchEvent(new Event('change')); $('#mn-proper').hidden = true; } });
     $('#mn-parc').addEventListener('change', () => {
       const u = $('#mn-parc').value;
       omplElements(); st.form.centraParc?.(); proposaProper();
+      $('#mn-element').dispatchEvent(new Event('change'));
+      $('#mn-municipi-llista').innerHTML = municipisDelParc(u).map(m => `<option value="${esc(m)}">`).join('');
       $('#mn-colles-box').innerHTML = u ? htmlTriaColles('mn-colles', u, llegeixColles('mn-colles')) : '<span class="text-small text-muted">Tria primer el parc.</span>';
       $('#mn-persones').outerHTML = htmlTriaPersones('mn-persones', u, llegeixPersones('mn-persones'));
       const gestor = !!u && gestorDelParc(u);
@@ -3752,7 +3788,7 @@ const Manteniment = (() => {
     const tasca = {
       id: null, versio: 1, creat: moment, modificat: moment, modificat_per: S.usuari.nom,
       sollicitant: { nom: S.usuari.nom, email: S.usuari.email, unitat: S.usuari.unitat || null, font: 'manual' },
-      unitat: v('#mn-parc'), utm: { x, y }, element: v('#mn-element') || null, categoria: v('#mn-categoria') || null, tipologia: v('#mn-tipologia') || null, notificar: [],
+      unitat: v('#mn-parc'), utm: { x, y }, element: v('#mn-element') || null, municipi: municipiADesar('mn', v('#mn-element')), categoria: v('#mn-categoria') || null, tipologia: v('#mn-tipologia') || null, notificar: [],
       titol: v('#mn-titol'), descripcio: v('#mn-descripcio'), data_proposada: v('#mn-previsio') || null, hores_estimades: hores, fotografies: [], certificacions_hores: [],
       estat: 'nova', model_estats: 2, data_resolucio: null,
       gestio: { prioritat: null, data_limit: null, responsable: null, brigada: null, persona: null, empresa: null, observacions: null, assignat_per: null, data_assignacio: null },
@@ -3774,7 +3810,7 @@ const Manteniment = (() => {
     let pla = null;
     if (per) {
       pla = { id: null, versio: 1, creat: moment, creat_per: S.usuari.nom, modificat: moment, modificat_per: S.usuari.nom, seguent: 1, historial: [],
-        unitat: tasca.unitat, element: tasca.element, titol: tasca.titol, categoria: tasca.categoria || 'manteniment', tipologia: tasca.tipologia, ...per,
+        unitat: tasca.unitat, element: tasca.element, municipi: tasca.municipi || null, titol: tasca.titol, categoria: tasca.categoria || 'manteniment', tipologia: tasca.tipologia, ...per,
         hores_estimades: hores, prioritat: prio.codi, ...posaAssignacio({}, collesDe(tasca.gestio), personesDe(tasca.gestio)),
         utm: tasca.element ? { x: null, y: null } : { x, y }, observacions: tasca.descripcio, activa: true };
       pla.propera_data = dataExecucio(pla, 1);
@@ -3994,6 +4030,7 @@ const Manteniment = (() => {
         ${h('mg-titol', 'Títol', `<input type="text" id="mg-titol" maxlength="${TITOL_MAX}" value="${esc(t.titol || '')}">`, { req: true, ample: true, ajuda: `Màxim ${TITOL_MAX} caràcters. És el que veu la brigada a la llista de tasques.` })}
         ${h('mg-descripcio', 'Descripció', `<textarea id="mg-descripcio" rows="3">${esc(t.descripcio || '')}</textarea>`, { req: true, ample: true })}
         ${h('mg-element', 'Immoble relacionat', `<select id="mg-element"><option value="">— Cap —</option>${ordenElements(u).map(e => `<option value="${esc(e.id)}" ${e.id === t.element ? 'selected' : ''}>${esc(e.identificacio?.nom || e.codi)}</option>`).join('')}</select>`, { ample: true })}
+        ${htmlCampMunicipi('mg', u, t.municipi, t.element)}
         ${h('mg-x', 'Coordenada UTM X', `<input type="text" inputmode="numeric" id="mg-x" value="${esc(t.utm?.x ?? '')}">`)}
         ${h('mg-y', 'Coordenada UTM Y', `<input type="text" inputmode="numeric" id="mg-y" value="${esc(t.utm?.y ?? '')}">`)}
       </div><div id="mg-mapa" class="mant-form-mapa" style="height:240px"></div><div class="nota-mapa"><strong>📍 Clica el mapa</strong> o arrossega el punt per canviar la ubicació.</div></div>
@@ -4026,6 +4063,7 @@ const Manteniment = (() => {
       if (cb && !cb.checked) cb.checked = true;
     });
     const m = mapaUbicacio('mg-mapa', 'mg-x', 'mg-y', u);
+    lligaMunicipi('mg', '#mg-element');
     $('#mg-element').addEventListener('change', e => { const el = S.perId.get(e.target.value), ll = el && latLonDe(el); if (ll && !$('#mg-x').value && m) { m.posa(ll, true); m.escriu(ll[0], ll[1]); } });
     const pintaPrev = () => { $('#mg-foto-prev').innerHTML = st.form.fotos.map((f, i) => `<figure><img src="${f.dataURL}" alt="Fotografia ${i + 1}"><button type="button" class="treu" data-treu-foto="${i}" title="Treu">✕</button></figure>`).join(''); };
     lligaDocs('mg');
@@ -4055,6 +4093,7 @@ const Manteniment = (() => {
     nou.descripcio = v('#mg-descripcio');
     if (!nou.descripcio || nou.descripcio.length < 5) err.push(marcaError('#mg-descripcio', 'Descriu la tasca.') && 'Descripció');
     nou.element = v('#mg-element');
+    nou.municipi = municipiADesar('mg', nou.element);
     const hiHaXY = !!(v('#mg-x') || v('#mg-y')), x = hiHaXY ? Number(v('#mg-x')) : null, y = hiHaXY ? Number(v('#mg-y')) : null;
     if (hiHaXY && (!Number.isInteger(x) || x < 250000 || x > 540000)) err.push(marcaError('#mg-x', 'Entre 250000 i 540000, o deixa X i Y en blanc.') && 'Coordenada X');
     if (hiHaXY && (!Number.isInteger(y) || y < 4480000 || y > 4760000)) err.push(marcaError('#mg-y', 'Entre 4480000 i 4760000, o deixa X i Y en blanc.') && 'Coordenada Y');
@@ -4117,6 +4156,7 @@ const Manteniment = (() => {
     comp('titol', 'Títol', t.titol, nou.titol);
     comp('descripcio', 'Descripció', t.descripcio, nou.descripcio);
     comp('element', 'Immoble relacionat', t.element, nou.element, nomElement);
+    comp('municipi', 'Municipi', t.municipi, nou.municipi);
     comp('utm', 'Coordenades UTM', utmTxt(t.utm), utmTxt(nou.utm));
     comp('sollicitant.nom', 'Sol·licitant', t.sollicitant?.nom, nou.sollicitant.nom);
     comp('sollicitant.email', 'Correu del sol·licitant', t.sollicitant?.email, nou.sollicitant.email);
@@ -4588,9 +4628,9 @@ const Manteniment = (() => {
 
   function exportaCSV() {
     const ll = ordena(filtrades());
-    const files = [['Codi', 'Data entrada', 'Unitat', 'Espai natural', 'Categoria de petició', 'Tipologia', 'Immoble', 'Títol', 'Descripció', 'UTM X', 'UTM Y', 'Sol·licitant', 'Correu sol·licitant',
+    const files = [['Codi', 'Data entrada', 'Unitat', 'Espai natural', 'Categoria de petició', 'Tipologia', 'Immoble', 'Municipi', 'Títol', 'Descripció', 'UTM X', 'UTM Y', 'Sol·licitant', 'Correu sol·licitant',
       'Prioritat', 'Data límit', 'Responsable', 'Colla', 'Persona assignada', 'Empresa', 'Hores estimades', 'Hores certificades', 'Fotografies', 'Estat', 'Feina acabada', 'Acabada per', 'Resolta (verificada)', 'Verificada per', 'Observacions', 'Avís']];
-    ll.forEach(t => { const g = t.gestio || {}; files.push([t.id, fmtData(t.creat), t.unitat, nomUnitat(t.unitat), nomCategoria(t.categoria), nomTipologia(t.tipologia), nomElement(t.element) || '', t.titol || '', t.descripcio, t.utm?.x, t.utm?.y,
+    ll.forEach(t => { const g = t.gestio || {}; files.push([t.id, fmtData(t.creat), t.unitat, nomUnitat(t.unitat), nomCategoria(t.categoria), nomTipologia(t.tipologia), nomElement(t.element) || '', municipiDe(t) || '', t.titol || '', t.descripcio, t.utm?.x, t.utm?.y,
       t.sollicitant?.nom, t.sollicitant?.email, g.prioritat ? nomPrioritat(g.prioritat) : '', g.data_limit || '', g.responsable ? nomResponsable(t.unitat, g.responsable) : '',
       nomBrigada(t) || '', personesDe(g).join(', '), g.empresa || '', t.hores_estimades ?? '', certificacionsDe(t).length ? horesCertificades(t) : '', fotosDe(t).length, nomEstat(t.estat), t.feina_acabada?.data ? fmtData(t.feina_acabada.data) : '', t.feina_acabada?.per?.nom || '', t.verificacio?.data ? fmtData(t.verificacio.data) : '', t.verificacio?.per?.nom || '', g.observacions || '', avisLimit(t)?.text || '']); });
     descarrega(`manteniment_${avui()}.csv`, aCSV(files), 'text/csv;charset=utf-8');
@@ -4645,7 +4685,7 @@ const Manteniment = (() => {
           id: nouId(mant), versio: 1, creat: moment, modificat: moment, modificat_per: 'Generació automàtica',
           sollicitant: { nom: `Tasca periòdica ${pl.id}`, email: null, unitat: pl.unitat, font: 'periodica' },
           unitat: pl.unitat, utm: pl.utm?.x != null ? { ...pl.utm } : el?.localitzacio?.utm?.x != null ? { x: el.localitzacio.utm.x, y: el.localitzacio.utm.y } : { x: null, y: null },
-          element: pl.element || null, categoria: pl.categoria || 'manteniment', tipologia: pl.tipologia || 'equipaments_installacions',
+          element: pl.element || null, municipi: pl.element ? null : (pl.municipi || null), categoria: pl.categoria || 'manteniment', tipologia: pl.tipologia || 'equipaments_installacions',
           titol: (pl.titol || '').slice(0, TITOL_MAX), descripcio: `${pl.titol} (tasca periòdica ${nomPeriodicitat(pl.periodicitat).toLowerCase()}, execució del ${fmtData(d)})${pl.observacions ? '. ' + pl.observacions : ''}`,
           hores_estimades: pl.hores_estimades ?? null, fotografies: [], certificacions_hores: [],
           periodica: { id: pl.id, data: d, execucio: n + 1 },
@@ -4679,9 +4719,9 @@ const Manteniment = (() => {
         <div class="botons"><button type="button" class="btn btn-primary" data-m="nova-per">＋ Nova tasca periòdica</button></div></div>
       ${Carpeta.activa() ? '' : '<div class="avis-box text-small" style="margin:12px 20px 0">Sense carpeta connectada les tasques periòdiques no generen tasques. Connecta la carpeta de treball.</div>'}
       <div class="fitxa-cos"><div class="mant-seccio"><div class="camps">${h('pe-parc', 'Parc natural', `<select id="pe-parc"><option value="">Tots els espais</option>${espaisOrdenats().map(u => `<option value="${esc(u)}" ${u === parc ? 'selected' : ''}>${esc(nomUnitat(u))}</option>`).join('')}</select>`, { ample: true })}</div></div>
-      <div class="mant-seccio">${ll.length ? `<div class="taula-wrap"><table class="canvis-llista"><thead><tr><th>Codi</th><th>Tasca</th><th>Parc</th><th>Immoble</th><th>Colla</th><th>Periodicitat</th><th class="num">Avís</th><th>Propera</th><th>Generades</th></tr></thead><tbody>
+      <div class="mant-seccio">${ll.length ? `<div class="taula-wrap"><table class="canvis-llista"><thead><tr><th>Codi</th><th>Tasca</th><th>Parc</th><th>Immoble</th><th>Municipi</th><th>Colla</th><th>Periodicitat</th><th class="num">Avís</th><th>Propera</th><th>Generades</th></tr></thead><tbody>
         ${ll.map(pl => `<tr style="${pl.activa === false ? 'opacity:.55' : ''}"><td><button type="button" class="btn-link" data-per="${esc(pl.id)}">${esc(pl.id)}</button></td><td>${esc(pl.titol)}${pl.activa === false ? ' <span class="marca">inactiva</span>' : ''}</td><td>${esc(pl.unitat)}</td>
-          <td>${pl.element ? esc(nomElement(pl.element)) : '<span class="buit">—</span>'}</td><td>${collesDe(pl).length ? esc(collesDe(pl).map(c => brigada(pl.unitat, c)?.nom || c).join(' · ')) : '<span class="buit">Sense colla</span>'}</td><td>${esc(nomPeriodicitat(pl.periodicitat))}</td><td class="num">${esc(antelacioDe(pl))} d</td><td>${pl.activa === false ? '—' : esc(fmtData(pl.propera_data || dataExecucio(pl, pl.seguent || 0)))}</td>
+          <td>${pl.element ? esc(nomElement(pl.element)) : '<span class="buit">—</span>'}</td><td>${municipiDe(pl) ? esc(municipiDe(pl)) : '<span class="buit">—</span>'}</td><td>${collesDe(pl).length ? esc(collesDe(pl).map(c => brigada(pl.unitat, c)?.nom || c).join(' · ')) : '<span class="buit">Sense colla</span>'}</td><td>${esc(nomPeriodicitat(pl.periodicitat))}</td><td class="num">${esc(antelacioDe(pl))} d</td><td>${pl.activa === false ? '—' : esc(fmtData(pl.propera_data || dataExecucio(pl, pl.seguent || 0)))}</td>
           <td class="num">${(S.mant || []).filter(t => t.periodica?.id === pl.id).length}</td></tr>`).join('')}</tbody></table></div>` : '<p class="buit">Encara no hi ha tasques periòdiques' + (parc ? ' en aquest parc' : '') + '.</p>'}</div></div>
       <div class="peu-edicio"><button type="button" class="btn btn-secondary" data-m="cancela">Tanca</button></div>`;
     $('#pe-parc').addEventListener('change', e => periodiques(e.target.value));
@@ -4707,6 +4747,7 @@ const Manteniment = (() => {
         <div class="fitxa-cos"><div id="mant-errors"></div><div class="mant-seccio"><div class="camps">
         ${h('pf-parc', 'Parc natural', `<select id="pf-parc" ${!esAlta || preset.element ? 'disabled' : ''}><option value="">—</option>${espaisOrdenats().map(c => `<option value="${esc(c)}" ${c === u ? 'selected' : ''}>${esc(nomUnitat(c))}</option>`).join('')}</select>`, { req: true, ample: true })}
         ${h('pf-element', 'Element patrimonial', `<select id="pf-element" ${dis} ${preset.element ? 'disabled' : ''}><option value="">— Cap (tasca sense vincle) —</option>${u ? ordenElements(u).map(e => `<option value="${esc(e.id)}" ${e.id === x.element ? 'selected' : ''}>${esc(e.identificacio?.nom || e.codi)}</option>`).join('') : ''}</select>`, { ample: true })}
+        ${htmlCampMunicipi('pf', u, x.municipi, x.element, dis)}
         ${h('pf-titol', 'Tasca', `<input type="text" id="pf-titol" maxlength="${TITOL_MAX}" value="${esc(x.titol || '')}" placeholder="p. ex. Revisió de la coberta i canals" ${dis}>`, { req: true, ample: true })}
         ${h('pf-tipologia', 'Tipologia', `<select id="pf-tipologia" ${dis}>${tipologies().filter(t => t.activa !== false).map(t => `<option value="${esc(t.codi)}" ${t.codi === x.tipologia ? 'selected' : ''}>${esc(t.nom)}</option>`).join('')}</select>`, { req: true })}
         ${h('pf-categoria', 'Categoria de petició', `<select id="pf-categoria" ${dis}>${htmlOpcionsCategoria(x.categoria || 'manteniment')}</select>`, { req: true })}
@@ -4735,6 +4776,7 @@ const Manteniment = (() => {
         $('#pf-properes').innerHTML = dates.length ? dates.map(d => `${esc(fmtData(d))}${Number.isInteger(ant) && d <= sumaDies(avui(), ant) ? ' <span class="marca">es genera en desar</span>' : ''}`).join(' · ') : '<span class="buit">Cap execució</span>';
       };
       ['#pf-element', '#pf-periodicitat', '#pf-inici', '#pf-fi', '#pf-antelacio'].forEach(s => $(s).addEventListener('change', sincr));
+      lligaMunicipi('pf', '#pf-element', null, !!dis);
       // En canviar la periodicitat, es proposa l'antelació que li correspon (si no s'ha escrit a mà)
       $('#pf-antelacio').addEventListener('input', e => { e.target.dataset.manual = '1'; });
       $('#pf-periodicitat').addEventListener('change', e => { const a = $('#pf-antelacio'); if (!a.dataset.manual) { a.value = antelacioProposada(e.target.value); sincr(); } });
@@ -4776,7 +4818,7 @@ const Manteniment = (() => {
     if (err.length) { $('#mant-errors').innerHTML = `<div class="error-box" style="margin:12px 20px 0"><strong>Cal revisar:</strong> ${esc(err.join(', '))}.</div>`; return; }
     const moment = ara(), colles = llegeixColles('pf-colles'), persones = llegeixPersones('pf-persones');
     const nou = { ...(pl ? clone(pl) : { id: null, versio: 0, creat: moment, creat_per: S.usuari.nom, seguent: 0, historial: [] }),
-      unitat: u, element: el, titol: v('#pf-titol'), categoria: v('#pf-categoria') || 'manteniment', tipologia: v('#pf-tipologia'), periodicitat: v('#pf-periodicitat'),
+      unitat: u, element: el, municipi: municipiADesar('pf', el), titol: v('#pf-titol'), categoria: v('#pf-categoria') || 'manteniment', tipologia: v('#pf-tipologia'), periodicitat: v('#pf-periodicitat'),
       data_inici: v('#pf-inici'), data_fi: v('#pf-fi'), dies_antelacio: ant, hores_estimades: hores, prioritat: v('#pf-prioritat'),
       ...posaAssignacio({}, colles, persones),
       utm: el ? { x: null, y: null } : { x: px, y: py }, observacions: v('#pf-obs'), activa: pl ? $('#pf-activa').checked : true };
@@ -4788,7 +4830,7 @@ const Manteniment = (() => {
       nou.seguent = n;
     }
     nou.propera_data = dataExecucio(nou, nou.seguent || 0);
-    const canvis = pl ? ['titol', 'element', 'categoria', 'tipologia', 'periodicitat', 'data_inici', 'data_fi', 'dies_antelacio', 'hores_estimades', 'prioritat', 'empresa', 'utm', 'observacions', 'activa']
+    const canvis = pl ? ['titol', 'element', 'municipi', 'categoria', 'tipologia', 'periodicitat', 'data_inici', 'data_fi', 'dies_antelacio', 'hores_estimades', 'prioritat', 'empresa', 'utm', 'observacions', 'activa']
       .filter(k => JSON.stringify(pl[k] ?? null) !== JSON.stringify(nou[k] ?? null)).map(k => ({ camp: k, abans: pl[k] ?? null, despres: nou[k] ?? null })) : [];
     // Colles i persones: es comparen totes (no només la primera)
     if (pl) {

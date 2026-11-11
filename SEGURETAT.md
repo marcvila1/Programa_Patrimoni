@@ -27,6 +27,8 @@ Revisió de l'11/11/2026: nova pestanya **«Dades brigades»** amb els indicador
 
 Ampliació del mateix dia: **filtre per data** (entrada, límit o tancament; camps `type="date"`, comparats com a text AAAA-MM-DD, sense cap valor inserit a l'HTML) i dos botons de **descàrrega en CSV** a «Dades brigades». Tots dos fitxers passen per `aCSV()`, que neutralitza les fórmules (A03); el resum inclou el text dels filtres i el nom de l'usuari, que ja són a la pantalla. `xss_test.js` descarrega també el CSV de resum amb les dades malicioses: **0 cel·les amb fórmula**.
 
+Ampliació del mateix dia: **municipi** de les tasques (calculat a partir de l'immoble o, sense immoble, camp de text opcional `municipi` de màxim 80 caràcters) i **filtre per municipi**. El valor es mostra sempre escapat (fitxa, llista, filtre, llista desplegable `datalist`, gràfic, taula i tooltip) i passa per `aCSV()` a les exportacions. `genera_malicios.py` posa càrregues XSS al municipi de les tasques i de les tasques periòdiques: 0 executades; la resta de proves, amb els mateixos resultats. El format d'importació de `brigada.html` no canvia.
+
 ---
 
 ## 1. Resum

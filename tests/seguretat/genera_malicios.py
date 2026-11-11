@@ -40,7 +40,7 @@ tasques = []
 for i, est in enumerate(['nova', 'acceptada', 'assignada', 'en_pausa', 'pendent_verificacio', 'resolta', 'descartada']):
     tasques.append({
         'id': f'MANT-2026-{i+1:04d}', 'versio': 1, 'model_estats': 2, 'creat': '2026-11-01T10:00:00Z', 'modificat': '2026-11-01T10:00:00Z', 'modificat_per': X('modificat_per'),
-        'unitat': 'PNAE', 'utm': {'x': 507989, 'y': 4674552}, 'element': None, 'tipologia': 'equipaments_installacions', 'categoria': 'incidencia',
+        'unitat': 'PNAE', 'utm': {'x': 507989, 'y': 4674552}, 'element': None, 'municipi': X(f't{i}.municipi'), 'tipologia': 'equipaments_installacions', 'categoria': 'incidencia',
         'titol': X(f't{i}.titol'), 'descripcio': X(f't{i}.descripcio'), 'data_proposada': '2026-11-20', 'hores_estimades': 3,
         'sollicitant': {'nom': X(f't{i}.sollicitant.nom'), 'email': 'x"onmouseover="__x(1)@x.cat', 'unitat': 'PNAE'},
         'estat': est, 'fotografies': [{'fitxer': None, 'dades': 'javascript:__x("foto")', 'fase': 'peticio', 'data': '2026-11-01', 'per': {'nom': X(f't{i}.foto.per')}, 'nota': X(f't{i}.foto.nota')}],
@@ -76,5 +76,5 @@ for t in tp['tipologies']:
 json.dump(tp, open(os.path.join(DST, 'manteniment_tipologies.json'), 'w', encoding='utf-8'), ensure_ascii=False)
 json.dump({'PNAE': {'colla_x': {'ordre': ['MANT-2026-0003'], 'modificat_per': X('ordre.per')}}}, open(os.path.join(DST, 'ordre_colles.json'), 'w', encoding='utf-8'), ensure_ascii=False)
 json.dump([{'id': 'TP-1', 'unitat': 'PNAE', 'titol': X('periodica.titol'), 'tipologia': 'altres', 'periodicitat': 'mensual', 'data_inici': '2026-11-01',
-            'observacions': X('periodica.obs'), 'activa': True, 'historial': []}], open(os.path.join(DST, 'tasques_periodiques.json'), 'w', encoding='utf-8'), ensure_ascii=False)
+            'observacions': X('periodica.obs'), 'municipi': X('periodica.municipi'), 'activa': True, 'historial': []}], open(os.path.join(DST, 'tasques_periodiques.json'), 'w', encoding='utf-8'), ensure_ascii=False)
 print('ok', len(os.listdir(DST)))
